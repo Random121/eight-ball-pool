@@ -1,6 +1,7 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -18,12 +19,74 @@ void check_init(bool ret, const std::string& event)
     exit(EXIT_FAILURE);
 }
 
-int main()
+void init_allegro()
 {
     check_init(al_init(), "Allegro init");
     check_init(al_install_keyboard(), "keyboard driver");
     check_init(al_init_image_addon(), "image addon");
-    check_init(al_init_primitives_addon(), "primites addon");
+    check_init(al_init_primitives_addon(), "primitives addon");
+}
+
+void init_display_settings()
+{
+    // display settings for antialiasing
+    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+}
+
+struct Bouncer
+{
+    double x, y;
+    double dx, dy;
+};
+
+void physics_step(std::vector<Bouncer>& objs)
+{
+    for (int i{ 0 }; i < objs.size(); ++i)
+    {
+        Bouncer& b{ objs[i] };
+
+        // advance bouncer
+        b.x += b.dx;
+        b.y += b.dy;
+
+        // check for boundaries in x-axis
+        if (b.x - 30 < 0)
+        {
+            b.x += (0 - (b.x - 30));
+            b.dx *= -1;
+        }
+        else if (b.x + 30 > 640)
+        {
+            b.x -= (b.x + 30 - 640);
+            b.dx *= -1;
+        }
+
+        // check for boundaries in y-axis
+        if (b.y - 30 < 0)
+        {
+            b.y += (0 - (b.y - 30));
+            b.dy *= -1;
+        }
+        else if (b.y + 30 > 480)
+        {
+            b.y -= (b.y + 30 - 480);
+            b.dy *= -1;
+        }
+    }
+}
+
+int main()
+{
+    srand(time(0));
+
+    // further randomizes numbers as first rand() execution is not really random
+    for (int i = 1; i < 5; ++i)
+        rand();
+
+    init_allegro();
+    init_display_settings();
 
     ALLEGRO_TIMER* timer{ al_create_timer(1.0 / 30.0) };
     check_init(timer, "timer");
@@ -52,6 +115,17 @@ int main()
     // this will act as the frame cap for the graphics
     al_start_timer(timer);
 
+    std::vector<Bouncer> objs(10);
+
+    for (int i{ 0 }; i < objs.size(); ++i)
+    {
+        Bouncer& b{ objs[i] };
+        b.x = rand() % 640;
+        b.y = rand() % 480;
+        b.dx = (rand() / static_cast<double>(RAND_MAX) - 0.5) * 80;
+        b.dy = (rand() / static_cast<double>(RAND_MAX) - 0.5) * 80;
+    }
+
     while (gameRunning)
     {
         // waits for and retrieves an event from the queue
@@ -60,6 +134,7 @@ int main()
         switch (event.type)
         {
         case ALLEGRO_EVENT_TIMER:
+            physics_step(objs);
             drawFrame = true;
             break;
         case ALLEGRO_EVENT_KEY_DOWN:
@@ -68,12 +143,15 @@ int main()
             break;
         }
 
-        if (drawFrame && gameRunning && al_is_event_queue_empty(queue))
+        if (gameRunning && drawFrame && al_is_event_queue_empty(queue))
         {
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            al_draw_bitmap(mysha, 100, 100, 0);
-            al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+            for (int i{ 0 }; i < objs.size(); ++i)
+            {
+                Bouncer& b{ objs[i] };
+                al_draw_filled_circle(b.x, b.y, 30, al_map_rgb_f(1, 1, 1));
+            }
             
             al_flip_display();
 
@@ -81,6 +159,7 @@ int main()
         }
     }
 
+    // freeing all the resources
     al_destroy_bitmap(mysha);
     al_destroy_font(font);
     al_destroy_display(display);
