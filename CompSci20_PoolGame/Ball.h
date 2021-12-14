@@ -21,6 +21,8 @@ public:
 	void setVelocity(double xVel, double yVel);
 	void setPosition(double xPos, double yPos);
 
+	bool isCollidingWith(Ball otherBall);
+
 	void update();
 
 private:

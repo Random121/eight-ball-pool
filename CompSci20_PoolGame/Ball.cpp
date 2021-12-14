@@ -81,6 +81,13 @@ void Ball::movementStep()
 	std::cout << m_xVelocity << ' ' << m_yVelocity << '\n';
 }
 
+bool Ball::isCollidingWith(Ball otherBall)
+{
+    const double xDelta{ otherBall.m_xPosition - m_xPosition };
+    const double yDelta{ otherBall.m_yPosition - m_yPosition };
+
+}
+
 // wrapper to call stuff
 void Ball::update()
 {
