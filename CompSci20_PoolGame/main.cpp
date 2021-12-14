@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "Ball.h"
+#include "constants.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -41,7 +42,7 @@ int main()
 	ALLEGRO_EVENT_QUEUE* queue{ al_create_event_queue() };
 	assertInitialized(queue, "event queue");
 
-	ALLEGRO_DISPLAY* display{ al_create_display(640, 480) };
+	ALLEGRO_DISPLAY* display{ al_create_display(consts::screenWidth, consts::screenHeight) };
 	assertInitialized(display, "display");
 
 	ALLEGRO_FONT* font{ al_create_builtin_font() };
@@ -84,15 +85,32 @@ int main()
 
 		if (gameRunning && drawFrame && al_is_event_queue_empty(queue))
 		{
-			al_clear_to_color(al_map_rgb(0, 0, 0));
+			al_clear_to_color(al_map_rgb(181, 101, 29));
 
-			int count{};
+			al_draw_filled_rectangle(
+                consts::playSurfaceX,
+                consts::playSurfaceY,
+                consts::screenWidth - consts::playSurfaceX,
+                consts::screenWidth - consts::playSurfaceY,
+                al_map_rgb(0, 110, 0)
+            );
+
 			for (Ball& obj : objs)
 			{
 				const std::tuple<double, double>& pos{ obj.getPosition() };
-				al_draw_filled_circle(std::get<0>(pos), std::get<1>(pos), 10, al_map_rgb_f(1, 1, 1));
-				al_draw_text(font, al_map_rgb(0, 0, 0), std::get<0>(pos), std::get<1>(pos) - 5, ALLEGRO_ALIGN_CENTER, std::to_string(count).c_str());
-				count++;
+				al_draw_circle(
+                   std::get<0>(pos),
+                   std::get<1>(pos),
+                   consts::ballRadius,
+                   al_map_rgb(0, 0, 0),
+                   consts::ballBorderThickness
+                );
+				al_draw_filled_circle(
+                    std::get<0>(pos),
+                    std::get<1>(pos),
+                    consts::ballRadius,
+                    al_map_rgb(255, 255, 255)
+                );
 			}
 
 			al_flip_display();

@@ -1,5 +1,6 @@
 #include "Ball.h"
 #include "utils.h"
+#include "constants.h"
 
 #include <tuple>
 #include <cmath>
@@ -33,33 +34,29 @@ void Ball::setPosition(double xPos, double yPos)
 
 void Ball::collisionStep()
 {
-	if (m_xPosition - 10 < 0)
+	if (m_xPosition - consts::ballRadius < consts::playSurfaceX)
 	{
-		m_xPosition += (0 - (m_xPosition - 10));
+		m_xPosition += (consts::playSurfaceX - (m_xPosition - consts::ballRadius));
 		m_xVelocity *= -1;
 	}
-	else if (m_xPosition + 10 > 640)
+	else if (m_xPosition + consts::ballRadius > consts::screenWidth - consts::playSurfaceX)
 	{
-		m_xPosition -= (m_xPosition + 10 - 640);
+		m_xPosition -= (m_xPosition + consts::ballRadius - BOUNDING_BOX_BOTTOM_X);
 		m_xVelocity *= -1;
 	}
 
 	// check for boundaries in y-axis
-	if (m_yPosition - 10 < 0)
+	if (m_yPosition - consts::ballRadius < consts::playSurfaceY)
 	{
-		m_yPosition += (0 - (m_yPosition - 10));
+		m_yPosition += (consts::playSurfaceY - (m_yPosition - consts::ballRadius));
 		m_yVelocity *= -1;
 	}
-	else if (m_yPosition + 10 > 480)
+	else if (m_yPosition + consts::ballRadius > consts::screenHeight - consts::playSurfaceY)
 	{
-		m_yPosition -= (m_yPosition + 10 - 480);
+		m_yPosition -= (m_yPosition + consts::ballRadius - BOUNDING_BOX_BOTTOM_Y);
 		m_yVelocity *= -1;
 	}
 }
-
-// TODO: header file for all constants
-#define FRICTION_VAL 0.01
-#define STOP_VELOCITY 0.5
 
 void Ball::movementStep()
 {
@@ -68,7 +65,7 @@ void Ball::movementStep()
 	m_yPosition += m_yVelocity;
 
 	// stop ball completely if it can't be slowed down further
-	if (std::abs(m_xVelocity) < STOP_VELOCITY && std::abs(m_yVelocity) < STOP_VELOCITY)
+	if (std::abs(m_xVelocity) < consts::stoppingVelocity && std::abs(m_yVelocity) < consts::stoppingVelocity)
 	{
 		setVelocity(0, 0);
 	}
@@ -77,8 +74,8 @@ void Ball::movementStep()
 		//m_xVelocity -= FRICTION_VAL * getSign(m_xVelocity);
 		//m_yVelocity -= FRICTION_VAL * getSign(m_yVelocity);
 
-		m_xVelocity -= m_xVelocity * FRICTION_VAL;
-		m_yVelocity -= m_yVelocity * FRICTION_VAL;
+		m_xVelocity -= m_xVelocity * consts::frictionValue;
+		m_yVelocity -= m_yVelocity * consts::frictionValue;
 	}
 
 	std::cout << m_xVelocity << ' ' << m_yVelocity << '\n';
