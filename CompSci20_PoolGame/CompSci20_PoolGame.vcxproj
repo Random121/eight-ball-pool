@@ -21,12 +21,10 @@
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="mysha.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />

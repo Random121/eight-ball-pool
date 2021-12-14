@@ -21,9 +21,10 @@ public:
 	void setVelocity(double xVel, double yVel);
 	void setPosition(double xPos, double yPos);
 
-	void stepMovement();
+	void update();
 
 private:
-	void collision();
+	void movementStep();
+	void collisionStep();
 };
 

@@ -1,16 +1,12 @@
 #pragma once
 
 #include <string>
-#include <iostream>
-#include <cstdlib>
 
-// ret can take in a pointer of a boolean
-// nullptr is interpreted as false and anything else is true
-void check_init(bool ret, const std::string& event)
+void assertInitialized(bool ret, const std::string& event);
+
+// this used to be useful, now its just here
+template <typename T>
+int getSign(T num)
 {
-    if (ret)
-        return;
-
-    std::cout << "[INIT ERROR]: " << event << '\n';
-    exit(EXIT_FAILURE);
+	return (num > 0) - (num < 0);
 }
