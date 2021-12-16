@@ -1,14 +1,9 @@
 #pragma once
 
-#include <tuple>
 #include <iostream>
 
 class Ball
 {
-public:
-	using position2d_type = std::tuple<double, double>;
-	using velocity2d_type = std::tuple<double, double>;
-
 private:
 	double m_xPosition{};
 	double m_yPosition{};
@@ -22,11 +17,17 @@ public:
 	Ball() = default;
 	Ball(double xPos, double yPos, double radius);
 
-	position2d_type getPosition2d() const;
-	velocity2d_type getVelocity2d() const;
+	// could not think of a better way to do this
+	double getX() const;
+	double getY() const;
+	double getVX() const;
+	double getVY() const;
 
-	void setVelocity(const double xVel, const double yVel);
 	void setPosition(const double xPos, const double yPos);
+	void setVelocity(const double xVel, const double yVel);
+
+	void addPosition(const double xPos, const double yPos);
+	void addVelocity(const double xVel, const double yVel);
 
 	void setRadius(const double radius);
 	double getRadius() const;
