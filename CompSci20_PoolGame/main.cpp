@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 #include <utility> // pair
 
 void initialize_libraries()
@@ -55,6 +56,8 @@ void physics_step(std::vector<Ball>& vecBalls)
 	// pointers are used here to pass the object by reference not copy
 	std::vector<std::pair<Ball*, Ball*>> collidedBalls;
 
+	static int cycle{};
+
 	// resolve the positions for the collision
 	for (Ball& ball1 : vecBalls)
 	{
@@ -65,7 +68,12 @@ void physics_step(std::vector<Ball>& vecBalls)
 				collidedBalls.push_back(std::make_pair(&ball1, &ball2));
 
 				const double ballDistance{ calcPythagoreanHyp(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-				const double ballOverlap{ (ball2.getRadius() - (ballDistance - ball1.getRadius())) / 2 };
+				
+				// calculate how much each ball should move by to stop overlapping
+				// add a tiny value (resolveCollisionMagicDistance) to the distance
+				// to stop them from touching each other (which would still be considered)
+				// an overlap and break the ball physics
+				const double ballOverlap{ ((ball2.getRadius() - (ballDistance - ball1.getRadius())) / 2.0) + consts::resolveCollisionMagicDistance };
 
 				const double moveDistanceX{ ballOverlap * (ball1.getX() - ball2.getX()) / ballDistance };
 				const double moveDistanceY{ ballOverlap * (ball1.getY() - ball2.getY()) / ballDistance };
@@ -74,7 +82,12 @@ void physics_step(std::vector<Ball>& vecBalls)
 				// moves them in different directions rather than just into
 				// each other or in the same direction
 				ball1.addPosition(moveDistanceX, moveDistanceY);
-				ball2.addPosition(-1 * moveDistanceX, -1 * moveDistanceY);
+				ball2.addPosition(-1.0 * moveDistanceX, -1.0 * moveDistanceY);
+
+				std::cout << cycle << " " << moveDistanceX << " collision position.\n";
+				std::cout << "Ball1: " << ball1.getX() << ", " << ball1.getVX() << '\n';
+				std::cout << "Ball2: " << ball2.getX() << ", " << ball2.getVX() << '\n'; 
+				cycle++;
 			}
 		}
 	}
@@ -103,12 +116,12 @@ void physics_step(std::vector<Ball>& vecBalls)
 		double velNormal1{ dotProduct(ball1.getVX(), normalX, ball1.getVY(), normalY) };
 		double velNormal2{ dotProduct(ball2.getVX(), normalX, ball2.getVY(), normalY) };
 
-		static constexpr double massBall1{ 3 };
-		static constexpr double massBall2{ 3 };
+		static constexpr double massBall1{ 5 };
+		static constexpr double massBall2{ 5 };
 
 		// momentum 1d
-		float momentum1 = (velNormal1 * (massBall1 - massBall2) + 2.0 * massBall2 * velNormal2) / (massBall1 + massBall2);
-		float momentum2 = (velNormal2 * (massBall2 - massBall1) + 2.0 * massBall1 * velNormal1) / (massBall1 + massBall2);
+		double momentum1{ (velNormal1 * (massBall1 - massBall2) + 2.0 * massBall2 * velNormal2) / (massBall1 + massBall2) };
+		double momentum2{ (velNormal2 * (massBall2 - massBall1) + 2.0 * massBall1 * velNormal1) / (massBall1 + massBall2) };
 
 		// set tangent velocities
 		ball1.setVelocity(
@@ -121,7 +134,6 @@ void physics_step(std::vector<Ball>& vecBalls)
 			tangentY * velTangent2 + normalY * momentum2
 		);
 	}
-	
 }
 
 int main()
@@ -139,13 +151,16 @@ int main()
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
-	std::vector<Ball> activeBalls(5);
+	std::vector<Ball> activeBalls(2);
 
 	for (Ball& ball : activeBalls)
 	{
 		ball.setRadius(consts::defaultBallRadius);
-		ball.setPosition(getRandomInteger(0, 640), getRandomInteger(0, 480));
+		// ball.setPosition(getRandomInteger(0, 640), getRandomInteger(0, 480));
 	}
+
+	activeBalls[0].setPosition(250, 250);
+	activeBalls[1].setPosition(750, 250);
 
 	bool gameRunning{ true };
 	bool drawFrame{ true };
@@ -164,8 +179,11 @@ int main()
 			drawFrame = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
-			for (Ball& ball : activeBalls)
-				ball.setVelocity(getRandomInteger(-25, 25), getRandomInteger(-25, 25));
+			// for (Ball& ball : activeBalls)
+				// ball.setVelocity(getRandomInteger(-25, 25), getRandomInteger(-25, 25));
+
+			activeBalls[0].setVelocity(50, 0);
+			activeBalls[1].setVelocity(-50, 0);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
 			gameRunning = false;
@@ -185,6 +203,7 @@ int main()
 				al_map_rgb(0, 110, 0)
 			);
 
+			int counter{};
 			// draw balls
 			for (Ball& ball : activeBalls)
 			{
@@ -193,7 +212,7 @@ int main()
 					ball.getX(), 
 					ball.getY(),
 					ball.getRadius(),
-					al_map_rgb_f(1, 1, 1)
+					al_map_rgb(255, (counter == 0) ? 255 : 0, 255)
 				);
 
 				//draw ball border
@@ -204,6 +223,8 @@ int main()
 					al_map_rgb(0, 0, 0),
 					consts::ballBorderThickness
 				);
+
+				counter++;
 			}
 
 			al_flip_display();

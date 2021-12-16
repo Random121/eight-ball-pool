@@ -93,6 +93,10 @@ void Ball::wallCollisionStep(const int startX, const int startY, const int endX,
 
 void Ball::movementStep(const double friction, const double stopVelocity)
 {
+	// actually move ball forward
+	m_xPosition += m_xVelocity;
+	m_yPosition += m_yVelocity;
+
 	// stop ball completely if the net velocity is near zero
 	if (calcPythagoreanHyp(m_xVelocity, m_yVelocity) < stopVelocity)
 	{
@@ -107,10 +111,6 @@ void Ball::movementStep(const double friction, const double stopVelocity)
 		m_xVelocity -= m_xVelocity * friction;
 		m_yVelocity -= m_yVelocity * friction;
 	}
-
-	// actually move ball forward
-	m_xPosition += m_xVelocity;
-	m_yPosition += m_yVelocity;
 
 	//std::cout << "[Ball " << this << "]: " << m_xVelocity << ' ' << m_yVelocity << '\n';
 }
@@ -127,7 +127,13 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 	const double deltaX{ m_xPosition - otherBall.m_xPosition };
 	const double deltaY{ m_yPosition - otherBall.m_yPosition };
 
-	return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
+	if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
+	{
+		std::cout << "OVERLAPING! " << deltaX * deltaX << " " << deltaY * deltaY << " " << radiusLength * radiusLength << '\n';
+		return true;
+	}
+	return false;
+	// return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
 }
 
 // wrapper to call stuff
