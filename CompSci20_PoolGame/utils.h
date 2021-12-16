@@ -2,6 +2,8 @@
 
 #include <string>
 
+// min and max are inclusive
+int getRandomInteger(int min, int max);
 void assertInitialized(bool ret, const std::string& event);
 
 // this used to be useful, now its just here

@@ -5,26 +5,38 @@
 
 class Ball
 {
+public:
+	using position2d_type = std::tuple<double, double>;
+	using velocity2d_type = std::tuple<double, double>;
+
 private:
 	double m_xPosition{};
 	double m_yPosition{};
+
 	double m_xVelocity{};
 	double m_yVelocity{};
 
+	double m_radius{};
+
 public:
 	Ball() = default;
-	Ball(double x, double y);
+	Ball(double xPos, double yPos, double radius);
 
-	std::tuple<double, double> getPosition();
-	std::tuple<double, double> getVelocity();
+	position2d_type getPosition2d() const;
+	velocity2d_type getVelocity2d() const;
 
-	void setVelocity(double xVel, double yVel);
-	void setPosition(double xPos, double yPos);
+	void setVelocity(const double xVel, const double yVel);
+	void setPosition(const double xPos, const double yPos);
 
+	void setRadius(const double radius);
+	double getRadius() const;
+
+	bool isOverlappingBall(const Ball& otherBall) const;
 	void update();
 
 private:
-	void movementStep();
-	void collisionStep();
+	void movementStep(const double friction, const double stopVelocity);
+	void wallCollisionStep(const int startX, const int startY, const int endX, const int endY);
+
 };
 

@@ -41,5 +41,8 @@
     <ClInclude Include="utils.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
