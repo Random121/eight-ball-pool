@@ -171,7 +171,7 @@ int main()
 	}
 
 	activeBalls[0].setPosition(250, 250);
-	activeBalls[1].setPosition(750, 250);
+	// activeBalls[1].setPosition(300, 250);
 
 	bool gameRunning{ true };
 	bool drawFrame{ true };
@@ -212,8 +212,7 @@ int main()
 			// for (Ball& ball : activeBalls)
 				// ball.setVelocity(getRandomInteger(-25, 25), getRandomInteger(-25, 25));
 
-			activeBalls[0].setVelocity(50, 0);
-			activeBalls[1].setVelocity(-50, 0);
+			activeBalls[0].setVelocity(40, 0);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
 			gameRunning = false;
@@ -240,7 +239,6 @@ int main()
 #ifdef DEBUG
 				std::cout << "[DRAWING] " << ball.getX() << ", " << ball.getY() << ", " << ball.getRadius() << "\n\n";
 #endif // DEBUG
-
 
 				//draw actual circle
 				al_draw_filled_circle(

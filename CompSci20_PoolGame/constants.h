@@ -14,7 +14,6 @@ namespace consts
 
     inline constexpr double frictionCoefficient{ 0.03 };
     inline constexpr double stoppingVelocity{ 0.01 };
-    inline constexpr double resolveCollisionMagicDistance{ 5 };
 }
 
 //#define DEBUG

@@ -20,3 +20,11 @@ T calcPythagoreanHyp(T x, T y)
 {
 	return std::sqrt((x * x) + (y * y));
 }
+
+struct Rectangle
+{
+	int xPos1{};
+	int yPos1{};
+	int xPos2{};
+	int yPos2{};
+};
