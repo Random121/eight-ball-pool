@@ -12,10 +12,11 @@ private:
 	double m_yVelocity{};
 
 	double m_radius{};
+	double m_mass{};
 
 public:
 	Ball() = default;
-	Ball(double xPos, double yPos, double radius);
+	Ball(double xPos, double yPos, double radius, double mass);
 
 	// could not think of a better way to do this
 	double getX() const;
@@ -31,6 +32,9 @@ public:
 
 	void setRadius(const double radius);
 	double getRadius() const;
+
+	void setMass(const double mass);
+	double getMass() const;
 
 	bool isOverlappingBall(const Ball& otherBall) const;
 	void update();

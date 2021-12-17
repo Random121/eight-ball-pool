@@ -16,8 +16,11 @@
     <Filter Include="Ball">
       <UniqueIdentifier>{7da30bf2-8b14-4420-8994-da654d4c9883}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils">
+    <Filter Include="utilities">
       <UniqueIdentifier>{3ef58902-5280-4af9-b496-cdb172e3c298}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{c1af19fe-8336-4d49-85fa-0c0b5f651b59}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,8 +30,11 @@
     <ClCompile Include="Ball.cpp">
       <Filter>Ball</Filter>
     </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="utilities.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="physics.cpp">
+      <Filter>physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -38,11 +44,14 @@
     <ClInclude Include="Ball.h">
       <Filter>Ball</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>utils</Filter>
+    <ClInclude Include="utilities.h">
+      <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.h">
+      <Filter>physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

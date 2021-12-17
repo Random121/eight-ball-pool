@@ -1,11 +1,12 @@
 #include "Ball.h"
-#include "utils.h"
+#include "utilities.h"
 #include "constants.h"
 
 #include <cmath>
 #include <iostream>
 
-Ball::Ball(double xPos, double yPos, double radius) : m_xPosition{ xPos }, m_yPosition{ yPos }, m_radius{ radius }
+Ball::Ball(double xPos, double yPos, double radius, double mass)
+	: m_xPosition{ xPos }, m_yPosition{ yPos }, m_radius{ radius }, m_mass{ mass }
 {
 }
 
@@ -64,6 +65,17 @@ double Ball::getRadius() const
 	return m_radius;
 }
 
+void Ball::setMass(const double mass)
+{
+	if (mass > 0.0)
+		m_mass = mass;
+}
+
+double Ball::getMass() const
+{
+	return m_mass;
+}
+
 void Ball::wallCollisionStep(const int startX, const int startY, const int endX, const int endY)
 {
 	// check for boundaries in x-axis
@@ -93,10 +105,6 @@ void Ball::wallCollisionStep(const int startX, const int startY, const int endX,
 
 void Ball::movementStep(const double friction, const double stopVelocity)
 {
-	// actually move ball forward
-	m_xPosition += m_xVelocity;
-	m_yPosition += m_yVelocity;
-
 	// stop ball completely if the net velocity is near zero
 	if (calcPythagoreanHyp(m_xVelocity, m_yVelocity) < stopVelocity)
 	{
@@ -112,10 +120,16 @@ void Ball::movementStep(const double friction, const double stopVelocity)
 		m_yVelocity -= m_yVelocity * friction;
 	}
 
-	//std::cout << "[Ball " << this << "]: " << m_xVelocity << ' ' << m_yVelocity << '\n';
+	// actually move ball forward
+	m_xPosition += m_xVelocity;
+	m_yPosition += m_yVelocity;
+
+#ifdef DEBUG
+	std::cout << "[Ball " << this << "]: " << m_xPosition << ' ' << m_yPosition << '\n';
+#endif // DEBUG
 }
 
-// Idea from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
+// Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
 	// we just compare the pointers to
@@ -124,16 +138,21 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 		return false;
 
 	const double radiusLength{ m_radius + otherBall.getRadius() };
-	const double deltaX{ m_xPosition - otherBall.m_xPosition };
-	const double deltaY{ m_yPosition - otherBall.m_yPosition };
+	const double deltaX{ m_xPosition - otherBall.getX() };
+	const double deltaY{ m_yPosition - otherBall.getY() };
 
+#ifdef DEBUG
 	if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
 	{
-		std::cout << "OVERLAPING! " << deltaX * deltaX << " " << deltaY * deltaY << " " << radiusLength * radiusLength << '\n';
+		std::cout << "[OVERLAPPING INFO]\n";
+		std::cout << "[self] " << m_xPosition << ", " << m_yPosition << ", " << m_radius << '\n';
+		std::cout << "[other] " << otherBall.getX() << ", " << otherBall.getY() << ", " << otherBall.getRadius() << "\n\n";
 		return true;
 	}
 	return false;
-	// return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
+#endif // DEBUG
+
+	return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
 }
 
 // wrapper to call stuff

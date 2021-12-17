@@ -21,7 +21,8 @@
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="physics.cpp" />
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -29,7 +30,8 @@
   <ItemGroup>
     <ClInclude Include="Ball.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="utils.h" />
+    <ClInclude Include="physics.h" />
+    <ClInclude Include="utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
