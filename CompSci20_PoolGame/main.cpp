@@ -1,6 +1,7 @@
 #include "Ball.h"
 #include "constants.h"
 #include "utilities.h"
+#include "physics.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -47,104 +48,6 @@ void initialize_variables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, AL
 	assertInitialized(font, "font");
 }
 
-void physics_step(std::vector<Ball>& vecBalls)
-{
-	// movement for balls
-	for (Ball& ball : vecBalls)
-		ball.update();
-
-	// vector of objects which have collided and will have velocities resolved later
-	// pointers are used here to pass the object by reference not copy
-	std::vector<std::pair<Ball*, Ball*>> collidedBallPairs;
-
-	static int cycle{};
-
-	// resolve the positions for the collision
-	for (int i{ 0 }; i < vecBalls.size() + 1; ++i)
-	{
-		for (int j{ i + 1 }; j < vecBalls.size(); ++j)
-		{
-			Ball& ball1{ vecBalls[i] };
-			Ball& ball2{ vecBalls[j] };
-			if (ball1.isOverlappingBall(ball2))
-			{
-				collidedBallPairs.push_back(std::make_pair(&ball1, &ball2));
-
-				const double ballDistance{ calcPythagoreanHyp(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-				
-				// calculate how much each ball should move by to stop overlapping
-				const double ballOverlap{ ((ballDistance - ball1.getRadius() - ball2.getRadius()) / 2.0) };
-
-				const double moveDistanceX{ ballOverlap * (ball1.getX() - ball2.getX()) / ballDistance };
-				const double moveDistanceY{ ballOverlap * (ball1.getY() - ball2.getY()) / ballDistance };
-
-#ifdef DEBUG
-				std::cout << "[POSITION RESOLUTION]\n";
-				std::cout << "[distance] " << ballDistance << '\n';
-				std::cout << "[overlap] " << ballOverlap << '\n';
-				std::cout << "[moveDistanceX] " << moveDistanceX << '\n';
-				std::cout << "[moveDistanceY] " << moveDistanceY << '\n';
-				std::cout << "[start ball1] " << ball1.getX() << ", " << ball1.getY() << '\n';
-				std::cout << "[start ball2] " << ball2.getX() << ", " << ball2.getY() << '\n';
-#endif // DEBUG
-
-
-				// alternating subtraction and addition between the balls
-				// moves them in different directions rather than just into
-				// each other or in the same direction
-				ball1.addPosition(-moveDistanceX, -moveDistanceY);
-				ball2.addPosition(moveDistanceX, moveDistanceY);
-
-#ifdef DEBUG
-				std::cout << "[end ball1] " << ball1.getX() << ", " << ball1.getY() << '\n';
-				std::cout << "[end ball2] " << ball2.getX() << ", " << ball2.getY() << "\n\n";
-#endif // DEBUG
-
-			}
-		}
-	}
-	
-	// resolve velocities
-	for (std::pair<Ball*, Ball*>& ballPair : collidedBallPairs)
-	{
-		Ball& ball1{ *(ballPair.first) };
-		Ball& ball2{ *(ballPair.second) };
-
-		const double ballDistance{ calcPythagoreanHyp(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-
-		// normal vector (from center to center)
-		const double normalX{ (ball1.getX() - ball2.getX()) / ballDistance };
-		const double normalY{ (ball1.getY() - ball2.getY()) / ballDistance };
-
-		const double deltaVelocityX{ ball1.getVX() - ball2.getVX() };
-		const double deltaVelocityY{ ball1.getVY() - ball2.getVY() };
-
-		const double p{ 2.0 * dotProduct(normalX, deltaVelocityX, normalY, deltaVelocityY) / (ball1.getMass() + ball2.getMass()) };
-		const double newVelocityX{ p * normalX };
-		const double newVelocityY{ p * normalY };
-
-#ifdef DEBUG
-		std::cout << "[START VELOCITY] " << ball1.getVX() << ", " << ball2.getVX() << 
-#endif // DEBUG
-
-
-		ball1.addVelocity(
-			-(newVelocityX * ball2.getMass()),
-			-(newVelocityY * ball2.getMass())
-		);
-
-		ball2.addVelocity(
-			(newVelocityX * ball1.getMass()),
-			(newVelocityY * ball1.getMass())
-		);
-
-#ifdef DEBUG
-		std::cout << "[END VELOCITY] " << ball1.getVX() << ", " << ball2.getVX() << ", " << ballDistance << "\n\n";
-#endif // DEBUG
-
-	}
-}
-
 int main()
 {
 	initialize_libraries();
@@ -161,26 +64,32 @@ int main()
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
 
-	std::vector<Ball> activeBalls(6);
+	std::vector<Ball> activeBalls(2);
 
 	for (Ball& ball : activeBalls)
 	{
 		ball.setRadius(consts::defaultBallRadius);
-		ball.setMass(100.0);
+		ball.setMass(10.0);
 		ball.setPosition(getRandomInteger(0, 640), getRandomInteger(0, 480));
 	}
 
-	activeBalls[0].setPosition(250, 250);
-	// activeBalls[1].setPosition(300, 250);
+	activeBalls[0].setPosition(510.1, 250);
+	activeBalls[1].setPosition(510, 250);
+	activeBalls[0].setVelocity(5, 0);
+	activeBalls[1].setVelocity(-5, 0);
 
+	ALLEGRO_EVENT currentEvent;
 	bool gameRunning{ true };
 	bool drawFrame{ true };
-	ALLEGRO_EVENT currentEvent;
 
 	ALLEGRO_MOUSE_STATE mouseState;
 	bool downBefore{ false };
-	double mouseX{ -1337 };
+	double mouseX{ -1 };
 	double mouseY{};
+
+	double prevTime{ al_get_time() };
+	double nowTime{};
+	double deltaTime{};
 
 	al_start_timer(timer);
 
@@ -191,8 +100,13 @@ int main()
 		switch (currentEvent.type)
 		{
 		case ALLEGRO_EVENT_TIMER:
-			physics_step(activeBalls);
-			//al_mouse_button_down(&mouseState, 1);
+			
+			// delta time calculations
+			nowTime = al_get_time();
+			deltaTime = (nowTime - prevTime) / consts::physicsDeltaTime;
+			prevTime = nowTime;
+
+			physics::stepPhysics(activeBalls, deltaTime);
 			al_get_mouse_state(&mouseState);
 			if (mouseState.buttons & 1)
 			{
@@ -202,17 +116,15 @@ int main()
 			}
 			else if (downBefore)
 			{
-				activeBalls[0].setVelocity((activeBalls[0].getX() - mouseX) / -5, (activeBalls[0].getY() - mouseY) / -5);
-				mouseX = -1337;
+				activeBalls[0].setVelocity((mouseX - activeBalls[0].getX()) / 5, (mouseY - activeBalls[0].getY()) / 5);
+				mouseX = -1;
 				downBefore = false;
 			}
 			drawFrame = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
-			// for (Ball& ball : activeBalls)
-				// ball.setVelocity(getRandomInteger(-25, 25), getRandomInteger(-25, 25));
-
-			activeBalls[0].setVelocity(40, 0);
+			activeBalls[0].setVelocity(60, 0);
+			activeBalls[1].setVelocity(-60, 0);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
 			gameRunning = false;
@@ -233,13 +145,8 @@ int main()
 			);
 
 			int counter{};
-			// draw balls
 			for (Ball& ball : activeBalls)
 			{
-#ifdef DEBUG
-				std::cout << "[DRAWING] " << ball.getX() << ", " << ball.getY() << ", " << ball.getRadius() << "\n\n";
-#endif // DEBUG
-
 				//draw actual circle
 				al_draw_filled_circle(
 					ball.getX(), 
@@ -260,7 +167,7 @@ int main()
 				counter++;
 			}
 
-			if (mouseX != -1337)
+			if (mouseX != -1)
 				al_draw_line(mouseX, mouseY, activeBalls[0].getX(), activeBalls[0].getY(), al_map_rgb(0, 0, 255), 3);
 
 			al_flip_display();

@@ -26,9 +26,11 @@ public:
 
 	void setPosition(const double xPos, const double yPos);
 	void setVelocity(const double xVel, const double yVel);
+	void subPosition(const double xPos, const double yPos);
 
 	void addPosition(const double xPos, const double yPos);
 	void addVelocity(const double xVel, const double yVel);
+	void subVelocity(const double xVel, const double yVel);
 
 	void setRadius(const double radius);
 	double getRadius() const;
@@ -37,11 +39,5 @@ public:
 	double getMass() const;
 
 	bool isOverlappingBall(const Ball& otherBall) const;
-	void update();
-
-private:
-	void movementStep(const double friction, const double stopVelocity);
-	void wallCollisionStep(const int startX, const int startY, const int endX, const int endY);
-
 };
 

@@ -22,6 +22,12 @@ void Ball::addPosition(const double xPos, const double yPos)
 	m_yPosition += yPos;
 }
 
+void Ball::subPosition(const double xPos, const double yPos)
+{
+	m_xPosition -= xPos;
+	m_yPosition -= yPos;
+}
+
 double Ball::getX() const
 {
 	return m_xPosition;
@@ -42,6 +48,12 @@ void Ball::addVelocity(const double xVel, const double yVel)
 {
 	m_xVelocity += xVel;
 	m_yVelocity += yVel;
+}
+
+void Ball::subVelocity(const double xVel, const double yVel)
+{
+	m_xVelocity -= xVel;
+	m_yVelocity -= yVel;
 }
 
 double Ball::getVX() const
@@ -76,59 +88,6 @@ double Ball::getMass() const
 	return m_mass;
 }
 
-void Ball::wallCollisionStep(const int startX, const int startY, const int endX, const int endY)
-{
-	// check for boundaries in x-axis
-	if ((m_xPosition - m_radius) < startX)
-	{
-		m_xPosition += (startX - (m_xPosition - m_radius));
-		m_xVelocity *= -1;
-	}
-	else if ((m_xPosition + m_radius) > endX)
-	{
-		m_xPosition -= (m_xPosition + m_radius - endX);
-		m_xVelocity *= -1;
-	}
-
-	// check for boundaries in y-axis
-	if ((m_yPosition - m_radius) < startY)
-	{
-		m_yPosition += (startY - (m_yPosition - m_radius));
-		m_yVelocity *= -1;
-	}
-	else if ((m_yPosition + m_radius) > endY)
-	{
-		m_yPosition -= (m_yPosition + m_radius - endY);
-		m_yVelocity *= -1;
-	}
-}
-
-void Ball::movementStep(const double friction, const double stopVelocity)
-{
-	// stop ball completely if the net velocity is near zero
-	if (calcPythagoreanHyp(m_xVelocity, m_yVelocity) < stopVelocity)
-	{
-		setVelocity(0, 0);
-		return;
-	}
-	else // simulate friction slowing
-	{
-		//m_xVelocity -= FRICTION_VAL * getSign(m_xVelocity);
-		//m_yVelocity -= FRICTION_VAL * getSign(m_yVelocity);
-
-		m_xVelocity -= m_xVelocity * friction;
-		m_yVelocity -= m_yVelocity * friction;
-	}
-
-	// actually move ball forward
-	m_xPosition += m_xVelocity;
-	m_yPosition += m_yVelocity;
-
-#ifdef DEBUG
-	std::cout << "[Ball " << this << "]: " << m_xPosition << ' ' << m_yPosition << '\n';
-#endif // DEBUG
-}
-
 // Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
@@ -153,11 +112,4 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 #endif // DEBUG
 
 	return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
-}
-
-// wrapper to call stuff
-void Ball::update()
-{
-	movementStep(consts::frictionCoefficient, consts::stoppingVelocity);
-	wallCollisionStep(consts::playSurfaceX, consts::playSurfaceY, consts::screenWidth - consts::playSurfaceX, consts::screenHeight - consts::playSurfaceY);
 }
