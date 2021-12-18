@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 class Ball
 {
 private:
@@ -18,11 +16,14 @@ public:
 	Ball() = default;
 	Ball(double xPos, double yPos, double radius, double mass);
 
-	// could not think of a better way to do this
+	// could not of a more convenient way to access these values
 	double getX() const;
 	double getY() const;
 	double getVX() const;
 	double getVY() const;
+
+	// did not need the subtract functions, but it is way
+	// nicer to interpret than adding negative numbers
 
 	void setPosition(const double xPos, const double yPos);
 	void setVelocity(const double xVel, const double yVel);

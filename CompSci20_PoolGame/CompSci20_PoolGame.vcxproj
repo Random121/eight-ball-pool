@@ -22,6 +22,7 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
+    <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +32,7 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="physics.h" />
+    <ClInclude Include="scheduler.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

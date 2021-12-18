@@ -48,6 +48,60 @@ void initialize_variables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, AL
 	assertInitialized(font, "font");
 }
 
+void create_balls(std::vector<Ball>& vecBalls, const int number, const double radius, const double mass)
+{
+	vecBalls.resize(number);
+	for (Ball& ball : vecBalls)
+	{
+		ball.setRadius(radius);
+		ball.setMass(mass);
+	}
+}
+
+void render(const std::vector<Ball> vecBalls, const int mouseX, const int mouseY)
+{
+	al_clear_to_color(al_map_rgb(181, 101, 29));
+
+	// draw play surface
+	al_draw_filled_rectangle(
+		consts::playSurface.xPos1,
+		consts::playSurface.yPos1,
+		consts::playSurface.xPos2,
+		consts::playSurface.yPos2,
+		al_map_rgb(0, 110, 0)
+	);
+
+	static bool isCueBall{};
+	isCueBall = true;
+
+	for (const Ball& ball : vecBalls)
+	{
+		//draw circle
+		al_draw_filled_circle(
+			ball.getX(),
+			ball.getY(),
+			ball.getRadius(),
+			al_map_rgb(255, 255, ((isCueBall) ? 255 : 0))
+		);
+
+		//draw ball border
+		al_draw_circle(
+			ball.getX(),
+			ball.getY(),
+			ball.getRadius(),
+			al_map_rgb(0, 0, 0),
+			consts::ballBorderThickness
+		);
+
+		isCueBall = false;
+	}
+
+	if (mouseX >= 0)
+		al_draw_line(mouseX, mouseY, vecBalls[0].getX(), vecBalls[0].getY(), al_map_rgb(0, 0, 255), 3);
+
+	al_flip_display();
+}
+
 int main()
 {
 	initialize_libraries();
@@ -64,19 +118,14 @@ int main()
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
 
-	std::vector<Ball> activeBalls(2);
+	std::vector<Ball> activeBalls;
+
+	create_balls(activeBalls, 10, consts::defaultBallRadius, consts::defaultBallMass);
 
 	for (Ball& ball : activeBalls)
 	{
-		ball.setRadius(consts::defaultBallRadius);
-		ball.setMass(10.0);
-		ball.setPosition(getRandomInteger(0, 640), getRandomInteger(0, 480));
+		ball.setPosition(getRandomInteger(50, 950), getRandomInteger(50, 450));
 	}
-
-	activeBalls[0].setPosition(510.1, 250);
-	activeBalls[1].setPosition(510, 250);
-	activeBalls[0].setVelocity(5, 0);
-	activeBalls[1].setVelocity(-5, 0);
 
 	ALLEGRO_EVENT currentEvent;
 	bool gameRunning{ true };
@@ -84,12 +133,13 @@ int main()
 
 	ALLEGRO_MOUSE_STATE mouseState;
 	bool downBefore{ false };
-	double mouseX{ -1 };
-	double mouseY{};
+	int mouseX{ -1 };
+	int mouseY{};
 
-	double prevTime{ al_get_time() };
-	double nowTime{};
-	double deltaTime{};
+	double previousTime{ al_get_time() };
+	double currentTime{};
+	double frameTime{};
+	double timeAccumulator{};
 
 	al_start_timer(timer);
 
@@ -100,15 +150,24 @@ int main()
 		switch (currentEvent.type)
 		{
 		case ALLEGRO_EVENT_TIMER:
-			
-			// delta time calculations
-			nowTime = al_get_time();
-			deltaTime = (nowTime - prevTime) / consts::physicsDeltaTime;
-			prevTime = nowTime;
 
-			physics::stepPhysics(activeBalls, deltaTime);
+			currentTime = al_get_time();
+			frameTime = currentTime - previousTime;
+			previousTime = currentTime;
+
+			if (frameTime > 0.25)
+				frameTime = 0.25;
+
+			timeAccumulator += frameTime;
+
+			while (timeAccumulator >= consts::physicsUpdateDelta)
+			{
+				physics::stepPhysics(activeBalls);
+				timeAccumulator -= consts::physicsUpdateDelta;
+			}
+
 			al_get_mouse_state(&mouseState);
-			if (mouseState.buttons & 1)
+			if (mouseState.buttons & 1) // left click
 			{
 				mouseX = mouseState.x;
 				mouseY = mouseState.y;
@@ -120,6 +179,7 @@ int main()
 				mouseX = -1;
 				downBefore = false;
 			}
+
 			drawFrame = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
@@ -133,45 +193,7 @@ int main()
 
 		if (gameRunning && drawFrame && al_is_event_queue_empty(eventQueue))
 		{
-			al_clear_to_color(al_map_rgb(181, 101, 29));
-
-			// draw play surface
-			al_draw_filled_rectangle(
-				consts::playSurfaceX,
-				consts::playSurfaceY,
-				consts::screenWidth - consts::playSurfaceX,
-				consts::screenHeight - consts::playSurfaceY,
-				al_map_rgb(0, 110, 0)
-			);
-
-			int counter{};
-			for (Ball& ball : activeBalls)
-			{
-				//draw actual circle
-				al_draw_filled_circle(
-					ball.getX(), 
-					ball.getY(),
-					ball.getRadius(),
-					al_map_rgb(255, (counter == 0) ? 255 : 0, 255)
-				);
-
-				//draw ball border
-				al_draw_circle(
-					ball.getX(),
-					ball.getY(),
-					ball.getRadius(),
-					al_map_rgb(0, 0, 0),
-					consts::ballBorderThickness
-				);
-
-				counter++;
-			}
-
-			if (mouseX != -1)
-				al_draw_line(mouseX, mouseY, activeBalls[0].getX(), activeBalls[0].getY(), al_map_rgb(0, 0, 255), 3);
-
-			al_flip_display();
-
+			render(activeBalls, mouseX, mouseY);
 			drawFrame = false;
 		}
 	}

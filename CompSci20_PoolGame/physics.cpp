@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstddef>
 
 namespace physics
 {
@@ -66,13 +67,13 @@ namespace physics
 #endif // DEBUG
 
 		ball1.subVelocity(
-			(newVelocityX * ball2.getMass()),
-			(newVelocityY * ball2.getMass())
+			newVelocityX * ball2.getMass(),
+			newVelocityY * ball2.getMass()
 		);
 
 		ball2.addVelocity(
-			(newVelocityX * ball1.getMass()),
-			(newVelocityY * ball1.getMass())
+			newVelocityX * ball1.getMass(),
+			newVelocityY * ball1.getMass()
 		);
 
 #ifdef DEBUG
@@ -113,51 +114,123 @@ namespace physics
 		if (xPositionAdjustment != 0 || yPositionAdjustment != 0)
 			ball.addPosition(xPositionAdjustment, yPositionAdjustment);
 	}
-	
-	void advanceBallPosition(Ball& ball, const double friction, const double stopVelocity, const double deltaTime)
+
+	void advanceBallPosition(Ball& ball, const double friction, const double stopVelocity)
 	{
-		// stop ball completely if the net velocity is near zero
-		if (calcPythagoreanHyp(ball.getVX(), ball.getVY()) < stopVelocity)
+		// stop ball if the net velocity is near zero
+		if ((ball.getVX() * ball.getVX() + ball.getVY() * ball.getVY()) < stopVelocity)
 		{
-			ball.setVelocity(0, 0);
+			ball.setVelocity(0.0, 0.0);
 			return;
 		}
-		else // simulate friction slowing
-		{
-			//ball.subVelocity(
-			//	ball.getVX() * friction * deltaTime,
-			//	ball.getVY() * friction * deltaTime
-			//);
 
-			ball.setVelocity(ball.getVX() * std::pow(friction, deltaTime), ball.getVY() * std::pow(friction, deltaTime));
-		}
+		//ball.subVelocity(ball.getVX() * friction, ball.getVY() * friction);
+		ball.setVelocity(ball.getVX() * friction, ball.getVY() * friction);
 
-		ball.addPosition(ball.getVX() * deltaTime, ball.getVY() * deltaTime);
+		ball.addPosition(ball.getVX(), ball.getVY());
 
 #ifdef DEBUG
-		std::cout << "[Ball " << &ball << "]: " << ball.getX() << ", " << ball.getY() << ", " << deltaTime << '\n';
+		std::cout << "[Ball " << &ball << "]: " << ball.getX() << ", " << ball.getY() << '\n';
 #endif // DEBUG
 	}
 
-	void stepPhysics(std::vector<Ball>& vecBalls, const double deltaTime)
-	{
-		static constexpr Rectangle bound{
-			consts::playSurfaceX,
-			consts::playSurfaceY,
-			consts::screenWidth - consts::playSurfaceX,
-			consts::screenHeight - consts::playSurfaceY
-		};
+	/*
+		--IMPORTANT REMINDER FOR COLLISION TESTING--
+		We MUST check every ball against every other ball for collision.
+		It would be great to not have duplicate checks but an unchecked
+		ball could move into another ball. This unchecked collision will
+		only be detected once the checked ball has moved from its
+		stationary location and will lead to incorrect position and
+		velocity resolutions where they either go through each other or =
+		continuously swap positions in place.
 
+		Conclusion: don't replace the range based for loops below with the
+		commented out ones.
+	*/
+
+	void stepPhysics(std::vector<Ball>& vecBalls)
+	{
+		const std::size_t vecBallsSize{ vecBalls.size() };
+
+		//for (int i{}; i < vecBallsSize; ++i)
 		for (Ball& ball : vecBalls)
 		{
-			advanceBallPosition(ball, consts::rollingFriction, consts::stoppingVelocity, deltaTime);
-			resolveCircleBoundaryCollision(ball, bound);
+			//Ball& ball{ vecBalls[i] };
+			const double velocitySum{ std::abs(ball.getVX()) + std::abs(ball.getVY()) };
+			double stepsNeeded{ std::ceil(velocitySum / ball.getRadius()) };
+			if (stepsNeeded > 0.0)
+			{
+				const double stepSizeX{ ball.getVX() / stepsNeeded };
+				const double stepSizeY{ ball.getVY() / stepsNeeded };
+
+#ifdef DEBUG
+				std::cout << "[STEP MOVE " << &ball << "] "
+					<< stepSizeX << ", " << stepSizeY << ", " << stepsNeeded << ", "
+					<< ball.getX() << ", " << ball.getY() << '\n';
+#endif // DEBUG
+
+				while (stepsNeeded > 0.0)
+				{
+					ball.addPosition(stepSizeX, stepSizeY);
+
+					//for (int j{ i + 1 }; j < vecBallsSize; ++j)
+					for (Ball& checkTargetBall : vecBalls)
+					{
+						//Ball& checkTargetBall{ vecBalls[j] };
+						if (ball.isOverlappingBall(checkTargetBall))
+						{
+							resolveCircleCollisionPosition(ball, checkTargetBall);
+							resolveCircleCollisionVelocity(ball, checkTargetBall);
+							stepsNeeded = 0; // stop moving forward as velocity has now changed
+						}
+					}
+
+					--stepsNeeded;
+				}
+
+				resolveCircleBoundaryCollision(ball, consts::playSurface);
+
+				// stop ball if the net velocity is near zero
+				if ((ball.getVX() * ball.getVX() + ball.getVY() * ball.getVY()) < consts::stoppingVelocity)
+				{
+					ball.setVelocity(0.0, 0.0);
+				}
+				else // apply rolling friction
+				{
+					ball.setVelocity(ball.getVX() * consts::rollingFriction, ball.getVY() * consts::rollingFriction);
+				}
+			}
+			else // collision checks for stationary balls (not essential, just as a precaution)
+			{
+				for (Ball& ball2 : vecBalls)
+				{
+					if (ball.isOverlappingBall(ball2))
+					{
+						resolveCircleCollisionPosition(ball, ball2);
+						resolveCircleCollisionVelocity(ball, ball2);
+					}
+
+					resolveCircleBoundaryCollision(ball, consts::playSurface);
+				}
+			}
+		}
+
+		/*
+			Old code for collision checks that did not have multisampling
+			checks. It often missed collisions for fast oving balls.
+		*/
+
+		/*
+		for (Ball& ball : vecBalls)
+		{
+			advanceBallPosition(ball, consts::rollingFriction, consts::stoppingVelocity);
+			resolveCircleBoundaryCollision(ball, consts::playSurface);
 		}
 
 		// vector of objects which have collided and will have velocities resolved later
 		std::vector<std::pair<Ball*, Ball*>> collidedBallPairs;
 
-		for (int i{ 0 }; i < vecBalls.size(); ++i)
+		for (int i{}; i < vecBalls.size(); ++i)
 		{
 			for (int j{ i + 1 }; j < vecBalls.size(); ++j)
 			{
@@ -167,17 +240,17 @@ namespace physics
 				{
 					collidedBallPairs.push_back(std::make_pair(&ball1, &ball2));
 					resolveCircleCollisionPosition(ball1, ball2);
-					resolveCircleCollisionVelocity(ball1, ball2);
 				}
 			}
 		}
 
-		//for (std::pair<Ball*, Ball*>& ballPair : collidedBallPairs)
-		//{
-		//	Ball& ball1{ *(ballPair.first) };
-		//	Ball& ball2{ *(ballPair.second) };
-		//	resolveCircleCollisionVelocity(ball1, ball2);
-		//}
+		for (std::pair<Ball*, Ball*>& ballPair : collidedBallPairs)
+		{
+			Ball& ball1{ *(ballPair.first) };
+			Ball& ball2{ *(ballPair.second) };
+			resolveCircleCollisionVelocity(ball1, ball2);
+		}
+		*/
 	}
 
 } // namespace physics

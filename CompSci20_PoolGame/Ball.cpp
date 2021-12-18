@@ -70,6 +70,11 @@ void Ball::setRadius(const double radius)
 {
 	if (radius > 0.0)
 		m_radius = radius;
+
+#ifdef DEBUG
+	else
+		std::cout << "Attempted to set negative radius: " << radius << '\n';
+#endif // DEBUG
 }
 
 double Ball::getRadius() const
@@ -81,6 +86,11 @@ void Ball::setMass(const double mass)
 {
 	if (mass > 0.0)
 		m_mass = mass;
+
+#ifdef DEBUG
+	else
+		std::cout << "Attempted to set negative mass: " << mass << '\n';
+#endif // DEBUG
 }
 
 double Ball::getMass() const
@@ -91,8 +101,7 @@ double Ball::getMass() const
 // Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
-	// we just compare the pointers to
-	// prevent it from colliding with itself
+	// compare pointers to ensure that the collision is not with itself
 	if (&otherBall == this)
 		return false;
 
@@ -104,8 +113,8 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 	if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
 	{
 		std::cout << "[OVERLAPPING INFO]\n";
-		std::cout << "[self] " << m_xPosition << ", " << m_yPosition << ", " << m_radius << '\n';
-		std::cout << "[other] " << otherBall.getX() << ", " << otherBall.getY() << ", " << otherBall.getRadius() << "\n\n";
+		std::cout << "[self " << this << "] " << m_xPosition << ", " << m_yPosition << ", " << m_radius << '\n';
+		std::cout << "[other " << &otherBall << "] " << otherBall.getX() << ", " << otherBall.getY() << ", " << otherBall.getRadius() << "\n\n";
 		return true;
 	}
 	return false;
