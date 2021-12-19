@@ -14,9 +14,9 @@ int getSign(T num)
 	return (num > 0) - (num < 0);
 }
 
-// calculates the length of hypoteneus using pythagorean formula
+// calculates the length of hypotenuse using pythagorean formula
 template <typename T>
-T calcPythagoreanHyp(T x, T y)
+T calculateHypotenuse(T x, T y)
 {
 	return std::sqrt((x * x) + (y * y));
 }
