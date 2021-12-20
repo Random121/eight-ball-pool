@@ -120,5 +120,21 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 	return false;
 #endif // DEBUG
 
-	return ((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
+	return (deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength);
+}
+
+void Ball::applyFriction(const double friction, const double stopVelocity)
+{
+	// stop ball if the net velocity is near zero
+	if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
+	{
+		m_xVelocity = 0.0;
+		m_yVelocity = 0.0;
+	}
+	else
+	{
+		// apply rolling friction
+		m_xVelocity -= m_xVelocity * friction;
+		m_yVelocity -= m_yVelocity * friction;
+	}
 }

@@ -22,8 +22,11 @@
     <Filter Include="physics">
       <UniqueIdentifier>{c1af19fe-8336-4d49-85fa-0c0b5f651b59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scheduler">
-      <UniqueIdentifier>{afff5a8c-0824-4133-9fad-22361936d11c}</UniqueIdentifier>
+    <Filter Include="render">
+      <UniqueIdentifier>{8dc1091c-3609-416e-926a-6a5b99ae144f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{bd490fb9-57d3-48bd-8dfe-1690abfa25d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,8 +42,11 @@
     <ClCompile Include="physics.cpp">
       <Filter>physics</Filter>
     </ClCompile>
-    <ClCompile Include="scheduler.cpp">
-      <Filter>scheduler</Filter>
+    <ClCompile Include="render.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="resources.cpp">
+      <Filter>resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,8 +65,11 @@
     <ClInclude Include="physics.h">
       <Filter>physics</Filter>
     </ClInclude>
-    <ClInclude Include="scheduler.h">
-      <Filter>scheduler</Filter>
+    <ClInclude Include="render.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="resources.h">
+      <Filter>resources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

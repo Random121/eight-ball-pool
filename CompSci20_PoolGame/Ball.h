@@ -16,7 +16,6 @@ public:
 	Ball() = default;
 	Ball(double xPos, double yPos, double radius, double mass);
 
-	// could not of a more convenient way to access these values
 	double getX() const;
 	double getY() const;
 	double getVX() const;
@@ -38,6 +37,8 @@ public:
 
 	void setMass(const double mass);
 	double getMass() const;
+
+	void applyFriction(const double friction, const double stopVelocity);
 
 	bool isOverlappingBall(const Ball& otherBall) const;
 };
