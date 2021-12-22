@@ -12,6 +12,8 @@ private:
 	double m_radius{};
 	double m_mass{};
 
+	bool m_isVisible{};
+
 public:
 	Ball() = default;
 	Ball(double xPos, double yPos, double radius, double mass);
@@ -38,8 +40,14 @@ public:
 	void setMass(const double mass);
 	double getMass() const;
 
+	bool isMoving() const;
+
+	bool isVisible() const;
+	void setVisible(bool visibility);
+
 	void applyFriction(const double friction, const double stopVelocity);
 
 	bool isOverlappingBall(const Ball& otherBall) const;
+	bool isInPocket() const;
 };
 

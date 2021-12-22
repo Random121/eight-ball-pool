@@ -3,6 +3,7 @@
 #include "utilities.h"
 #include "physics.h"
 #include "render.h"
+#include "Input.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -15,7 +16,7 @@
 #include <vector>
 #include <ctime>
 
-void initialize_libraries()
+void initializeLibraries()
 {
 	// random
 	std::srand(std::time(nullptr));
@@ -34,7 +35,7 @@ void initialize_libraries()
 	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 }
 
-void initialize_variables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, ALLEGRO_DISPLAY*& display, ALLEGRO_FONT*& font)
+void initializeVariables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, ALLEGRO_DISPLAY*& display, ALLEGRO_FONT*& font)
 {
 	timer = al_create_timer(consts::frameTime);
 	assertInitialized(timer, "timer");
@@ -49,74 +50,85 @@ void initialize_variables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, AL
 	assertInitialized(font, "font");
 }
 
-void create_balls(std::vector<Ball>& vecBalls, const int number, const double radius, const double mass)
+void createBalls(std::vector<Ball>& gameBalls, const int number, const double radius, const double mass)
 {
-	vecBalls.resize(number);
-	for (Ball& ball : vecBalls)
+	gameBalls.resize(number);
+	for (Ball& ball : gameBalls)
 	{
 		ball.setRadius(radius);
 		ball.setMass(mass);
+		ball.setVisible(true);
+	}
+}
+
+void layoutRack(std::vector<Ball>& gameBalls)
+{
+	for (int i{}; i < gameBalls.size(); ++i)
+	{
+		gameBalls[i].setPosition(consts::rackBallPositions[i][0], consts::rackBallPositions[i][1]);
+	}
+}
+
+void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta)
+{
+	static double previousTime{ al_get_time()};
+	static double currentTime{};
+	static double frameTime{};
+	static double timeAccumulator{};
+
+	currentTime = al_get_time();
+	frameTime = currentTime - previousTime;
+	previousTime = currentTime;
+
+	// max frame time
+	if (frameTime > 0.25)
+		frameTime = 0.25;
+
+	timeAccumulator += frameTime;
+
+#ifdef DEBUG
+	std::cout << "[FRAME TIME] " << frameTime << '\n';
+#endif // DEBUG
+
+	while (timeAccumulator >= updateDelta)
+	{
+		physics::stepPhysics(gameBalls);
+		timeAccumulator -= updateDelta;
 	}
 }
 
 int main()
 {
-	initialize_libraries();
+	initializeLibraries();
 
-	ALLEGRO_TIMER* timer; // this will act as the frame cap for the graphics
+	ALLEGRO_TIMER* gameTimer; // this will act as the frame cap for the graphics
+	ALLEGRO_DISPLAY* gameDisplay;
+	ALLEGRO_FONT* gameFont;
 	ALLEGRO_EVENT_QUEUE* eventQueue;
-	ALLEGRO_DISPLAY* display;
-	ALLEGRO_FONT* font;
+	ALLEGRO_EVENT currentEvent;
 
-	initialize_variables(timer, eventQueue, display, font);
+	initializeVariables(gameTimer, eventQueue, gameDisplay, gameFont);
 
-	al_register_event_source(eventQueue, al_get_display_event_source(display));
-	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+	al_register_event_source(eventQueue, al_get_display_event_source(gameDisplay));
+	al_register_event_source(eventQueue, al_get_timer_event_source(gameTimer));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
 
-#ifdef TESTING_RELEASE
-	al_set_window_title(display, "Totally Accurate Billiards Simulator | Testing Edition");
-	al_show_native_message_box(
-		display,
-		"Totally Accurate Billiards Simulator | Testing Edition",
-		"Thank you for testing Totally Accurate Billiards Simulator.",
-		"\"The game is very realistic. The only things missing are the pockets for the balls\" - Nima Raika\n"
-		"\"The balls should be more slippery.\" - Benjamin Jelica",
-		nullptr,
-		NULL
-	);
-#else
-	al_set_window_title(display, "Totally Accurate Billiards Simulator");
-#endif
+	al_set_window_title(gameDisplay, "Totally Accurate Billiards Simulator");
 
-	std::vector<Ball> activeBalls;
+	Input& input{ Input::getInstance() };
+	std::vector<Ball> gameBalls;
 
-	create_balls(activeBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
+	createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
+	layoutRack(gameBalls);
 
-	for (Ball& ball : activeBalls)
-	{
-		ball.setPosition(getRandomInteger(50, 950), getRandomInteger(50, 450));
-	}
-
-	//activeBalls[0].setPosition(250, 250);
-	//activeBalls[1].setPosition(450, 250);
-	//activeBalls[2].setPosition(550, 250);
-
-	ALLEGRO_EVENT currentEvent;
 	bool gameRunning{ true };
 	bool drawFrame{ true };
-	bool allBallsStopped{};
+	bool noBallsMoving{};
+	bool isMouseDown{};
+	int cueStickPower{};
 
-	ALLEGRO_MOUSE_STATE mouseState;
-	bool isMouseDown{ false };
-
-	double previousTime{ al_get_time() };
-	double currentTime{};
-	double frameTime{};
-	double timeAccumulator{};
-
-	al_start_timer(timer);
+	al_start_timer(gameTimer);
 
 	while (gameRunning)
 	{
@@ -125,44 +137,42 @@ int main()
 		switch (currentEvent.type)
 		{
 		case ALLEGRO_EVENT_TIMER:
+			updatePhysics(gameBalls, consts::physicsUpdateDelta);
+			noBallsMoving = !physics::areBallsMoving(gameBalls);
+			input.updateAllStates();
 
-			currentTime = al_get_time();
-			frameTime = currentTime - previousTime;
-			previousTime = currentTime;
+			if (input.isKeyDown(ALLEGRO_KEY_A))
+				gameBalls[0].addPosition(-1, 0);
+			if (input.isKeyDown(ALLEGRO_KEY_D))
+				gameBalls[0].addPosition(1, 0);
+			if (input.isKeyDown(ALLEGRO_KEY_W))
+				gameBalls[0].addPosition(0, -1);
+			if (input.isKeyDown(ALLEGRO_KEY_S))
+				gameBalls[0].addPosition(0, 1);
 
-			// max frame time
-			if (frameTime > 0.25)
-				frameTime = 0.25;
-
-			timeAccumulator += frameTime;
-
-			//#ifdef DEBUG
-			std::cout << "[FRAME TIME] " << frameTime << '\n';
-			//#endif // DEBUG
-
-			while (timeAccumulator >= consts::physicsUpdateDelta)
-			{
-				physics::stepPhysics(activeBalls, allBallsStopped);
-				timeAccumulator -= consts::physicsUpdateDelta;
-			}
-
-			al_get_mouse_state(&mouseState);
-
-			if (allBallsStopped && mouseState.buttons & 1) // left click
+			if (noBallsMoving && input.isMouseButtonDown(1)) // left click
 			{
 				isMouseDown = true;
 			}
 			else if (isMouseDown)
 			{
-				activeBalls[0].setVelocity((mouseState.x - activeBalls[0].getX()) / 7.5, (mouseState.y - activeBalls[0].getY()) / 7.5);
+				gameBalls[0].setVelocity(
+					(input.getMouseX() - gameBalls[0].getX()) / 7.5,
+					(input.getMouseY() - gameBalls[0].getY()) / 7.5
+				);
 				isMouseDown = false;
 			}
+
+			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
+				gameRunning = false;
 
 			drawFrame = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
-			activeBalls[0].setVelocity(60, 0);
-			activeBalls[1].setVelocity(-60, 0);
+			input.keyDownHook(currentEvent.keyboard.keycode);
+			break;
+		case ALLEGRO_EVENT_KEY_UP:
+			input.keyUpHook(currentEvent.keyboard.keycode);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
 			gameRunning = false;
@@ -171,16 +181,21 @@ int main()
 
 		if (gameRunning && drawFrame && al_is_event_queue_empty(eventQueue))
 		{
-			render::renderFrame(activeBalls, mouseState, isMouseDown, font, allBallsStopped);
+			render::drawPlaysurface();
+			render::drawPockets();
+			render::drawBalls(gameBalls, gameFont);
+			if (noBallsMoving)
+				render::drawCueStick(gameBalls[0], input.getMouseState(), cueStickPower);
+			al_flip_display();
 			drawFrame = false;
 		}
 	}
 
 	// freeing all the resources
 	al_destroy_event_queue(eventQueue);
-	al_destroy_timer(timer);
-	al_destroy_display(display);
-	al_destroy_font(font);
+	al_destroy_timer(gameTimer);
+	al_destroy_display(gameDisplay);
+	al_destroy_font(gameFont);
 
 	return EXIT_SUCCESS;
 }

@@ -9,5 +9,9 @@
 
 namespace render
 {
-	void renderFrame(const std::vector<Ball>& vecBalls, const ALLEGRO_MOUSE_STATE& mouseState, const bool isMouseDown, ALLEGRO_FONT*& gameFont, bool allBallsStopped);
+	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT*& gameFont);
+	void drawPockets();
+	void drawCueStick(const Ball& cueBall, const ALLEGRO_MOUSE_STATE& mouseState, const double stickPower);
+	void drawPlaysurface();
+	//void renderFrame(const std::vector<Ball>& gameBalls, const bool isMouseDown, const ALLEGRO_MOUSE_STATE& mouseState, ALLEGRO_FONT*& gameFont, const bool allBallsStopped, const double stickPower);
 }

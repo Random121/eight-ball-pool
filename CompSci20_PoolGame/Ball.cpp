@@ -98,11 +98,43 @@ double Ball::getMass() const
 	return m_mass;
 }
 
+bool Ball::isMoving() const
+{
+	return (m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) > 0.0;
+}
+
+bool Ball::isVisible() const
+{
+	return m_isVisible;
+}
+
+void Ball::setVisible(bool visibility)
+{
+	m_isVisible = visibility;
+}
+
+void Ball::applyFriction(const double friction, const double stopVelocity)
+{
+	// stop ball if the net velocity is near zero
+	if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
+	{
+		m_xVelocity = 0.0;
+		m_yVelocity = 0.0;
+	}
+	else
+	{
+		// apply rolling friction
+		m_xVelocity -= m_xVelocity * friction;
+		m_yVelocity -= m_yVelocity * friction;
+	}
+}
+
 // Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
 	// compare pointers to ensure that the collision is not with itself
-	if (&otherBall == this)
+	// and that the other ball is active
+	if (&otherBall == this || !otherBall.isVisible())
 		return false;
 
 	const double radiusLength{ m_radius + otherBall.getRadius() };
@@ -123,18 +155,21 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 	return (deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength);
 }
 
-void Ball::applyFriction(const double friction, const double stopVelocity)
+bool Ball::isInPocket() const
 {
-	// stop ball if the net velocity is near zero
-	if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
+	for (const std::vector<int>& pocketCoord : consts::pocketCoordinates)
 	{
-		m_xVelocity = 0.0;
-		m_yVelocity = 0.0;
+		const double radiusLength{ m_radius + consts::pocketRadius - 12 };
+		const double deltaX{ m_xPosition - pocketCoord[0] };
+		const double deltaY{ m_yPosition - pocketCoord[1] };
+
+		if ((deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength))
+		{
+#ifdef DEBUG
+			std::cout << "IN POCKET" << '\n';,
+#endif // DEBUG
+			return true;
+		}
 	}
-	else
-	{
-		// apply rolling friction
-		m_xVelocity -= m_xVelocity * friction;
-		m_yVelocity -= m_yVelocity * friction;
-	}
+	return false;
 }

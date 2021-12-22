@@ -1,20 +1,13 @@
-//#pragma once
-//
-//#include "Ball.h"
-//
-//#include <vector>
-//
-//class GlobalResources
-//{
-//private:
-//	GlobalResources();
-//	static GlobalResources* m_selfInstance;
-//
-//	std::vector<Ball> m_gameBalls;
-//
-//public:
-//	static GlobalResources& getSingleton();
-//
-//	std::vector<Ball>& getGameBalls();
-//
-//};
+#pragma once
+
+#include "Ball.h"
+
+#include <allegro5/allegro_font.h>
+
+#include <vector>
+
+namespace globals
+{
+	extern ALLEGRO_FONT* gameFont;
+	extern std::vector<Ball> gameBalls;
+}

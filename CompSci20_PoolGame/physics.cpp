@@ -115,6 +115,7 @@ namespace physics
 			ball.addPosition(xPositionAdjustment, yPositionAdjustment);
 	}
 
+	// returns true if a collision has happend
 	bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked)
 	{
 		bool hasCollided{};
@@ -130,6 +131,18 @@ namespace physics
 		return hasCollided;
 	}
 
+	bool areBallsMoving(const std::vector<Ball>& gameBalls)
+	{
+		for (const Ball& ball : gameBalls)
+		{
+			if (ball.isVisible() && ball.isMoving())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/*
 		--IMPORTANT REMINDER FOR COLLISION TESTING--
 		We MUST check every ball against every other ball for collision.
@@ -141,15 +154,17 @@ namespace physics
 		continuously swap positions in place.
 	*/
 
-	void stepPhysics(std::vector<Ball>& vecBalls, bool& allBallsStopped)
+	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Ball>& pocketdBalls)
 	{
 #ifdef DEBUG
 		int moveCalculations{};
 #endif // DEBUG
 
-		bool areBallsMoving{};
-		for (Ball& ball : vecBalls)
+		for (Ball& ball : gameBalls)
 		{
+			if (!ball.isVisible()) // skip if not visible
+				continue;
+
 			const double velocitySum{ std::abs(ball.getVX()) + std::abs(ball.getVY()) };
 			double stepsNeeded{ std::ceil(velocitySum / ball.getRadius()) };
 			if (stepsNeeded > 0.0)
@@ -167,8 +182,8 @@ namespace physics
 				{
 					ball.addPosition(stepSizeX, stepSizeY);
 
-					// if a collision happend then stop moving using old velocity
-					if (resolveCircleCollisions(ball, vecBalls))
+					// if a collision occured, then stop moving using old velocity
+					if (resolveCircleCollisions(ball, gameBalls))
 						break;
 
 #ifdef DEBUG
@@ -178,20 +193,18 @@ namespace physics
 					--stepsNeeded;
 				}
 
-				resolveCircleBoundaryCollision(ball, consts::playSurface);
-
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
+			}
+			//else
+			//{
+			//	resolveCircleCollisions(ball, gameBalls);
+			//}
 
-				areBallsMoving = true;
-			}
-			else
-			{
-				resolveCircleCollisions(ball, vecBalls);
-				resolveCircleBoundaryCollision(ball, consts::playSurface);
-			}
+			if (ball.isInPocket())
+				pocketdBalls.push_back(ball);
+
+			resolveCircleBoundaryCollision(ball, consts::playSurface);
 		}
-
-		allBallsStopped = !areBallsMoving;
 
 #ifdef DEBUG
 		std::cout << "[PHYSICS CALCULATIONS] " << moveCalculations << '\n';

@@ -11,5 +11,6 @@ namespace physics
 	void resolveCircleCollisionVelocity(Ball& ball1, Ball& ball2);
 	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundaries);
 	bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
-	void stepPhysics(std::vector<Ball>& vecBalls, bool& allBallsStopped);
+	bool areBallsMoving(const std::vector<Ball>& gameBalls);
+	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Ball>& pocketdBalls);
 }

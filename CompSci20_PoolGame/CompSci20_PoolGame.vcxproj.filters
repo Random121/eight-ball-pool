@@ -25,8 +25,8 @@
     <Filter Include="render">
       <UniqueIdentifier>{8dc1091c-3609-416e-926a-6a5b99ae144f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resources">
-      <UniqueIdentifier>{bd490fb9-57d3-48bd-8dfe-1690abfa25d6}</UniqueIdentifier>
+    <Filter Include="input">
+      <UniqueIdentifier>{8485fc6a-1b0a-4946-930a-1b13af57ea28}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,8 +45,8 @@
     <ClCompile Include="render.cpp">
       <Filter>render</Filter>
     </ClCompile>
-    <ClCompile Include="resources.cpp">
-      <Filter>resources</Filter>
+    <ClCompile Include="Input.cpp">
+      <Filter>input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,8 +68,8 @@
     <ClInclude Include="render.h">
       <Filter>render</Filter>
     </ClInclude>
-    <ClInclude Include="resources.h">
-      <Filter>resources</Filter>
+    <ClInclude Include="Input.h">
+      <Filter>input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

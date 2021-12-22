@@ -20,10 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="render.cpp" />
-    <ClCompile Include="resources.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -32,9 +32,9 @@
   <ItemGroup>
     <ClInclude Include="Ball.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="render.h" />
-    <ClInclude Include="resources.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
