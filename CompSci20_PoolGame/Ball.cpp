@@ -1,4 +1,5 @@
 #include "Ball.h"
+
 #include "utilities.h"
 #include "constants.h"
 
@@ -113,6 +114,28 @@ void Ball::setVisible(bool visibility)
 	m_isVisible = visibility;
 }
 
+int Ball::getBallNumber() const
+{
+	return m_ballNumber;
+}
+
+void Ball::setBallNumber(int number)
+{
+	m_ballNumber = number;
+}
+
+BallType Ball::getBallType() const
+{
+	if (m_ballNumber == 8)
+		return BallType::eight;
+
+	if (m_ballNumber > 8)
+		return BallType::striped;
+	else
+		return BallType::solid;
+
+}
+
 void Ball::applyFriction(const double friction, const double stopVelocity)
 {
 	// stop ball if the net velocity is near zero
@@ -159,7 +182,7 @@ bool Ball::isInPocket() const
 {
 	for (const std::vector<int>& pocketCoord : consts::pocketCoordinates)
 	{
-		const double radiusLength{ m_radius + consts::pocketRadius - 12 };
+		const double radiusLength{ m_radius + consts::pocketRadius - 10 };
 		const double deltaX{ m_xPosition - pocketCoord[0] };
 		const double deltaY{ m_yPosition - pocketCoord[1] };
 

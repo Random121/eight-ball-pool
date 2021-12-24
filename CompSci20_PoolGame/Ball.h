@@ -1,5 +1,13 @@
 #pragma once
 
+enum class BallType
+{
+	undetermined,
+	solid,
+	striped,
+	eight
+};
+
 class Ball
 {
 private:
@@ -13,6 +21,7 @@ private:
 	double m_mass{};
 
 	bool m_isVisible{};
+	int m_ballNumber{};
 
 public:
 	Ball() = default;
@@ -44,6 +53,11 @@ public:
 
 	bool isVisible() const;
 	void setVisible(bool visibility);
+
+	int getBallNumber() const;
+	void setBallNumber(int number);
+
+	BallType getBallType() const;
 
 	void applyFriction(const double friction, const double stopVelocity);
 

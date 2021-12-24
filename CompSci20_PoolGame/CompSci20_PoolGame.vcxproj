@@ -20,9 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="CueStick.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="referee.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
@@ -32,8 +35,11 @@
   <ItemGroup>
     <ClInclude Include="Ball.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="CueStick.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="physics.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="referee.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
@@ -101,11 +107,12 @@
     <Allegro_AddonFont>true</Allegro_AddonFont>
     <Allegro_AddonImage>true</Allegro_AddonImage>
     <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
+    <Allegro_AddonDialog>true</Allegro_AddonDialog>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <Allegro_AddonFont>true</Allegro_AddonFont>
-    <Allegro_LibraryType>DynamicRelease</Allegro_LibraryType>
+    <Allegro_LibraryType>DynamicDebug</Allegro_LibraryType>
     <Allegro_AddonImage>true</Allegro_AddonImage>
     <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
     <Allegro_AddonDialog>true</Allegro_AddonDialog>

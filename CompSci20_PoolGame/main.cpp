@@ -4,6 +4,8 @@
 #include "physics.h"
 #include "render.h"
 #include "Input.h"
+#include "Player.h"
+#include "CueStick.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -20,7 +22,7 @@ void initializeLibraries()
 {
 	// random
 	std::srand(std::time(nullptr));
-	{ const int TEMP{ std::rand() }; } // for better randomization
+	{ const int temp{ std::rand() }; } // for better randomization
 
 	// allegro
 	assertInitialized(al_init(), "Allegro init");
@@ -28,6 +30,7 @@ void initializeLibraries()
 	assertInitialized(al_install_mouse(), "Allegro mouse driver");
 	assertInitialized(al_init_image_addon(), "Allegro image addon");
 	assertInitialized(al_init_primitives_addon(), "Allegro primitives addon");
+	assertInitialized(al_init_native_dialog_addon(), "Allegro dialong addon");
 
 	// allegro display (antialiasing)
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST); // use multisampling
@@ -53,15 +56,17 @@ void initializeVariables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, ALL
 void createBalls(std::vector<Ball>& gameBalls, const int number, const double radius, const double mass)
 {
 	gameBalls.resize(number);
-	for (Ball& ball : gameBalls)
+	for (int i{}; i < gameBalls.size(); ++i)
 	{
+		Ball& ball{ gameBalls[i] };
 		ball.setRadius(radius);
 		ball.setMass(mass);
 		ball.setVisible(true);
+		ball.setBallNumber(i);
 	}
 }
 
-void layoutRack(std::vector<Ball>& gameBalls)
+void moveToRackPositions(std::vector<Ball>& gameBalls)
 {
 	for (int i{}; i < gameBalls.size(); ++i)
 	{
@@ -69,7 +74,7 @@ void layoutRack(std::vector<Ball>& gameBalls)
 	}
 }
 
-void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta)
+void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, TurnInformation& turnInfo)
 {
 	static double previousTime{ al_get_time()};
 	static double currentTime{};
@@ -92,8 +97,30 @@ void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta)
 
 	while (timeAccumulator >= updateDelta)
 	{
-		physics::stepPhysics(gameBalls);
+		physics::stepPhysics(gameBalls, turnInfo);
 		timeAccumulator -= updateDelta;
+	}
+}
+
+void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
+{
+	const int power{ cueStick.getCuePower() };
+	if (power > 0)
+	{
+		const double deltaX{ input.getMouseX() - cueBall.getX() };
+		const double deltaY{ input.getMouseY() - cueBall.getY() };
+		const double hyp{ calculateHypotenuse(deltaX, deltaY) }; // for normalization
+
+		cueBall.setVelocity(
+			(deltaX / hyp) * power,
+			(deltaY / hyp) * power
+		);
+
+		std::cout << power << '\n';
+
+		cueStick.setCuePower(0);
+		cueStick.updateAll(cueBall.getX(), cueBall.getY());
+		cueStick.setCanUpdate(false);
 	}
 }
 
@@ -117,16 +144,30 @@ int main()
 	al_set_window_title(gameDisplay, "Totally Accurate Billiards Simulator");
 
 	Input& input{ Input::getInstance() };
+
+	std::vector<Player> gamePlayers(2);
 	std::vector<Ball> gameBalls;
+	CueStick gameStick{ true, true };
+	TurnInformation currentTurn;
 
-	createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
-	layoutRack(gameBalls);
-
+	int currentPlayerIndex{ getRandomInteger(0, gamePlayers.size() - 1) };
 	bool gameRunning{ true };
 	bool drawFrame{ true };
-	bool noBallsMoving{};
-	bool isMouseDown{};
-	int cueStickPower{};
+	int shootStartTime{};
+
+	std::cout << "Player (" << (currentPlayerIndex + 1) << ") is taking the break shot.\n";
+
+	//al_show_native_message_box(
+	//	gameDisplay,
+	//	"Break Shot",
+	//	"Player taking the break is: ",
+	//	std::to_string(currentPlayerIndex + 1).c_str(),
+	//	nullptr,
+	//	NULL
+	//);
+
+	createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
+	moveToRackPositions(gameBalls);
 
 	al_start_timer(gameTimer);
 
@@ -137,30 +178,44 @@ int main()
 		switch (currentEvent.type)
 		{
 		case ALLEGRO_EVENT_TIMER:
-			updatePhysics(gameBalls, consts::physicsUpdateDelta);
-			noBallsMoving = !physics::areBallsMoving(gameBalls);
+			updatePhysics(gameBalls, consts::physicsUpdateDelta, currentTurn);
 			input.updateAllStates();
+			gameStick.updateAll(gameBalls[0].getX(), gameBalls[0].getY());
 
-			if (input.isKeyDown(ALLEGRO_KEY_A))
-				gameBalls[0].addPosition(-1, 0);
-			if (input.isKeyDown(ALLEGRO_KEY_D))
-				gameBalls[0].addPosition(1, 0);
-			if (input.isKeyDown(ALLEGRO_KEY_W))
-				gameBalls[0].addPosition(0, -1);
-			if (input.isKeyDown(ALLEGRO_KEY_S))
-				gameBalls[0].addPosition(0, 1);
-
-			if (noBallsMoving && input.isMouseButtonDown(1)) // left click
+			if (gameStick.canUpdate())
 			{
-				isMouseDown = true;
+				if (input.isMouseButtonDown(1))
+				{
+					shootCueBall(gameBalls[0], gameStick, input);
+					shootStartTime = al_get_time();
+				}
 			}
-			else if (isMouseDown)
+			else if (al_get_time() - shootStartTime > 1)
 			{
-				gameBalls[0].setVelocity(
-					(input.getMouseX() - gameBalls[0].getX()) / 7.5,
-					(input.getMouseY() - gameBalls[0].getY()) / 7.5
-				);
-				isMouseDown = false;
+				gameStick.setVisible(false);
+			}
+
+			//if (input.isMouseButtonDown(1))
+			//{
+			//	shootCueBall(gameBalls[0], gameStick, input);
+			//	shootStartTime = al_get_time();
+			//}
+			//else if (!gameStick.getCanUpdate() && al_get_time() - shootStartTime > 2)
+			//{
+			//	gameStick.setVisible(false);
+			//}
+
+			if (!physics::areBallsMoving(gameBalls) && !gameStick.isVisible()) //  turn finished
+			{
+				std::cout << "TURN OVER\n";
+
+				std::cout << static_cast<int>(currentTurn.firstHitBallType) << ' ';
+				std::cout << currentTurn.isTurnValid << '\n';
+
+				gameStick.setCanUpdate(true);
+				gameStick.setVisible(true);
+
+				currentTurn = {};
 			}
 
 			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
@@ -184,8 +239,7 @@ int main()
 			render::drawPlaysurface();
 			render::drawPockets();
 			render::drawBalls(gameBalls, gameFont);
-			if (noBallsMoving)
-				render::drawCueStick(gameBalls[0], input.getMouseState(), cueStickPower);
+			render::drawCueStick(gameStick);
 			al_flip_display();
 			drawFrame = false;
 		}

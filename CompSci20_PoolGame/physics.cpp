@@ -7,6 +7,17 @@
 #include <vector>
 #include <cstddef>
 
+/*
+	--IMPORTANT REMINDER FOR COLLISION TESTING--
+	We MUST check every ball against every other ball for collision.
+	It would be great to not have duplicate checks but an unchecked
+	ball could move into another ball. This unchecked collision will
+	only be detected once the checked ball has moved from its
+	stationary location and will lead to incorrect position and
+	velocity resolutions where they either go through each other or
+	continuously swap positions in place.
+*/
+
 namespace physics
 {
 	void resolveCircleCollisionPosition(Ball& ball1, Ball& ball2)
@@ -143,23 +154,24 @@ namespace physics
 		return false;
 	}
 
-	/*
-		--IMPORTANT REMINDER FOR COLLISION TESTING--
-		We MUST check every ball against every other ball for collision.
-		It would be great to not have duplicate checks but an unchecked
-		ball could move into another ball. This unchecked collision will
-		only be detected once the checked ball has moved from its
-		stationary location and will lead to incorrect position and
-		velocity resolutions where they either go through each other or
-		continuously swap positions in place.
-	*/
-
-	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Ball>& pocketdBalls)
+	void handlePocketing(Ball& ball, std::vector<Player>& gamePlayers, int playerIndex)
 	{
-#ifdef DEBUG
-		int moveCalculations{};
-#endif // DEBUG
+		if (ball.isInPocket())
+		{
+			ball.setVisible(false);
+			if (gamePlayers[playerIndex].getTargetBallType() == BallType::undetermined)
+			{
+				if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
+				{
+					gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
+					gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
+				}
+			}
+		}
+	}
 
+	void stepPhysics(std::vector<Ball>& gameBalls, TurnInformation& turn)
+	{
 		for (Ball& ball : gameBalls)
 		{
 			if (!ball.isVisible()) // skip if not visible
@@ -167,6 +179,7 @@ namespace physics
 
 			const double velocitySum{ std::abs(ball.getVX()) + std::abs(ball.getVY()) };
 			double stepsNeeded{ std::ceil(velocitySum / ball.getRadius()) };
+
 			if (stepsNeeded > 0.0)
 			{
 				const double stepSizeX{ ball.getVX() / stepsNeeded };
@@ -178,37 +191,38 @@ namespace physics
 					<< ball.getX() << ", " << ball.getY() << '\n';
 #endif // DEBUG
 
-				while (stepsNeeded > 0.0)
+				bool hasCollided{};
+				while (stepsNeeded > 0.0 && !hasCollided)
 				{
-					ball.addPosition(stepSizeX, stepSizeY);
+					ball.addPosition(stepSizeX, stepSizeY); // move ball
 
-					// if a collision occured, then stop moving using old velocity
-					if (resolveCircleCollisions(ball, gameBalls))
-						break;
+					// check circle to circle collision
+					for (Ball& checkTarget : gameBalls)
+					{
+						if (ball.isOverlappingBall(checkTarget))
+						{
+							resolveCircleCollisionPosition(ball, checkTarget);
+							resolveCircleCollisionVelocity(ball, checkTarget);
 
-#ifdef DEBUG
-					++moveCalculations;
-#endif // DEBUG
+							if (turn.firstHitBallType == BallType::undetermined)
+							{
+								// assume that first collision always is cue ball + random ball
+								turn.firstHitBallType = ball.getBallNumber() == 0 ? checkTarget.getBallType() : ball.getBallType();
+							}
+
+							hasCollided = true; // if a collision occured, then stop moving using old velocity
+						}
+					}
 
 					--stepsNeeded;
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
+
+				resolveCircleBoundaryCollision(ball, consts::playSurface);
 			}
-			//else
-			//{
-			//	resolveCircleCollisions(ball, gameBalls);
-			//}
 
-			if (ball.isInPocket())
-				pocketdBalls.push_back(ball);
-
-			resolveCircleBoundaryCollision(ball, consts::playSurface);
 		}
-
-#ifdef DEBUG
-		std::cout << "[PHYSICS CALCULATIONS] " << moveCalculations << '\n';
-#endif // DEBUG
 	}
 
 } // namespace physics

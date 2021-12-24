@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Ball.h"
+#include "Player.h"
 #include "utilities.h"
 
 #include <vector>
@@ -12,5 +13,6 @@ namespace physics
 	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundaries);
 	bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
 	bool areBallsMoving(const std::vector<Ball>& gameBalls);
-	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Ball>& pocketdBalls);
+	//void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Player>& gamePlayers, int playerIndex);
+	void stepPhysics(std::vector<Ball>& gameBalls, TurnInformation& turn);
 }

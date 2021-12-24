@@ -2,6 +2,7 @@
 #include "Ball.h"
 #include "constants.h"
 #include "utilities.h"
+#include "CueStick.h"
 
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
@@ -65,35 +66,56 @@ namespace render
 		}
 	}
 
-	void drawCueStick(const Ball& cueBall, const ALLEGRO_MOUSE_STATE& mouseState, const double stickPower)
+	void drawCueStick(CueStick stick)
 	{
-		double cueDistanceFromBall{ consts::cueStickDistanceFromBall + stickPower };
-		double cueStickLength{ consts::cueStickLength + stickPower };
+		//double cueDistanceFromBall{ consts::cueStickDistanceFromBall + stickPower };
+		//double cueStickLength{ consts::cueStickLength + stickPower };
 
-		const double deltaX{ cueBall.getX() - mouseState.x };
-		const double deltaY{ cueBall.getY() - mouseState.y };
-		const double cursorBallDistance{ calculateHypotenuse(deltaX, deltaY) };
+		//const double deltaX{ xPos - mouseState.x };
+		//const double deltaY{ yPos - mouseState.y };
+		//const double cursorBallDistance{ calculateHypotenuse(deltaX, deltaY) };
 
-		const double vectorShrinkFactor{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / (cueDistanceFromBall * cueDistanceFromBall)) };
-		const double vectorShrinkFactorWood{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / ((cueDistanceFromBall + 4) * (cueDistanceFromBall + 4))) };
+		//const double vectorShrinkFactor{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / (cueDistanceFromBall * cueDistanceFromBall)) };
+		//const double vectorShrinkFactorWood{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / ((cueDistanceFromBall + 4) * (cueDistanceFromBall + 4))) };
 
-		al_draw_line(
-			cueBall.getX() + (deltaX / vectorShrinkFactor), // cue start x
-			cueBall.getY() + (deltaY / vectorShrinkFactor), // cue start y
-			cueBall.getX() + (deltaX / cursorBallDistance) * cueStickLength, // cue end x
-			cueBall.getY() + (deltaY / cursorBallDistance) * cueStickLength, // cue end y
-			al_map_rgb(0, 0, 0),
-			consts::cueStickThickness
-		);
+		//al_draw_line(
+		//	xPos + (deltaX / vectorShrinkFactor), // cue start x
+		//	yPos + (deltaY / vectorShrinkFactor), // cue start y
+		//	xPos + (deltaX / cursorBallDistance) * cueStickLength, // cue end x
+		//	yPos + (deltaY / cursorBallDistance) * cueStickLength, // cue end y
+		//	al_map_rgb(0, 0, 0),
+		//	consts::cueStickThickness
+		//);
 
-		al_draw_line(
-			cueBall.getX() + (deltaX / vectorShrinkFactorWood), // cue wood start x
-			cueBall.getY() + (deltaY / vectorShrinkFactorWood), // cue wood start y
-			cueBall.getX() + (deltaX / cursorBallDistance) * (cueStickLength - 2), // cue wood end x
-			cueBall.getY() + (deltaY / cursorBallDistance) * (cueStickLength - 2), // cue wood end y
-			al_map_rgb(164, 116, 73),
-			consts::cueStickWoodThickness
-		);
+		//al_draw_line(
+		//	xPos + (deltaX / vectorShrinkFactorWood), // cue wood start x
+		//	yPos + (deltaY / vectorShrinkFactorWood), // cue wood start y
+		//	xPos + (deltaX / cursorBallDistance) * (cueStickLength - 2), // cue wood end x
+		//	yPos + (deltaY / cursorBallDistance) * (cueStickLength - 2), // cue wood end y
+		//	al_map_rgb(164, 116, 73),
+		//	consts::cueStickWoodThickness
+		//);
+
+		if (stick.isVisible())
+		{
+			al_draw_line(
+				stick.m_outlineStartX,
+				stick.m_outlineStartY,
+				stick.m_outlineEndX,
+				stick.m_outlineEndY,
+				al_map_rgb(0, 0, 0),
+				consts::cueStickThickness
+			);
+
+			al_draw_line(
+				stick.m_stickStartX,
+				stick.m_stickStartY,
+				stick.m_stickEndX,
+				stick.m_stickEndY,
+				al_map_rgb(164, 116, 73),
+				consts::cueStickWoodThickness
+			);
+		}
 	}
 		
 	void drawPlaysurface()
@@ -108,31 +130,4 @@ namespace render
 			al_map_rgb(0, 110, 0)
 		);
 	}
-
-	//void renderFrame(const std::vector<Ball>& gameBalls, const bool isMouseDown, const ALLEGRO_MOUSE_STATE& mouseState, ALLEGRO_FONT*& gameFont, const bool allBallsStopped, const double stickPower)
-	//{
-	//	al_clear_to_color(al_map_rgb(181, 101, 29));
-
-	//	// draw play surface
-	//	al_draw_filled_rectangle(
-	//		consts::playSurface.xPos1,
-	//		consts::playSurface.yPos1,
-	//		consts::playSurface.xPos2,
-	//		consts::playSurface.yPos2,
-	//		al_map_rgb(0, 110, 0)
-	//	);
-
-	//	drawPockets();
-	//	drawBalls(gameBalls);
-
-	//	if (allBallsStopped)
-	//	{
-	//		drawCueStick(gameBalls[0], mouseState, stickPower);
-	//		if (isMouseDown)
-	//			al_draw_line(mouseState.x, mouseState.y, gameBalls[0].getX(), gameBalls[0].getY(), al_map_rgb(0, 0, 255), 3);
-	//	}
-
-
-	//	al_flip_display();
-	//}
 }

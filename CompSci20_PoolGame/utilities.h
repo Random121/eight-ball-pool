@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Ball.h"
+
 #include <cmath>
 #include <string>
+#include <vector>
 
 int getRandomInteger(int min, int max);
 void assertInitialized(bool ret, const std::string& event);
@@ -27,4 +30,11 @@ struct Rectangle
 	int yPos1{};
 	int xPos2{};
 	int yPos2{};
+};
+
+struct TurnInformation
+{
+	BallType firstHitBallType{ BallType::undetermined };
+	std::vector<Ball*> pocketedBalls;
+	bool isTurnValid{};
 };
