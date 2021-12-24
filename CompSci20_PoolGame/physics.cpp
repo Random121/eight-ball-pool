@@ -170,7 +170,7 @@ namespace physics
 		}
 	}
 
-	void stepPhysics(std::vector<Ball>& gameBalls, TurnInformation& turn)
+	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Player>& gamePlayers, TurnInformation& turn)
 	{
 		for (Ball& ball : gameBalls)
 		{
@@ -215,6 +215,20 @@ namespace physics
 					}
 
 					--stepsNeeded;
+				}
+
+				if (ball.isInPocket())
+				{
+					ball.setVisible(false);
+					turn.pocketedBalls.push_back(&ball);
+					if (gamePlayers[turn.turnPlayerIndex].getTargetBallType() == BallType::undetermined)
+					{
+						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
+						{
+							gamePlayers[turn.turnPlayerIndex].setTargetBallType(ball.getBallType());
+							gamePlayers[(turn.turnPlayerIndex + 1) % gamePlayers.size()].setTargetBallType((ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid);
+						}
+					}
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);

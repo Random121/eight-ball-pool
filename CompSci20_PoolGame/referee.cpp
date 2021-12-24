@@ -37,6 +37,20 @@ namespace referee
 		if (pocketedBalls.empty())
 			return true;
 
+		for (Ball* ball : pocketedBalls)
+		{
+			if (ball->getBallType() == BallType::undetermined)
+				return false;
+		}
 
+		if (currentPlayer.getGameScore() == 7)
+			return pocketedBalls.size() == 1 && pocketedBalls[0]->getBallType() == BallType::eight;
+
+		return true;
+	}
+
+	bool isTurnValid(Player& turnPlayer, TurnInformation& turn)
+	{
+		return isValidFirstHit(turnPlayer, turn.firstHitBallType) && isPocketedBallsValid(turnPlayer, turn.pocketedBalls);
 	}
 };

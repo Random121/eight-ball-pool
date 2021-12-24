@@ -126,6 +126,9 @@ void Ball::setBallNumber(int number)
 
 BallType Ball::getBallType() const
 {
+	if (m_ballNumber == 0)
+		return BallType::undetermined;
+
 	if (m_ballNumber == 8)
 		return BallType::eight;
 

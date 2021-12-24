@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Player.h"
 #include "CueStick.h"
+#include "referee.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -74,7 +75,7 @@ void moveToRackPositions(std::vector<Ball>& gameBalls)
 	}
 }
 
-void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, TurnInformation& turnInfo)
+void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, std::vector<Player>& gamePlayers, TurnInformation& turnInfo)
 {
 	static double previousTime{ al_get_time()};
 	static double currentTime{};
@@ -97,7 +98,7 @@ void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, TurnI
 
 	while (timeAccumulator >= updateDelta)
 	{
-		physics::stepPhysics(gameBalls, turnInfo);
+		physics::stepPhysics(gameBalls, gamePlayers, turnInfo);
 		timeAccumulator -= updateDelta;
 	}
 }
@@ -116,9 +117,11 @@ void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
 			(deltaY / hyp) * power
 		);
 
-		std::cout << power << '\n';
+		std::cout << "Cue Stick Power: " << power << '\n';
 
 		cueStick.setCuePower(0);
+		// reset the cue stick position to make it seem like
+		// it has been "shot"
 		cueStick.updateAll(cueBall.getX(), cueBall.getY());
 		cueStick.setCanUpdate(false);
 	}
@@ -156,6 +159,7 @@ int main()
 	int shootStartTime{};
 
 	std::cout << "Player (" << (currentPlayerIndex + 1) << ") is taking the break shot.\n";
+	currentTurn.turnPlayerIndex = currentPlayerIndex;
 
 	//al_show_native_message_box(
 	//	gameDisplay,
@@ -178,9 +182,28 @@ int main()
 		switch (currentEvent.type)
 		{
 		case ALLEGRO_EVENT_TIMER:
-			updatePhysics(gameBalls, consts::physicsUpdateDelta, currentTurn);
+			updatePhysics(gameBalls, consts::physicsUpdateDelta, gamePlayers, currentTurn);
 			input.updateAllStates();
 			gameStick.updateAll(gameBalls[0].getX(), gameBalls[0].getY());
+
+			//if (input.isKeyDown(ALLEGRO_KEY_W))
+			//	gameBalls[0].addPosition(0, -1);
+			//if (input.isKeyDown(ALLEGRO_KEY_S))
+			//	gameBalls[0].addPosition(0, 1);
+			//if (input.isKeyDown(ALLEGRO_KEY_A))
+			//	gameBalls[0].addPosition(-1, 0);
+			//if (input.isKeyDown(ALLEGRO_KEY_D))
+			//	gameBalls[0].addPosition(1, 0);
+
+			//if (input.isMouseButtonDown(1))
+			//{
+			//	shootCueBall(gameBalls[0], gameStick, input);
+			//	shootStartTime = al_get_time();
+			//}
+			//else if (!gameStick.getCanUpdate() && al_get_time() - shootStartTime > 2)
+			//{
+			//	gameStick.setVisible(false);
+			//}
 
 			if (gameStick.canUpdate())
 			{
@@ -195,27 +218,55 @@ int main()
 				gameStick.setVisible(false);
 			}
 
-			//if (input.isMouseButtonDown(1))
-			//{
-			//	shootCueBall(gameBalls[0], gameStick, input);
-			//	shootStartTime = al_get_time();
-			//}
-			//else if (!gameStick.getCanUpdate() && al_get_time() - shootStartTime > 2)
-			//{
-			//	gameStick.setVisible(false);
-			//}
-
 			if (!physics::areBallsMoving(gameBalls) && !gameStick.isVisible()) //  turn finished
 			{
-				std::cout << "TURN OVER\n";
+				std::cout << "--TURN OVER--\n";
 
-				std::cout << static_cast<int>(currentTurn.firstHitBallType) << ' ';
-				std::cout << currentTurn.isTurnValid << '\n';
+				std::cout << "First Hit Type: " << static_cast<int>(currentTurn.firstHitBallType) << '\n';
+				std::cout << "Player Index: " << currentTurn.turnPlayerIndex << '\n';
+				//std::cout << "Valid Turn: " << currentTurn.isTurnValid << '\n';
+				std::cout << "Player Ball Type: " << static_cast<int>(gamePlayers[currentPlayerIndex].getTargetBallType()) << '\n';
+				for (Ball* ball : currentTurn.pocketedBalls)
+				{
+					std::cout << ball->getBallNumber() << '\n';
+				}
+
+				const bool hasFouled = !referee::isTurnValid(gamePlayers[currentPlayerIndex], currentTurn);
+
+				if (gamePlayers[currentPlayerIndex].getTargetBallType() != BallType::undetermined)
+				{
+					for (Ball* ball : currentTurn.pocketedBalls)
+					{
+						if (ball->getBallType() == gamePlayers[currentPlayerIndex].getTargetBallType())
+							gamePlayers[currentPlayerIndex].addGameScore(1);
+						else
+							gamePlayers[(currentPlayerIndex + 1) % gamePlayers.size()].addGameScore(1);
+					}
+				}
+
+				std::cout << "FOULED: " << hasFouled << '\n';
+
+				// switch turns
+				if (hasFouled || currentTurn.pocketedBalls.size() == 0)
+				{
+					currentPlayerIndex = (currentPlayerIndex + 1) % gamePlayers.size();
+				}
 
 				gameStick.setCanUpdate(true);
 				gameStick.setVisible(true);
 
+				if (!gameBalls[0].isVisible())
+				{
+					gameBalls[0].setVelocity(0, 0);
+					gameBalls[0].setPosition(250, 250);
+					gameBalls[0].setVisible(true);
+				}
+
 				currentTurn = {};
+				currentTurn.turnPlayerIndex = currentPlayerIndex;
+
+				std::cout << "SCORES: " << gamePlayers[0].getGameScore() << ' ' << gamePlayers[1].getGameScore() << '\n';
+				std::cout << "Current Player: " << (currentPlayerIndex + 1) << '\n';
 			}
 
 			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
