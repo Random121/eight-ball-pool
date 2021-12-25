@@ -127,6 +127,28 @@ void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
 	}
 }
 
+bool isValidPlacePosition(Ball& cueBall, std::vector<Ball>& gameBalls)
+{
+	bool isOverlappingBall{};
+	bool isOverlappingBoundary{};
+
+	for (Ball& ball : gameBalls)
+	{
+		if (cueBall.isOverlappingBall(ball))
+		{
+			isOverlappingBall = true;
+			break;
+		}
+	}
+
+	isOverlappingBoundary = physics::isCircleCollidingWithBoundaryTop(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryBottom(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryLeft(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryRight(cueBall, consts::playSurface);
+
+	return !isOverlappingBall && !isOverlappingBoundary;
+}
+
 int main()
 {
 	initializeLibraries();
@@ -205,20 +227,34 @@ int main()
 			//	gameStick.setVisible(false);
 			//}
 
-			if (gameStick.canUpdate())
+			if (gameStick.canUpdate() && input.isMouseButtonDown(1))
 			{
-				if (input.isMouseButtonDown(1))
+				if (currentTurn.startWithBallInHand)
+				{
+					gameBalls[0].setVelocity(0, 0);
+					gameBalls[0].setVisible(true);
+					gameStick.setVisible(true);
+					currentTurn.startWithBallInHand = false;
+					
+					do
+					{
+						input.updateMouseState();
+						gameBalls[0].setPosition(input.getMouseX(), input.getMouseY());
+					} while (!isValidPlacePosition(gameBalls[0], gameBalls));
+				}
+				else
 				{
 					shootCueBall(gameBalls[0], gameStick, input);
 					shootStartTime = al_get_time();
 				}
 			}
-			else if (al_get_time() - shootStartTime > 1)
+			
+			if (!gameStick.canUpdate() && al_get_time() - shootStartTime > 1)
 			{
 				gameStick.setVisible(false);
 			}
 
-			if (!physics::areBallsMoving(gameBalls) && !gameStick.isVisible()) //  turn finished
+			if (!physics::areBallsMoving(gameBalls) && !gameStick.isVisible() && !currentTurn.startWithBallInHand) //  turn finished
 			{
 				std::cout << "--TURN OVER--\n";
 
@@ -253,20 +289,20 @@ int main()
 				}
 
 				gameStick.setCanUpdate(true);
-				gameStick.setVisible(true);
 
-				if (!gameBalls[0].isVisible())
-				{
-					gameBalls[0].setVelocity(0, 0);
-					gameBalls[0].setPosition(250, 250);
-					gameBalls[0].setVisible(true);
-				}
+				if (!hasFouled)
+					gameStick.setVisible(true);
+				else
+					gameBalls[0].setVisible(false);
 
 				currentTurn = {};
 				currentTurn.turnPlayerIndex = currentPlayerIndex;
+				currentTurn.startWithBallInHand = hasFouled;
 
 				std::cout << "SCORES: " << gamePlayers[0].getGameScore() << ' ' << gamePlayers[1].getGameScore() << '\n';
 				std::cout << "Current Player: " << (currentPlayerIndex + 1) << '\n';
+				if (hasFouled)
+					std::cout << "Current player is starting with ball in hand.\n";
 			}
 
 			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))

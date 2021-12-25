@@ -1,6 +1,7 @@
 #include "CueStick.h"
 
 #include "constants.h"
+#include <iostream>
 
 #include <allegro5/allegro5.h>
 
@@ -11,7 +12,7 @@ CueStick::CueStick(bool canUpdate, bool visible)
 
 void CueStick::updatePower()
 {
-	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < 75)
+	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < 60)
 	{
 		m_cuePower += 1;
 	}

@@ -25,7 +25,7 @@ namespace consts
 	inline constexpr int defaultBallMass{ 10 };
 	inline constexpr int ballBorderThickness{ 2 };
 
-	inline constexpr double collisionFriction{ 0.92 }; // smaller = more friction
+	inline constexpr double collisionFriction{ 0.9 }; // smaller = more friction
 	inline constexpr double rollingFriction{ 0.01 }; // bigger = more friction
 	inline constexpr double stoppingVelocity{ 0.01 };
 

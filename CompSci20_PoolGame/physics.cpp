@@ -93,37 +93,62 @@ namespace physics
 #endif // DEBUG
 	}
 
+	bool isCircleCollidingWithBoundaryTop(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getY() - ball.getRadius()) < boundary.yPos1;
+	}
+
+	bool isCircleCollidingWithBoundaryBottom(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getY() + ball.getRadius()) > boundary.yPos2;
+	}
+
+	bool isCircleCollidingWithBoundaryLeft(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getX() - ball.getRadius()) < boundary.xPos1;
+	}
+
+	bool isCircleCollidingWithBoundaryRight(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getX() + ball.getRadius()) > boundary.xPos2;
+	}
+
 	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary)
 	{
 		double xPositionAdjustment{};
 		double yPositionAdjustment{};
 
 		// check for boundaries in x-axis
-		if (ball.getX() - ball.getRadius() < boundary.xPos1)
+		if (isCircleCollidingWithBoundaryLeft(ball, boundary))
 		{
 			xPositionAdjustment = (boundary.xPos1 - (ball.getX() - ball.getRadius()));
-			ball.setVelocity(-ball.getVX() * consts::collisionFriction, ball.getVY());
 		}
-		else if (ball.getX() + ball.getRadius() > boundary.xPos2)
+		else if (isCircleCollidingWithBoundaryRight(ball, boundary))
 		{
 			xPositionAdjustment = -(ball.getX() + ball.getRadius() - boundary.xPos2);
-			ball.setVelocity(-ball.getVX() * consts::collisionFriction, ball.getVY());
 		}
 
 		// check for boundaries in y-axis
-		if (ball.getY() - ball.getRadius() < boundary.yPos1)
+		if (isCircleCollidingWithBoundaryTop(ball, boundary))
 		{
 			yPositionAdjustment = (boundary.yPos1 - (ball.getY() - ball.getRadius()));
-			ball.setVelocity(ball.getVX(), -ball.getVY() * consts::collisionFriction);
 		}
-		else if (ball.getY() + ball.getRadius() > boundary.yPos2)
+		else if (isCircleCollidingWithBoundaryBottom(ball, boundary))
 		{
 			yPositionAdjustment = -(ball.getY() + ball.getRadius() - boundary.yPos2);
-			ball.setVelocity(ball.getVX(), -ball.getVY() * consts::collisionFriction);
 		}
 
-		if (xPositionAdjustment != 0 || yPositionAdjustment != 0)
-			ball.addPosition(xPositionAdjustment, yPositionAdjustment);
+		if (xPositionAdjustment != 0)
+		{
+			ball.addPosition(xPositionAdjustment, 0);
+			ball.setVelocity(-ball.getVX() * consts::collisionFriction, ball.getVY());
+		}
+	
+		if (yPositionAdjustment != 0)
+		{
+			ball.addPosition(0, yPositionAdjustment);
+			ball.setVelocity(ball.getVX(), -ball.getVY() * consts::collisionFriction);
+		}
 	}
 
 	// returns true if a collision has happend

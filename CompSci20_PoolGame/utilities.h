@@ -38,5 +38,5 @@ struct TurnInformation
 	int turnPlayerIndex{};
 	BallType firstHitBallType{};
 	std::vector<Ball*> pocketedBalls;
-	bool isTurnValid{};
+	bool startWithBallInHand{};
 };
