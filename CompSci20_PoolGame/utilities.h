@@ -9,7 +9,6 @@
 
 int getRandomInteger(int min, int max);
 void assertInitialized(bool ret, const std::string& event);
-double dotProduct(double x1, double x2, double y1, double y2);
 
 // this used to be used for friction calculations
 template <typename T>

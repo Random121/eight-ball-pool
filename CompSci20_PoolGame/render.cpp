@@ -13,49 +13,97 @@
 
 namespace render
 {
-	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT*& gameFont)
+	void drawBalls(const std::vector<Ball>& gameBalls, const ALLEGRO_FONT* const& gameFont)
 	{
-		for (int ballNumber{}; ballNumber < gameBalls.size(); ++ballNumber)
+		for (const Ball& ball : gameBalls)
 		{
-			const Ball& ball{ gameBalls[ballNumber] };
-
-			if (!ball.isVisible()) // skip if not visible
-				continue;
-
-			if (ballNumber == 0 || ballNumber > 8) // these balls need a white circle
+			if (ball.isVisible())
 			{
-				// draw white circle
-				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
+				const int ballNumber{ ball.getBallNumber() };
+				const BallType type{ ball.getBallType() };
 
-				if (ballNumber > 8) // draw center color for balls
+				// striped and cue balls require white circle
+				if (type == BallType::cue || type == BallType::striped)
 				{
-					const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 9] };
-					al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
+
+					// striped ball require color
+					if (type == BallType::striped)
+					{
+						const std::vector<int>& rgbValues{ consts::ballColorMap[ball.getBallNumber() - 9] };
+						al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+					}
 				}
-			}
-			else
-			{
-				const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 1] };
-				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
-			}
-
-			//draw ball border
-			al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
-
-			if (ballNumber != 0) // do not write ball number on cue
-			{
-				const std::string ballNumberString{ std::to_string(ballNumber) };
-				if (ballNumber < 10)
+				else // solid balls
 				{
-					al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
-					al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+					const std::vector<int>& rgbValues{ consts::ballColorMap[ball.getBallNumber() - 1] };
+					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
 				}
-				else
+
+				// draw ball border
+				al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
+
+				if (type != BallType::cue)
 				{
-					al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+					const std::string ballNumberString{ std::to_string(ballNumber) };
+					if (ballNumber < 10)
+					{
+						// single digit numbers
+						al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
+						al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+					}
+					else
+					{
+						// double digit numbers
+						al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+					}
 				}
 			}
 		}
+
+#ifdef OLD_CODE
+		//for (int ballNumber{}; ballNumber < gameBalls.size(); ++ballNumber)
+		//{
+		//	const Ball& ball{ gameBalls[ballNumber] };
+
+		//	if (!ball.isVisible()) // skip if not visible
+		//		continue;
+
+		//	if (ballNumber == 0 || ballNumber > 8) // these balls need a white circle
+		//	{
+		//		// draw white circle
+		//		al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
+
+		//		if (ballNumber > 8) // draw center color for balls
+		//		{
+		//			const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 9] };
+		//			al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+		//		}
+		//	}
+		//	else
+		//	{
+		//		const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 1] };
+		//		al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+		//	}
+
+		//	//draw ball border
+		//	al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
+
+		//	if (ballNumber != 0) // do not write ball number on cue
+		//	{
+		//		const std::string ballNumberString{ std::to_string(ballNumber) };
+		//		if (ballNumber < 10)
+		//		{
+		//			al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
+		//			al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+		//		}
+		//		else
+		//		{
+		//			al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+		//		}
+		//	}
+		//}
+#endif // OLD_CODE
 	}
 
 	void drawPockets()
@@ -68,6 +116,7 @@ namespace render
 
 	void drawCueStick(CueStick stick)
 	{
+#ifdef OLD_CODE
 		//double cueDistanceFromBall{ consts::cueStickDistanceFromBall + stickPower };
 		//double cueStickLength{ consts::cueStickLength + stickPower };
 
@@ -95,6 +144,7 @@ namespace render
 		//	al_map_rgb(164, 116, 73),
 		//	consts::cueStickWoodThickness
 		//);
+#endif // OLD_CODE
 
 		if (stick.isVisible())
 		{
@@ -127,7 +177,12 @@ namespace render
 			consts::playSurface.yPos1,
 			consts::playSurface.xPos2,
 			consts::playSurface.yPos2,
-			al_map_rgb(0, 110, 0)
+			al_map_rgb(0, 123, 0)
 		);
+	}
+
+	void renderDrawings()
+	{
+		al_flip_display();
 	}
 }

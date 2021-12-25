@@ -37,6 +37,9 @@
     <Filter Include="referee">
       <UniqueIdentifier>{07e18899-4224-41f7-b1bb-0c33fa032cf4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vector2">
+      <UniqueIdentifier>{5644b804-734c-48f1-b52f-251681851322}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -65,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="referee.cpp">
       <Filter>referee</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>vector2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="referee.h">
       <Filter>referee</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>vector2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

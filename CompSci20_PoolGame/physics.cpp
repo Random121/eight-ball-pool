@@ -2,6 +2,7 @@
 #include "Ball.h"
 #include "utilities.h"
 #include "constants.h"
+#include "Vector2.h"
 
 #include <iostream>
 #include <vector>
@@ -22,14 +23,28 @@ namespace physics
 {
 	void resolveCircleCollisionPosition(Ball& ball1, Ball& ball2)
 	{
-		const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
+#ifdef OLD_CODE
+		//const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
+		
+		// calculate distance balls should move by to stop overlapping
+		//const double ballOverlap{ (ballDistance - ball1.getRadius() - ball2.getRadius()) / 2.0 };
+		
+		// change distance into position vector
+		//const double moveDistanceX{ ballOverlap * (ball1.getX() - ball2.getX()) / ballDistance };
+		//const double moveDistanceY{ ballOverlap * (ball1.getY() - ball2.getY()) / ballDistance };
+
+		// move each ball in opposite directions to resolve overlap
+		//ball1.subPosition(moveDistanceX, moveDistanceY);
+		//ball2.addPosition(moveDistanceX, moveDistanceY);
+#endif // OLD_CODE
+
+		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 
 		// calculate distance balls should move by to stop overlapping
-		const double ballOverlap{ (ballDistance - ball1.getRadius() - ball2.getRadius()) / 2.0 };
+		const double ballOverlap{ (deltaPosition.getLength() - ball1.getRadius() - ball2.getRadius()) / 2.0 };
 
-		// change distance into position vectors (x, y)
-		const double moveDistanceX{ ballOverlap * (ball1.getX() - ball2.getX()) / ballDistance };
-		const double moveDistanceY{ ballOverlap * (ball1.getY() - ball2.getY()) / ballDistance };
+		// change the distance into a vector by making it based on the normal
+		const Vector2 moveVector{ deltaPosition.getNormalized().copyAndMultiply(ballOverlap) };
 
 #ifdef DEBUG
 		std::cout << "[POSITION RESOLUTION]\n";
@@ -38,12 +53,11 @@ namespace physics
 		std::cout << "[moveDistanceX] " << moveDistanceX << '\n';
 		std::cout << "[moveDistanceY] " << moveDistanceY << '\n';
 		std::cout << "[start ball1] " << ball1.getX() << ", " << ball1.getY() << '\n';
-		std::cout << "[start ball2] " << ball2.getX() << ", " << ball2.getY() << '\n';
+		std::cout << "[start ball2] " << ball2.getX() << ", " << ball2.getY() << '\n';0
 #endif // DEBUG
 
-		// move each ball in opposite directions to resolve overlap
-		ball1.subPosition(moveDistanceX, moveDistanceY);
-		ball2.addPosition(moveDistanceX, moveDistanceY);
+		ball1.subPosition(moveVector);
+		ball2.addPosition(moveVector);
 
 #ifdef DEBUG
 		std::cout << "[end ball1] " << ball1.getX() << ", " << ball1.getY() << '\n';
@@ -53,19 +67,40 @@ namespace physics
 
 	void resolveCircleCollisionVelocity(Ball& ball1, Ball& ball2)
 	{
-		const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-
+#ifdef OLD_CODE
+		//const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
+		
 		// normal vector (from center to center)
-		const double normalX{ (ball2.getX() - ball1.getX()) / ballDistance };
-		const double normalY{ (ball2.getY() - ball1.getY()) / ballDistance };
-
-		const double deltaVelocityX{ ball1.getVX() - ball2.getVX() };
-		const double deltaVelocityY{ ball1.getVY() - ball2.getVY() };
-
+		//const double normalX{ (ball2.getX() - ball1.getX()) / ballDistance };
+		//const double normalY{ (ball2.getY() - ball1.getY()) / ballDistance };
+		//const double deltaVelocityX{ ball1.getVX() - ball2.getVX() };
+		//const double deltaVelocityY{ ball1.getVY() - ball2.getVY() };
+		
 		// solve conservation of momentum
-		const double p{ 2.0 * dotProduct(normalX, deltaVelocityX, normalY, deltaVelocityY) / (ball1.getMass() + ball2.getMass()) };
-		const double newVelocityX{ p * normalX * consts::collisionFriction };
-		const double newVelocityY{ p * normalY * consts::collisionFriction };
+		//const double p{ 2.0 * dotProduct(normalX, deltaVelocityX, normalY, deltaVelocityY) / (ball1.getMass() + ball2.getMass()) };
+		//const double newVelocityX{ p * normalX * consts::collisionFriction };
+		//const double newVelocityY{ p * normalY * consts::collisionFriction };
+
+		//ball1.subVelocity(
+		//	newVelocityX * ball2.getMass(),
+		//	newVelocityY * ball2.getMass()
+		//);
+
+		//ball2.addVelocity(
+		//	newVelocityX * ball1.getMass(),
+		//	newVelocityY * ball1.getMass()
+		//);
+#endif // OLD_CODE
+
+		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
+		const Vector2 deltaVelocity{ ball1.getVelocityVector().copyAndSubtract(ball2.getVelocityVector()) };
+
+		// normal vector
+		const Vector2 normalVector{ deltaPosition.getNormalized() };
+		
+		// solve conservation of momentum
+		const double p{ 2.0 * normalVector.getDotProduct(deltaVelocity) / (ball1.getMass() + ball2.getMass()) };
+		const Vector2 newVelocityVector{ normalVector.copyAndMultiply(p * consts::collisionFriction) };
 
 #ifdef DEBUG
 		std::cout << "[VELOCITY RESOLUTION]\n";
@@ -77,15 +112,8 @@ namespace physics
 		std::cout << "[start ball2] " << ball2.getVX() << ", " << ball2.getVY() << '\n';
 #endif // DEBUG
 
-		ball1.subVelocity(
-			newVelocityX * ball2.getMass(),
-			newVelocityY * ball2.getMass()
-		);
-
-		ball2.addVelocity(
-			newVelocityX * ball1.getMass(),
-			newVelocityY * ball1.getMass()
-		);
+		ball1.subVelocity(newVelocityVector.copyAndMultiply(ball2.getMass()));
+		ball2.addVelocity(newVelocityVector.copyAndMultiply(ball1.getMass()));
 
 #ifdef DEBUG
 		std::cout << "[end ball1] " << ball1.getVX() << ", " << ball1.getVY() << '\n';
@@ -184,7 +212,7 @@ namespace physics
 		if (ball.isInPocket())
 		{
 			ball.setVisible(false);
-			if (gamePlayers[playerIndex].getTargetBallType() == BallType::undetermined)
+			if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
 			{
 				if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
 				{
@@ -219,7 +247,7 @@ namespace physics
 				bool hasCollided{};
 				while (stepsNeeded > 0.0 && !hasCollided)
 				{
-					ball.addPosition(stepSizeX, stepSizeY); // move ball
+					ball.addPosition(stepSizeX, stepSizeY);
 
 					// check circle to circle collision
 					for (Ball& checkTarget : gameBalls)
@@ -229,7 +257,7 @@ namespace physics
 							resolveCircleCollisionPosition(ball, checkTarget);
 							resolveCircleCollisionVelocity(ball, checkTarget);
 
-							if (turn.firstHitBallType == BallType::undetermined)
+							if (turn.firstHitBallType == BallType::unknown)
 							{
 								// assume that first collision always is cue ball + random ball
 								turn.firstHitBallType = ball.getBallNumber() == 0 ? checkTarget.getBallType() : ball.getBallType();
@@ -246,7 +274,7 @@ namespace physics
 				{
 					ball.setVisible(false);
 					turn.pocketedBalls.push_back(&ball);
-					if (gamePlayers[turn.turnPlayerIndex].getTargetBallType() == BallType::undetermined)
+					if (gamePlayers[turn.turnPlayerIndex].getTargetBallType() == BallType::unknown)
 					{
 						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
 						{

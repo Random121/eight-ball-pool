@@ -64,7 +64,6 @@ void CueStick::setCanUpdate(bool canUpdate)
 	m_canUpdate = canUpdate;
 }
 
-
 bool CueStick::isVisible() const
 {
 	return m_isVisible;

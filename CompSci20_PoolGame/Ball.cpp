@@ -2,70 +2,128 @@
 
 #include "utilities.h"
 #include "constants.h"
+#include "Vector2.h"
 
 #include <cmath>
 #include <iostream>
 
-Ball::Ball(double xPos, double yPos, double radius, double mass)
-	: m_xPosition{ xPos }, m_yPosition{ yPos }, m_radius{ radius }, m_mass{ mass }
+// constructors
+
+Ball::Ball(const double xPos, const double yPos, const double radius, const double mass)
+	: m_position{ xPos, yPos }, m_radius{ radius }, m_mass{ mass }
 {
 }
 
-void Ball::setPosition(const double xPos, const double yPos)
+Ball::Ball(const Vector2 posVector, const double radius, const double mass)
+	: m_position{ posVector }, m_radius{ radius }, m_mass{ mass }
 {
-	m_xPosition = xPos;
-	m_yPosition = yPos;
 }
 
-void Ball::addPosition(const double xPos, const double yPos)
-{
-	m_xPosition += xPos;
-	m_yPosition += yPos;
-}
-
-void Ball::subPosition(const double xPos, const double yPos)
-{
-	m_xPosition -= xPos;
-	m_yPosition -= yPos;
-}
+// position getters
 
 double Ball::getX() const
 {
-	return m_xPosition;
+	return m_position.getX();
 }
 
 double Ball::getY() const
 {
-	return m_yPosition;
+	return m_position.getY();
 }
 
-void Ball::setVelocity(const double xVel, const double yVel)
-{
-	m_xVelocity = xVel;
-	m_yVelocity = yVel;
-}
-
-void Ball::addVelocity(const double xVel, const double yVel)
-{
-	m_xVelocity += xVel;
-	m_yVelocity += yVel;
-}
-
-void Ball::subVelocity(const double xVel, const double yVel)
-{
-	m_xVelocity -= xVel;
-	m_yVelocity -= yVel;
-}
+// velocity getters
 
 double Ball::getVX() const
 {
-	return m_xVelocity;
+	return m_velocity.getX();
 }
 
 double Ball::getVY() const
 {
-	return m_yVelocity;
+	return m_velocity.getY();
 }
+
+// vector getters
+
+Vector2 Ball::getPositionVector() const
+{
+	return m_position;
+}
+
+Vector2 Ball::getVelocityVector() const
+{
+	return m_velocity;
+}
+
+// position setters
+
+void Ball::setPosition(const double xPos, const double yPos)
+{
+	m_position.setXY(xPos, yPos);
+}
+
+void Ball::addPosition(const double xPos, const double yPos)
+{
+	m_position.addToX(xPos);
+	m_position.addToY(yPos);
+}
+
+void Ball::subPosition(const double xPos, const double yPos)
+{
+	m_position.addToX(-xPos);
+	m_position.addToY(-yPos);
+}
+
+void Ball::setPosition(const Vector2& posVector)
+{
+	m_position.setXY(posVector.getX(), posVector.getY());
+}
+
+void Ball::addPosition(const Vector2& posVector)
+{
+	m_position.add(posVector);
+}
+
+void Ball::subPosition(const Vector2& posVector)
+{
+	m_position.subtract(posVector);
+}
+
+// velocity setters
+
+void Ball::setVelocity(const double xVel, const double yVel)
+{
+	m_velocity.setXY(xVel, yVel);
+}
+
+void Ball::addVelocity(const double xVel, const double yVel)
+{
+	m_velocity.addToX(xVel);
+	m_velocity.addToY(yVel);
+}
+
+void Ball::subVelocity(const double xVel, const double yVel)
+{
+	m_velocity.addToX(-xVel);
+	m_velocity.addToY(-yVel);
+}
+
+void Ball::setVelocity(const Vector2& velVector)
+{
+	m_velocity.setXY(velVector.getX(), velVector.getY());
+}
+
+void Ball::addVelocity(const Vector2& velVector)
+{
+	m_velocity.add(velVector);
+}
+
+void Ball::subVelocity(const Vector2& velVector)
+{
+	m_velocity.subtract(velVector);
+}
+
+// radius getter and setter
 
 void Ball::setRadius(const double radius)
 {
@@ -83,6 +141,8 @@ double Ball::getRadius() const
 	return m_radius;
 }
 
+// mass getter and setter
+
 void Ball::setMass(const double mass)
 {
 	if (mass > 0.0)
@@ -99,9 +159,11 @@ double Ball::getMass() const
 	return m_mass;
 }
 
-bool Ball::isMoving() const
+// visible getter and setter
+
+void Ball::setVisible(bool visibility)
 {
-	return (m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) > 0.0;
+	m_isVisible = visibility;
 }
 
 bool Ball::isVisible() const
@@ -109,9 +171,11 @@ bool Ball::isVisible() const
 	return m_isVisible;
 }
 
-void Ball::setVisible(bool visibility)
+// ball number getter and setter
+
+void Ball::setBallNumber(int number)
 {
-	m_isVisible = visibility;
+	m_ballNumber = number;
 }
 
 int Ball::getBallNumber() const
@@ -119,15 +183,10 @@ int Ball::getBallNumber() const
 	return m_ballNumber;
 }
 
-void Ball::setBallNumber(int number)
-{
-	m_ballNumber = number;
-}
-
 BallType Ball::getBallType() const
 {
 	if (m_ballNumber == 0)
-		return BallType::undetermined;
+		return BallType::cue;
 
 	if (m_ballNumber == 8)
 		return BallType::eight;
@@ -136,49 +195,71 @@ BallType Ball::getBallType() const
 		return BallType::striped;
 	else
 		return BallType::solid;
+}
 
+bool Ball::isMoving() const
+{
+	// dot product is way more efficient than calculating the square root
+	return m_velocity.getDotProduct(m_velocity) > 0;
 }
 
 void Ball::applyFriction(const double friction, const double stopVelocity)
 {
+#ifdef OLD_CODE
 	// stop ball if the net velocity is near zero
-	if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
+	//if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
+	//{
+	//	m_xVelocity = 0.0;
+	//	m_yVelocity = 0.0;
+	//}
+	//else
+	//{
+	//	// apply rolling friction
+	//	m_xVelocity -= m_xVelocity * friction;
+	//	m_yVelocity -= m_yVelocity * friction;
+	//}
+#endif // OLD_CODE
+
+	// stop ball if the net velocity is near zero
+	if (m_velocity.getDotProduct(m_velocity) < stopVelocity)
 	{
-		m_xVelocity = 0.0;
-		m_yVelocity = 0.0;
+		m_velocity.setXY(0, 0);
 	}
-	else
+	else // apply rolling friction
 	{
-		// apply rolling friction
-		m_xVelocity -= m_xVelocity * friction;
-		m_yVelocity -= m_yVelocity * friction;
+		m_velocity.subtract(m_velocity.copyAndMultiply(friction));
 	}
 }
 
 // Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
-	// compare pointers to ensure that the collision is not with itself
-	// and that the other ball is active
+	// ensure that the collision is not with itself and that the other ball is active
 	if (&otherBall == this || !otherBall.isVisible())
 		return false;
 
 	const double radiusLength{ m_radius + otherBall.getRadius() };
-	const double deltaX{ m_xPosition - otherBall.getX() };
-	const double deltaY{ m_yPosition - otherBall.getY() };
+	const Vector2 deltaPosition{ m_position.copyAndSubtract(otherBall.m_position) };
+
+#ifdef OLD_CODE
+	//const double deltaX{ m_position.getX() - otherBall.getX() };
+	//const double deltaY{ m_position.getY() - otherBall.getY() };
+	//return (deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
+#endif // OLD_CODE
 
 #ifdef DEBUG
-	if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
+	//if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
+	if (deltaPosition.getDotProduct(deltaPosition) <= (radiusLength * radiusLength))
 	{
 		std::cout << "[OVERLAPPING INFO]\n";
-		std::cout << "[self " << this << "] " << m_xPosition << ", " << m_yPosition << ", " << m_radius << '\n';
+		std::cout << "[self " << this << "] " << getX() << ", " << getY() << ", " << m_radius << '\n';
 		std::cout << "[other " << &otherBall << "] " << otherBall.getX() << ", " << otherBall.getY() << ", " << otherBall.getRadius() << "\n\n";
 		return true;
 	}
 	return false;
 #endif // DEBUG
 
-	return (deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength);
+	return deltaPosition.getDotProduct(deltaPosition) <= (radiusLength * radiusLength);
 }
 
 bool Ball::isInPocket() const
@@ -186,15 +267,15 @@ bool Ball::isInPocket() const
 	for (const std::vector<int>& pocketCoord : consts::pocketCoordinates)
 	{
 		const double radiusLength{ m_radius + consts::pocketRadius - 10 };
-		const double deltaX{ m_xPosition - pocketCoord[0] };
-		const double deltaY{ m_yPosition - pocketCoord[1] };
+		const double deltaX{ m_position.getX() - pocketCoord[0] };
+		const double deltaY{ m_position.getY() - pocketCoord[1] };
 
 		if ((deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength))
 		{
 #ifdef DEBUG
-			std::cout << "IN POCKET" << '\n';,
+			std::cout << "IN POCKET" << '\n'; ,
 #endif // DEBUG
-			return true;
+				return true;
 		}
 	}
 	return false;

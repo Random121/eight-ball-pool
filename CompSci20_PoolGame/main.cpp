@@ -166,7 +166,7 @@ int main()
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
 
-	al_set_window_title(gameDisplay, "Totally Accurate Billiards Simulator");
+	al_set_window_title(gameDisplay, "Totally Accurate Billiards Simulator | Benjamin Jelica Edition");
 
 	Input& input{ Input::getInstance() };
 
@@ -269,14 +269,24 @@ int main()
 
 				const bool hasFouled = !referee::isTurnValid(gamePlayers[currentPlayerIndex], currentTurn);
 
-				if (gamePlayers[currentPlayerIndex].getTargetBallType() != BallType::undetermined)
+				if (gamePlayers[currentPlayerIndex].getTargetBallType() != BallType::unknown)
 				{
 					for (Ball* ball : currentTurn.pocketedBalls)
 					{
 						if (ball->getBallType() == gamePlayers[currentPlayerIndex].getTargetBallType())
-							gamePlayers[currentPlayerIndex].addGameScore(1);
+							gamePlayers[currentPlayerIndex].addGameScore(8);
 						else
 							gamePlayers[(currentPlayerIndex + 1) % gamePlayers.size()].addGameScore(1);
+					}
+				}
+
+				for (int i{}; i < gamePlayers.size(); ++i)
+				{
+					if (gamePlayers[i].getGameScore() == 8)
+					{
+						std::cout << "WINNER: Player " << (i + 1) << '\n';
+						gameRunning = false;
+						break;
 					}
 				}
 
@@ -327,7 +337,7 @@ int main()
 			render::drawPockets();
 			render::drawBalls(gameBalls, gameFont);
 			render::drawCueStick(gameStick);
-			al_flip_display();
+			render::renderDrawings();
 			drawFrame = false;
 		}
 	}
@@ -337,6 +347,8 @@ int main()
 	al_destroy_timer(gameTimer);
 	al_destroy_display(gameDisplay);
 	al_destroy_font(gameFont);
+
+	std::cin.get();
 
 	return EXIT_SUCCESS;
 }

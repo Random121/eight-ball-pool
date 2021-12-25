@@ -11,12 +11,12 @@ namespace referee
 	bool isValidFirstHit(Player& currentPlayer, BallType hitBallType)
 	{
 		// did not hit a ball at all
-		if (hitBallType == BallType::undetermined)
+		if (hitBallType == BallType::unknown)
 			return false;
 
 		// if the player has not pocketed a ball, it is a foul
 		// to hit the eight ball first
-		if (currentPlayer.getTargetBallType() == BallType::undetermined)
+		if (currentPlayer.getTargetBallType() == BallType::unknown)
 			return hitBallType != BallType::eight;
 
 		// valid since they hit a ball of their type
@@ -39,7 +39,8 @@ namespace referee
 
 		for (Ball* ball : pocketedBalls)
 		{
-			if (ball->getBallType() == BallType::undetermined)
+			// can't pocket the cue ball
+			if (ball->getBallType() == BallType::cue)
 				return false;
 		}
 

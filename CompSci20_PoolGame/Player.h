@@ -5,7 +5,7 @@
 class Player
 {
 private:
-	BallType m_targetType{ BallType::undetermined };
+	BallType m_targetType{};
 	int m_gameScore{};
 
 public:
@@ -16,4 +16,3 @@ public:
 	BallType getTargetBallType() const;
 	void setTargetBallType(BallType type);
 };
-

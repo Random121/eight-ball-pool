@@ -1,21 +1,27 @@
 #pragma once
 
+#include "Vector2.h"
+
 enum class BallType
 {
-	undetermined,
+	unknown,
 	solid,
 	striped,
-	eight
+	eight,
+	cue
 };
 
 class Ball
 {
 private:
-	double m_xPosition{};
-	double m_yPosition{};
 
-	double m_xVelocity{};
-	double m_yVelocity{};
+	Vector2 m_position{};
+	Vector2 m_velocity{};
+
+	//double m_xPosition{};
+	//double m_yPosition{};
+	//double m_xVelocity{};
+	//double m_yVelocity{};
 
 	double m_radius{};
 	double m_mass{};
@@ -25,23 +31,33 @@ private:
 
 public:
 	Ball() = default;
-	Ball(double xPos, double yPos, double radius, double mass);
+	Ball(const double xPos, const double yPos, const double radius, const double mass);
+	Ball(const Vector2 posVector, const double radius, const double mass);
 
 	double getX() const;
 	double getY() const;
 	double getVX() const;
 	double getVY() const;
 
+	Vector2 getPositionVector() const;
+	Vector2 getVelocityVector() const;
+
 	// did not need the subtract functions, but it is way
 	// nicer to interpret than adding negative numbers
 
 	void setPosition(const double xPos, const double yPos);
-	void setVelocity(const double xVel, const double yVel);
-	void subPosition(const double xPos, const double yPos);
-
 	void addPosition(const double xPos, const double yPos);
+	void subPosition(const double xPos, const double yPos);
+	void setPosition(const Vector2& posVector);
+	void addPosition(const Vector2& posVector);
+	void subPosition(const Vector2& posVector);
+
+	void setVelocity(const double xVel, const double yVel);
 	void addVelocity(const double xVel, const double yVel);
 	void subVelocity(const double xVel, const double yVel);
+	void setVelocity(const Vector2& velVector);
+	void addVelocity(const Vector2& velVector);
+	void subVelocity(const Vector2& velVector);
 
 	void setRadius(const double radius);
 	double getRadius() const;
@@ -49,16 +65,14 @@ public:
 	void setMass(const double mass);
 	double getMass() const;
 
-	bool isMoving() const;
-
-	bool isVisible() const;
 	void setVisible(bool visibility);
+	bool isVisible() const;
 
-	int getBallNumber() const;
 	void setBallNumber(int number);
+	int getBallNumber() const;
 
 	BallType getBallType() const;
-
+	bool isMoving() const;
 	void applyFriction(const double friction, const double stopVelocity);
 
 	bool isOverlappingBall(const Ball& otherBall) const;
