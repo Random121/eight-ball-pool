@@ -1,11 +1,11 @@
 # CS20_AllegroPoolGame
 
 TODO
-- [PRIORITY HIGH] Make Vector2 parameter of Ball constructor a reference. (const Vector2& posVector)
-- [PRIORITY HIGH] Remove useless old file in the repo: GameEnvironment, resources, scheduler.
-- [ABOVE] For the above change, also see if the files are present in the Visual Studio work directory and remove it.
-- [PRIORITY HIGH] Make a class that handles all allegro resource. Idea: https://www.youtube.com/watch?v=WKs685H6uOQ https://github.com/JuUnland/Chess
-- [PRIORITY MEDIUM] Randomized racks.
+- [FINISHED] [PRIORITY HIGH] Make Vector2 parameter of Ball constructor a reference. (const Vector2& posVector)
+- [FINISHED] [PRIORITY HIGH] Remove useless old file in the repo: GameEnvironment, resources, scheduler.
+- [FINISHED] [ABOVE] For the above change, also see if the files are present in the Visual Studio work directory and remove it.
+- [FINISHED] [PRIORITY HIGH] Make a class that handles all allegro resource. Idea: https://www.youtube.com/watch?v=WKs685H6uOQ https://github.com/JuUnland/Chess
+- [PRIORITY HIGH] Randomized racks.
 - [ABOVE] To randomize racks, set up an array of ball indexes (except for index 0 and 8 which are cue and eight ball). Loop through the rack positions and assign that position to the corresponding ball in the ball index.
 __Sample Code For Racking:__
 ```
