@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utilities.h"
-#include "Player.h"
+#include "Players.h"
 
 // namespace for foul detection functions
 namespace referee

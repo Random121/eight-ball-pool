@@ -28,9 +28,6 @@
     <Filter Include="input">
       <UniqueIdentifier>{8485fc6a-1b0a-4946-930a-1b13af57ea28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Player">
-      <UniqueIdentifier>{984b8acc-3b30-4163-9655-09e329e83960}</UniqueIdentifier>
-    </Filter>
     <Filter Include="CueStick">
       <UniqueIdentifier>{80225961-7853-4be6-b949-6966ecd780b8}</UniqueIdentifier>
     </Filter>
@@ -42,6 +39,12 @@
     </Filter>
     <Filter Include="allegro_handler">
       <UniqueIdentifier>{94900eed-7a62-4a1f-b997-d1ea8220d6aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Players">
+      <UniqueIdentifier>{984b8acc-3b30-4163-9655-09e329e83960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameLogic">
+      <UniqueIdentifier>{0a155a1f-25e7-4769-a98f-8ed3a6240ab2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,8 +66,8 @@
     <ClCompile Include="Input.cpp">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Player</Filter>
+    <ClCompile Include="Players.cpp">
+      <Filter>Players</Filter>
     </ClCompile>
     <ClCompile Include="CueStick.cpp">
       <Filter>CueStick</Filter>
@@ -77,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="AllegroHandler.cpp">
       <Filter>allegro_handler</Filter>
+    </ClCompile>
+    <ClCompile Include="GameLogic.cpp">
+      <Filter>GameLogic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,8 +107,8 @@
     <ClInclude Include="Input.h">
       <Filter>input</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Player</Filter>
+    <ClInclude Include="Players.h">
+      <Filter>Players</Filter>
     </ClInclude>
     <ClInclude Include="CueStick.h">
       <Filter>CueStick</Filter>
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="AllegroHandler.h">
       <Filter>allegro_handler</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLogic.h">
+      <Filter>GameLogic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

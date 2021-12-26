@@ -1,0 +1,270 @@
+#include "GameLogic.h"
+
+#include "AllegroHandler.h"
+#include "Ball.h"
+#include "Vector2.h"
+
+#include "constants.h"
+#include "utilities.h"
+#include "render.h"
+#include "referee.h"
+#include "physics.h"
+
+#include <allegro5/allegro5.h>
+
+#include <iostream>
+#include <string_view>
+
+static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, const double ballRadius, const double ballMass)
+{
+	gameBalls.resize(ballCount);
+	for (int i{}; i < ballCount; ++i)
+	{
+		Ball& ball{ gameBalls[i] };
+		ball.setRadius(ballRadius);
+		ball.setMass(ballMass);
+		ball.setBallNumber(i);
+		ball.setVisible(true);
+	}
+}
+
+static void setupRack(GameLogic::BallVector& gameBalls)
+{
+	for (int i{}; i < gameBalls.size(); ++i)
+	{
+		gameBalls[i].setPosition(consts::rackBallPositions[i][0], consts::rackBallPositions[i][1]);
+	}
+}
+
+static bool isValidPlacePosition(Ball& cueBall, GameLogic::BallVector& gameBalls)
+{
+	bool isOverlappingBall{};
+	bool isOverlappingBoundary{};
+
+	for (Ball& ball : gameBalls)
+	{
+		if (cueBall.isOverlappingBall(ball))
+		{
+			isOverlappingBall = true;
+			break;
+		}
+	}
+
+	// efficiency :thumbs_up:
+	isOverlappingBoundary = physics::isCircleCollidingWithBoundaryTop(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryBottom(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryLeft(cueBall, consts::playSurface)
+		|| physics::isCircleCollidingWithBoundaryRight(cueBall, consts::playSurface);
+
+	return !isOverlappingBall && !isOverlappingBoundary;
+}
+
+static std::string_view getBallTypeName(BallType type)
+{
+	switch (type)
+	{
+	case BallType::unknown:
+		return "Unknown";
+	case BallType::solid:
+		return "Solid";
+	case BallType::striped:
+		return "Striped";
+	case BallType::eight:
+		return "Eight-Ball";
+	case BallType::cue:
+		return "Cue-Ball";
+	default:
+		return "???";
+	}
+}
+
+GameLogic::GameLogic(AllegroHandler& allegro)
+	: m_allegro{ allegro },
+	m_gamePlayers{ 2, getRandomInteger(0, 1) }
+{
+	createBalls(m_gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
+	setupRack(m_gameBalls);
+}
+
+void GameLogic::frameUpdate()
+{
+	if (m_activeTurn.startWithBallInHand)
+	{
+		if (!m_gameBalls[0].isVisible())
+		{
+			m_gameBalls[0].setVisible(true);
+			m_gameBalls[0].setVelocity(0, 0);
+		}
+
+		m_gameBalls[0].setPosition(m_input.getMouseVector());
+
+		if (m_input.isMouseButtonDown(1) && isValidPlacePosition(m_gameBalls[0], m_gameBalls))
+		{
+			m_gameCueStick.setCanUpdate(true);
+			m_gameCueStick.setVisible(true);
+			m_gameBalls[0].setVisible(true);
+			m_activeTurn.startWithBallInHand = false;
+		}
+	}
+	else
+	{
+		updatePhysics();
+		m_gameCueStick.updateAll(m_gameBalls[0].getX(), m_gameBalls[0].getY());
+
+		if (m_gameCueStick.canUpdate() && m_input.isMouseButtonDown(1))
+		{
+			shootCueBall();
+			m_lastShotStartTime = al_get_time();
+		}
+
+		// yeah...the canUpdate variable and checks is just for this nice to have animation
+		if (!m_gameCueStick.canUpdate() && m_gameCueStick.isVisible() && (al_get_time() - m_lastShotStartTime) > 1)
+		{
+			m_gameCueStick.setVisible(false);
+		}
+
+		// if no balls are moving and cue stick is not visible (meaning it has shot a ball)
+		// we interpret it as the end of the turn
+		if (!physics::areBallsMoving(m_gameBalls) && !m_gameCueStick.isVisible())
+		{
+			const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
+
+			std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+			std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
+			std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
+			std::cout << "Pocketed Balls:";
+			
+			// print pocketed balls
+			if (hasPocketedBall)
+			{
+				std::cout << '\n';
+				for (Ball* ball : m_activeTurn.pocketedBalls)
+				{
+					std::cout << "- " << ball->getBallNumber() << " (" << getBallTypeName(ball->getBallType()) << ")\n";
+				}
+			}
+			else
+			{
+				std::cout << " None\n";
+			}
+
+			std::cout << '\n';
+
+			const bool hasFouled{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
+
+			if (!hasFouled)
+			{
+				m_gameCueStick.setCanUpdate(true);
+				m_gameCueStick.setVisible(true);
+				m_gameBalls[0].setVisible(true);
+			}
+			else
+			{
+				m_gameBalls[0].setVisible(false);
+			}
+
+			// switch turns
+			if (hasFouled || !hasPocketedBall)
+			{
+				m_gamePlayers.advancePlayerIndex();
+			}
+
+			// add scores
+			if (hasPocketedBall && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
+			{
+				for (Ball* pocketedBall : m_activeTurn.pocketedBalls)
+				{
+					for (Player& player : m_gamePlayers.getPlayerVector())
+					{
+						if (player.targetBallType == pocketedBall->getBallType())
+						{
+							player.score++;
+						}
+					}
+				}
+			}
+
+			// print scores
+			std::cout << "[GAME SCORE]\n";
+			std::cout << "Player (1): " << m_gamePlayers.getPlayer(0).score << '\n';
+			std::cout << "Player (2): " << m_gamePlayers.getPlayer(1).score << "\n\n";
+
+			std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+			if (hasFouled)
+			{
+				std::cout << "[Player (" << m_gamePlayers.getCurrentIndexPretty() << ") is starting with ball in hand]\n";
+			}
+			std::cout << '\n';
+
+			m_activeTurn = {};
+			m_activeTurn.startWithBallInHand = hasFouled;
+		}
+
+	}
+
+	if (m_allegro.isEventQueueEmpty())
+	{
+		updateRender();
+	}
+}
+
+// when running physics calculations we use a fixed delta time update,
+// this ensures that no matter how fast or slow a frame takes the physics
+// calculations is always accurate at that certain point in time.
+// i.e. if one instance has frame time of 2 seconds and another with 2 miliseconds,
+// after 4 seconds in real life, the calculated physics velocity and positions should
+// be exactly the same.
+void GameLogic::updatePhysics()
+{
+	static double timeAccumulator{};
+	static double previousTime{ al_get_time() };
+	static double currentTime;
+	static double frameTime;
+
+	currentTime = al_get_time();
+	frameTime = currentTime - previousTime;
+	previousTime = currentTime;
+
+	if (frameTime > 0.25)
+		frameTime = 0.25;
+
+	timeAccumulator += frameTime;
+
+	while (timeAccumulator >= consts::physicsUpdateDelta)
+	{
+		physics::stepPhysics(m_gameBalls, m_gamePlayers, m_activeTurn);
+		timeAccumulator -= consts::physicsUpdateDelta;
+	}
+}
+
+void GameLogic::updateRender()
+{
+	render::drawPlaysurface();
+	render::drawPockets();
+	render::drawBalls(m_gameBalls, m_allegro.getFont());
+	render::drawCueStick(m_gameCueStick);
+	render::renderDrawings();
+}
+
+void GameLogic::shootCueBall()
+{
+	const int cuePower{ m_gameCueStick.getCuePower() };
+	if (cuePower > 0)
+	{
+		Ball& cueBall{ m_gameBalls[0] };
+		const Vector2 deltaPosition{ m_input.getMouseVector().copyAndSubtract(cueBall.getPositionVector()) };
+		Vector2 normalized{ deltaPosition.getNormalized() };
+
+		normalized.multiply(cuePower);
+
+		cueBall.setVelocity(normalized);
+
+		std::cout << "[BALL SHOT] Power: " << cuePower << "\n\n";
+
+		// reset the cue stick position to make it seem like
+		// it has been "shot"
+		m_gameCueStick.setCuePower(0);
+		m_gameCueStick.updateAll(cueBall.getX(), cueBall.getY());
+		m_gameCueStick.setCanUpdate(false);
+	}
+}

@@ -181,6 +181,8 @@ namespace render
 		);
 	}
 
+	// lol...it just makes the code more informative
+	// much more sense to say renderDrawings than flip_display
 	void renderDrawings()
 	{
 		al_flip_display();

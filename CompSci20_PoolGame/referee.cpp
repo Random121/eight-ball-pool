@@ -1,9 +1,10 @@
 #include "referee.h"
 
-#include "Player.h"
+#include "Players.h"
 #include "utilities.h"
 
 #include <vector>
+#include <iostream>
 
 namespace referee
 {
@@ -16,19 +17,19 @@ namespace referee
 
 		// if the player has not pocketed a ball, it is a foul
 		// to hit the eight ball first
-		if (currentPlayer.getTargetBallType() == BallType::unknown)
+		if (currentPlayer.targetBallType == BallType::unknown)
 			return hitBallType != BallType::eight;
 
 		// valid since they hit a ball of their type
-		if (currentPlayer.getTargetBallType() == hitBallType)
+		if (currentPlayer.targetBallType == hitBallType)
 			return true;
 	
 		// if player pocketed all their balls, they
 		// must hit the eight ball first
-		if (currentPlayer.getGameScore() == 7)
+		if (currentPlayer.score == 7)
 			return hitBallType == BallType::eight;
 
-		return false;
+		return true;
 	}
 
 	bool isPocketedBallsValid(Player& currentPlayer, std::vector<Ball*> pocketedBalls)
@@ -41,12 +42,13 @@ namespace referee
 		{
 			// can't pocket the cue ball
 			if (ball->getBallType() == BallType::cue)
+			{
 				return false;
+			}
 		}
 
-		if (currentPlayer.getGameScore() == 7)
+		if (currentPlayer.score == 7)
 			return pocketedBalls.size() == 1 && pocketedBalls[0]->getBallType() == BallType::eight;
-
 		return true;
 	}
 

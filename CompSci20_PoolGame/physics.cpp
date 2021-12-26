@@ -3,6 +3,7 @@
 #include "utilities.h"
 #include "constants.h"
 #include "Vector2.h"
+#include "Players.h"
 
 #include <iostream>
 #include <vector>
@@ -95,7 +96,6 @@ namespace physics
 		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 		const Vector2 deltaVelocity{ ball1.getVelocityVector().copyAndSubtract(ball2.getVelocityVector()) };
 
-		// normal vector
 		const Vector2 normalVector{ deltaPosition.getNormalized() };
 		
 		// solve conservation of momentum
@@ -209,21 +209,21 @@ namespace physics
 
 	void handlePocketing(Ball& ball, std::vector<Player>& gamePlayers, int playerIndex)
 	{
-		if (ball.isInPocket())
-		{
-			ball.setVisible(false);
-			if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
-			{
-				if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
-				{
-					gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
-					gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
-				}
-			}
-		}
+		//if (ball.isInPocket())
+		//{
+		//	ball.setVisible(false);
+		//	if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
+		//	{
+		//		if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
+		//		{
+		//			gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
+		//			gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
+		//		}
+		//	}
+		//}
 	}
 
-	void stepPhysics(std::vector<Ball>& gameBalls, std::vector<Player>& gamePlayers, TurnInformation& turn)
+	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn)
 	{
 		for (Ball& ball : gameBalls)
 		{
@@ -260,7 +260,7 @@ namespace physics
 							if (turn.firstHitBallType == BallType::unknown)
 							{
 								// assume that first collision always is cue ball + random ball
-								turn.firstHitBallType = ball.getBallNumber() == 0 ? checkTarget.getBallType() : ball.getBallType();
+								turn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
 							}
 
 							hasCollided = true; // if a collision occured, then stop moving using old velocity
@@ -272,20 +272,20 @@ namespace physics
 
 				if (ball.isInPocket())
 				{
+					ball.setVelocity(0, 0);
 					ball.setVisible(false);
 					turn.pocketedBalls.push_back(&ball);
-					if (gamePlayers[turn.turnPlayerIndex].getTargetBallType() == BallType::unknown)
+					if (gamePlayers.getCurrentPlayer().targetBallType == BallType::unknown)
 					{
 						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
 						{
-							gamePlayers[turn.turnPlayerIndex].setTargetBallType(ball.getBallType());
-							gamePlayers[(turn.turnPlayerIndex + 1) % gamePlayers.size()].setTargetBallType((ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid);
+							gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
+							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid;
 						}
 					}
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
-
 				resolveCircleBoundaryCollision(ball, consts::playSurface);
 			}
 

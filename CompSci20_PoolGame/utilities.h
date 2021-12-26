@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Ball.h"
-#include "Player.h"
 
 #include <cmath>
 #include <string>
@@ -34,7 +33,6 @@ struct Rectangle
 
 struct TurnInformation
 {
-	int turnPlayerIndex{};
 	BallType firstHitBallType{};
 	std::vector<Ball*> pocketedBalls;
 	bool startWithBallInHand{};

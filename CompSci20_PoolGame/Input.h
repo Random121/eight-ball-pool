@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vector2.h"
+
 #include <allegro5/allegro5.h>
 
 #include <vector>
@@ -31,5 +33,6 @@ public:
 	bool isMouseButtonDown(int button);
 	int getMouseX();
 	int getMouseY();
+	Vector2 getMouseVector();
 };
 

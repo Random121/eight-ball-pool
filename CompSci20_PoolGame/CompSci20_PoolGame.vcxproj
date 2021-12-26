@@ -22,10 +22,11 @@
     <ClCompile Include="AllegroHandler.cpp" />
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="CueStick.cpp" />
+    <ClCompile Include="GameLogic.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Players.cpp" />
     <ClCompile Include="referee.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="utilities.cpp" />
@@ -39,9 +40,10 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="CueStick.h" />
+    <ClInclude Include="GameLogic.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="physics.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Players.h" />
     <ClInclude Include="referee.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="utilities.h" />

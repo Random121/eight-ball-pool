@@ -27,7 +27,7 @@ namespace consts
 
 	inline constexpr double collisionFriction{ 0.9 }; // smaller = more friction
 	inline constexpr double rollingFriction{ 0.011 }; // bigger = more friction
-	inline constexpr double stoppingVelocity{ 0.05 };
+	inline constexpr double stoppingVelocity{ 0.01 };
 
 	inline constexpr double cueStickDistanceFromBall{ 17.0 };
 	inline constexpr double cueStickLength{ 400.0 };

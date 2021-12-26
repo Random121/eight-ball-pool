@@ -4,9 +4,11 @@
 #include "physics.h"
 #include "render.h"
 #include "Input.h"
-#include "Player.h"
+#include "Players.h"
 #include "CueStick.h"
 #include "referee.h"
+#include "AllegroHandler.h"
+#include "GameLogic.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -16,43 +18,9 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <ctime>
-
-void initializeLibraries()
-{
-	// random
-	std::srand(std::time(nullptr));
-	{ const int temp{ std::rand() }; } // for better randomization
-
-	// allegro
-	assertInitialized(al_init(), "Allegro init");
-	assertInitialized(al_install_keyboard(), "Allegro keyboard driver");
-	assertInitialized(al_install_mouse(), "Allegro mouse driver");
-	assertInitialized(al_init_image_addon(), "Allegro image addon");
-	assertInitialized(al_init_primitives_addon(), "Allegro primitives addon");
-	assertInitialized(al_init_native_dialog_addon(), "Allegro dialong addon");
-
-	// allegro display (antialiasing)
-	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST); // use multisampling
-	al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
-	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-}
-
-void initializeVariables(ALLEGRO_TIMER*& timer, ALLEGRO_EVENT_QUEUE*& queue, ALLEGRO_DISPLAY*& display, ALLEGRO_FONT*& font)
-{
-	timer = al_create_timer(consts::frameTime);
-	assertInitialized(timer, "timer");
-
-	queue = al_create_event_queue();
-	assertInitialized(queue, "event queue");
-
-	display = al_create_display(consts::screenWidth, consts::screenHeight);
-	assertInitialized(display, "display");
-
-	font = al_create_builtin_font();
-	assertInitialized(font, "font");
-}
 
 void createBalls(std::vector<Ball>& gameBalls, const int number, const double radius, const double mass)
 {
@@ -75,7 +43,7 @@ void moveToRackPositions(std::vector<Ball>& gameBalls)
 	}
 }
 
-void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, std::vector<Player>& gamePlayers, TurnInformation& turnInfo)
+void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, Players& gamePlayers, TurnInformation& turnInfo)
 {
 	static double previousTime{ al_get_time()};
 	static double currentTime{};
@@ -119,9 +87,9 @@ void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
 
 		std::cout << "Cue Stick Power: " << power << '\n';
 
-		cueStick.setCuePower(0);
 		// reset the cue stick position to make it seem like
 		// it has been "shot"
+		cueStick.setCuePower(0);
 		cueStick.updateAll(cueBall.getX(), cueBall.getY());
 		cueStick.setCanUpdate(false);
 	}
@@ -151,37 +119,27 @@ bool isValidPlacePosition(Ball& cueBall, std::vector<Ball>& gameBalls)
 
 int main()
 {
-	initializeLibraries();
+	{ // initialize random number gen
+		std::srand(std::time(nullptr));
+		const int temp{ std::rand() };
+	}
 
-	ALLEGRO_TIMER* gameTimer; // this will act as the frame cap for the graphics
-	ALLEGRO_DISPLAY* gameDisplay;
-	ALLEGRO_FONT* gameFont;
-	ALLEGRO_EVENT_QUEUE* eventQueue;
-	ALLEGRO_EVENT currentEvent;
-
-	initializeVariables(gameTimer, eventQueue, gameDisplay, gameFont);
-
-	al_register_event_source(eventQueue, al_get_display_event_source(gameDisplay));
-	al_register_event_source(eventQueue, al_get_timer_event_source(gameTimer));
-	al_register_event_source(eventQueue, al_get_keyboard_event_source());
-	al_register_event_source(eventQueue, al_get_mouse_event_source());
-
-	al_set_window_title(gameDisplay, "Totally Accurate Billiards Simulator | Benjamin Jelica Edition");
-
+	AllegroHandler allegro{};
 	Input& input{ Input::getInstance() };
+	GameLogic gameLogic{ allegro };
 
-	std::vector<Player> gamePlayers(2);
-	std::vector<Ball> gameBalls;
-	CueStick gameStick{ true, true };
-	TurnInformation currentTurn;
+	al_set_window_title(allegro.getDisplay(), "Totally Accurate Billiards Simulator");
 
-	int currentPlayerIndex{ getRandomInteger(0, gamePlayers.size() - 1) };
+	//constexpr int gamePlayerCount{ 2 };
+
+	//Players gamePlayers{ gamePlayerCount, getRandomInteger(0, gamePlayerCount - 1) };
+	//std::vector<Ball> gameBalls;
+	//CueStick gameStick{ true, true };
+	//TurnInformation currentTurn;
+
 	bool gameRunning{ true };
-	bool drawFrame{ true };
-	int shootStartTime{};
-
-	std::cout << "Player (" << (currentPlayerIndex + 1) << ") is taking the break shot.\n";
-	currentTurn.turnPlayerIndex = currentPlayerIndex;
+	//bool drawFrame{ true };
+	//int shootStartTime{};
 
 	//al_show_native_message_box(
 	//	gameDisplay,
@@ -192,16 +150,42 @@ int main()
 	//	NULL
 	//);
 
-	createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
-	moveToRackPositions(gameBalls);
+	//createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
+	//moveToRackPositions(gameBalls);
 
-	al_start_timer(gameTimer);
+	//std::cout << "Player (" << gamePlayers.getCurrentIndexPretty() << ") is taking the break shot.\n";
+
+	allegro.startTimer();
 
 	while (gameRunning)
 	{
-		al_wait_for_event(eventQueue, &currentEvent);
+		al_wait_for_event(allegro.getEventQueue(), &allegro.getEvent());
 
-		switch (currentEvent.type)
+		switch (allegro.getEvent().type)
+		{
+		case ALLEGRO_EVENT_TIMER:
+
+			input.updateAllStates();
+
+			gameLogic.frameUpdate();
+
+			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
+				gameRunning = false;
+
+			break;
+		case ALLEGRO_EVENT_KEY_DOWN:
+			input.keyDownHook(allegro.getEvent().keyboard.keycode);
+			break;
+		case ALLEGRO_EVENT_KEY_UP:
+			input.keyUpHook(allegro.getEvent().keyboard.keycode);
+			break;
+		case ALLEGRO_EVENT_DISPLAY_CLOSE:
+			gameRunning = false;
+			break;
+		}
+
+		/*
+		switch (allegro.getEvent().type)
 		{
 		case ALLEGRO_EVENT_TIMER:
 			updatePhysics(gameBalls, consts::physicsUpdateDelta, gamePlayers, currentTurn);
@@ -231,16 +215,14 @@ int main()
 			{
 				if (currentTurn.startWithBallInHand)
 				{
-					gameBalls[0].setVelocity(0, 0);
-					gameBalls[0].setVisible(true);
-					gameStick.setVisible(true);
-					currentTurn.startWithBallInHand = false;
-					
-					do
+					gameBalls[0].setPosition(input.getMouseX(), input.getMouseY());
+
+					if (isValidPlacePosition(gameBalls[0], gameBalls))
 					{
-						input.updateMouseState();
-						gameBalls[0].setPosition(input.getMouseX(), input.getMouseY());
-					} while (!isValidPlacePosition(gameBalls[0], gameBalls));
+						gameBalls[0].setVisible(true);
+						gameStick.setVisible(true);
+						currentTurn.startWithBallInHand = false;
+					}
 				}
 				else
 				{
@@ -259,34 +241,35 @@ int main()
 				std::cout << "--TURN OVER--\n";
 
 				std::cout << "First Hit Type: " << static_cast<int>(currentTurn.firstHitBallType) << '\n';
-				std::cout << "Player Index: " << currentTurn.turnPlayerIndex << '\n';
+				std::cout << "Player Index: " << gamePlayers.getCurrentIndex() << '\n';
 				//std::cout << "Valid Turn: " << currentTurn.isTurnValid << '\n';
-				std::cout << "Player Ball Type: " << static_cast<int>(gamePlayers[currentPlayerIndex].getTargetBallType()) << '\n';
+				std::cout << "Player Ball Type: " << static_cast<int>(gamePlayers.getCurrentPlayer().targetBallType) << '\n';
 				for (Ball* ball : currentTurn.pocketedBalls)
 				{
 					std::cout << ball->getBallNumber() << '\n';
 				}
 
-				const bool hasFouled = !referee::isTurnValid(gamePlayers[currentPlayerIndex], currentTurn);
+				const bool hasFouled = !referee::isTurnValid(gamePlayers.getCurrentPlayer(), currentTurn);
 
-				if (gamePlayers[currentPlayerIndex].getTargetBallType() != BallType::unknown)
+				if (gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
 				{
 					for (Ball* ball : currentTurn.pocketedBalls)
 					{
-						if (ball->getBallType() == gamePlayers[currentPlayerIndex].getTargetBallType())
-							gamePlayers[currentPlayerIndex].addGameScore(8);
+						if (ball->getBallType() == gamePlayers.getCurrentPlayer().targetBallType)
+							gamePlayers.getCurrentPlayer().score++;
 						else
-							gamePlayers[(currentPlayerIndex + 1) % gamePlayers.size()].addGameScore(1);
+							gamePlayers.getNextPlayer().score++;
 					}
 				}
 
-				for (int i{}; i < gamePlayers.size(); ++i)
+				// check winner
+				for (int i{}; i < gamePlayers.getPlayerCount(); ++i)
 				{
-					if (gamePlayers[i].getGameScore() == 8)
+					if (gamePlayers.getPlayer(i).score == 8)
 					{
-						std::cout << "WINNER: Player " << (i + 1) << '\n';
+						std::cout << "[WINNER] Player (" << (i + 1) << ")\n";
 						gameRunning = false;
-						break;
+						continue;
 					}
 				}
 
@@ -295,7 +278,7 @@ int main()
 				// switch turns
 				if (hasFouled || currentTurn.pocketedBalls.size() == 0)
 				{
-					currentPlayerIndex = (currentPlayerIndex + 1) % gamePlayers.size();
+					gamePlayers.advancePlayerIndex();
 				}
 
 				gameStick.setCanUpdate(true);
@@ -306,11 +289,10 @@ int main()
 					gameBalls[0].setVisible(false);
 
 				currentTurn = {};
-				currentTurn.turnPlayerIndex = currentPlayerIndex;
 				currentTurn.startWithBallInHand = hasFouled;
 
-				std::cout << "SCORES: " << gamePlayers[0].getGameScore() << ' ' << gamePlayers[1].getGameScore() << '\n';
-				std::cout << "Current Player: " << (currentPlayerIndex + 1) << '\n';
+				std::cout << "SCORES: " << gamePlayers.getPlayer(0).score << ' ' << gamePlayers.getPlayer(1).score << '\n';
+				std::cout << "Current Player: " << gamePlayers.getCurrentIndexPretty() << '\n';
 				if (hasFouled)
 					std::cout << "Current player is starting with ball in hand.\n";
 			}
@@ -321,34 +303,35 @@ int main()
 			drawFrame = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
-			input.keyDownHook(currentEvent.keyboard.keycode);
+			input.keyDownHook(allegro.getEvent().keyboard.keycode);
 			break;
 		case ALLEGRO_EVENT_KEY_UP:
-			input.keyUpHook(currentEvent.keyboard.keycode);
+			input.keyUpHook(allegro.getEvent().keyboard.keycode);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
 			gameRunning = false;
 			break;
 		}
+		*/
 
-		if (gameRunning && drawFrame && al_is_event_queue_empty(eventQueue))
+		/*
+		if (gameRunning && drawFrame && allegro.isEventQueueEmpty())
 		{
 			render::drawPlaysurface();
 			render::drawPockets();
-			render::drawBalls(gameBalls, gameFont);
+			render::drawBalls(gameBalls, allegro.getFont());
 			render::drawCueStick(gameStick);
 			render::renderDrawings();
 			drawFrame = false;
 		}
+		*/
 	}
 
 	// freeing all the resources
-	al_destroy_event_queue(eventQueue);
-	al_destroy_timer(gameTimer);
-	al_destroy_display(gameDisplay);
-	al_destroy_font(gameFont);
-
-	std::cin.get();
+	//al_destroy_event_queue(eventQueue);
+	//al_destroy_timer(gameTimer);
+	//al_destroy_display(gameDisplay);
+	//al_destroy_font(gameFont);
 
 	return EXIT_SUCCESS;
 }

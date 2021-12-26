@@ -1,5 +1,7 @@
 #include "Input.h"
 
+#include "Vector2.h"
+
 #include <allegro5/allegro5.h>
 
 Input::Input()
@@ -63,6 +65,11 @@ int Input::getMouseX()
 int Input::getMouseY()
 {
 	return m_mouseState.y;
+}
+
+Vector2 Input::getMouseVector()
+{
+	return Vector2(m_mouseState.x, m_mouseState.y);
 }
 
 void Input::updateAllStates()
