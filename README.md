@@ -5,7 +5,7 @@ TODO
 - Remove useless old file in the repo: GameEnvironment, resources, scheduler.
 - [ABOVE] For the above change, also see if the files are present in the Visual Studio work directory and remove it.
 - Randomized racks.
-- [ABOVE] To randomize racks, set up an array of ball indexes (except for index 0 and 8 which are cue and eight ball). Loop through the rack positions and assign that opsition to the corresponding ball in the ball index.
+- [ABOVE] To randomize racks, set up an array of ball indexes (except for index 0 and 8 which are cue and eight ball). Loop through the rack positions and assign that position to the corresponding ball in the ball index.
 __Sample Code For Racking:__
 ```
 vector<int> ballIndexes{ 1, 2, 3, 4, 5, 6, 7, 9, 10 };
