@@ -14,7 +14,7 @@ Ball::Ball(const double xPos, const double yPos, const double radius, const doub
 {
 }
 
-Ball::Ball(const Vector2 posVector, const double radius, const double mass)
+Ball::Ball(const Vector2& posVector, const double radius, const double mass)
 	: m_position{ posVector }, m_radius{ radius }, m_mass{ mass }
 {
 }

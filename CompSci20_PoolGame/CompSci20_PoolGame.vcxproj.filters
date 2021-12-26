@@ -40,6 +40,9 @@
     <Filter Include="vector2">
       <UniqueIdentifier>{5644b804-734c-48f1-b52f-251681851322}</UniqueIdentifier>
     </Filter>
+    <Filter Include="allegro_handler">
+      <UniqueIdentifier>{94900eed-7a62-4a1f-b997-d1ea8220d6aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,6 +74,9 @@
     </ClCompile>
     <ClCompile Include="Vector2.cpp">
       <Filter>vector2</Filter>
+    </ClCompile>
+    <ClCompile Include="AllegroHandler.cpp">
+      <Filter>allegro_handler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="Vector2.h">
       <Filter>vector2</Filter>
+    </ClInclude>
+    <ClInclude Include="AllegroHandler.h">
+      <Filter>allegro_handler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

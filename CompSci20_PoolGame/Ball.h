@@ -32,7 +32,7 @@ private:
 public:
 	Ball() = default;
 	Ball(const double xPos, const double yPos, const double radius, const double mass);
-	Ball(const Vector2 posVector, const double radius, const double mass);
+	Ball(const Vector2& posVector, const double radius, const double mass);
 
 	double getX() const;
 	double getY() const;
