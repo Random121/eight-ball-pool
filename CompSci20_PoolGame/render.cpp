@@ -1,7 +1,7 @@
 #include "render.h"
 #include "Ball.h"
 #include "constants.h"
-#include "utilities.h"
+#include "common.h"
 #include "CueStick.h"
 
 #include <allegro5/allegro_primitives.h>

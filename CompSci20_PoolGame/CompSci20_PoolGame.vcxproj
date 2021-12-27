@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="AllegroHandler.cpp" />
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="CueStick.cpp" />
     <ClCompile Include="GameLogic.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -29,7 +30,6 @@
     <ClCompile Include="Players.cpp" />
     <ClCompile Include="referee.cpp" />
     <ClCompile Include="render.cpp" />
-    <ClCompile Include="utilities.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +38,7 @@
   <ItemGroup>
     <ClInclude Include="AllegroHandler.h" />
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="common.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="CueStick.h" />
     <ClInclude Include="GameLogic.h" />
@@ -46,7 +47,6 @@
     <ClInclude Include="Players.h" />
     <ClInclude Include="referee.h" />
     <ClInclude Include="render.h" />
-    <ClInclude Include="utilities.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -158,7 +158,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -174,7 +174,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

@@ -1,19 +1,10 @@
-#include "Ball.h"
 #include "constants.h"
-#include "utilities.h"
-#include "physics.h"
-#include "render.h"
+#include "common.h"
 #include "Input.h"
-#include "Players.h"
-#include "CueStick.h"
-#include "referee.h"
 #include "AllegroHandler.h"
 #include "GameLogic.h"
 
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
 #include <allegro5/allegro_native_dialog.h>
 
 #include <iostream>
@@ -21,28 +12,9 @@
 #include <string_view>
 #include <vector>
 #include <ctime>
+#include <limits>
 
-void createBalls(std::vector<Ball>& gameBalls, const int number, const double radius, const double mass)
-{
-	gameBalls.resize(number);
-	for (int i{}; i < gameBalls.size(); ++i)
-	{
-		Ball& ball{ gameBalls[i] };
-		ball.setRadius(radius);
-		ball.setMass(mass);
-		ball.setVisible(true);
-		ball.setBallNumber(i);
-	}
-}
-
-void moveToRackPositions(std::vector<Ball>& gameBalls)
-{
-	for (int i{}; i < gameBalls.size(); ++i)
-	{
-		gameBalls[i].setPosition(consts::rackBallPositions[i][0], consts::rackBallPositions[i][1]);
-	}
-}
-
+/*
 void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, Players& gamePlayers, TurnInformation& turnInfo)
 {
 	static double previousTime{ al_get_time()};
@@ -70,7 +42,9 @@ void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, Playe
 		timeAccumulator -= updateDelta;
 	}
 }
+*/
 
+/*
 void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
 {
 	const int power{ cueStick.getCuePower() };
@@ -117,6 +91,92 @@ bool isValidPlacePosition(Ball& cueBall, std::vector<Ball>& gameBalls)
 	return !isOverlappingBall && !isOverlappingBoundary;
 }
 
+*/
+
+void setPlayerNames(std::string_view& playerName1, std::string_view& playerName2)
+{
+	std::cout << "=========================\n";
+	std::cout << "= Player Name Selection =\n";
+	std::cout << "=========================\n\n";
+	
+	std::string temp;
+
+	std::cout << "Enter name for Player (1): ";
+	std::getline(std::cin, temp);
+
+	playerName1 = temp;
+
+	std::cout << "Enter name for Player (2): ";
+	std::getline(std::cin, temp);
+
+	playerName2 = temp;
+
+	pauseProgram("\nPress [ENTER] to go back to main menu...");
+}
+
+void displayCredits()
+{
+	std::cout << "===========\n";
+	std::cout << "= Credits =\n";
+	std::cout << "===========\n\n";
+
+	std::cout << "Allegro | For providing this easy to use game and rendering library so I don't have to learn OpenGL.\n\n";
+	std::cout << "Learncpp | Helping me with learning OOP and for providing a better random number generator function.\n\n";
+	std::cout << "Random Math Websites | Teaching how to do vector maths.\n\n";
+	std::cout << "Stackoverflow Users (https://stackoverflow.com/a/6487534) | For providing me with this better alternative to clear the console.\n\n";
+	std::cout << "Youtuber javidx9 (https://www.youtube.com/watch?v=LPzyNOHY3A4) | Intuitive explanation on how to calculate the collision responses between two circles.\n\n";
+	std::cout << "This Blog (https://lajbert.github.io/blog/fixed_timestep/#/) - Explanations on why use and how to implement fixed time updates.\n\n";
+
+	pauseProgram("Press [ENTER] to go back to main menu...");
+}
+
+void initMenu(std::string_view& playerName1, std::string_view& playerName2)
+{
+	bool menuActive{ true };
+	int userSelection;
+
+	while (menuActive)
+	{
+
+		std::cout << "====================================================\n";
+		std::cout << "= Welcome to Totally Accurate Eight-Ball Simulator =\n";
+		std::cout << "====================================================\n\n";
+
+		std::cout << "===Please select one of the options below===\n";
+		std::cout << "[1] Play Eight-Ball\n";
+		std::cout << "[2] Setup Player Names\n";
+		std::cout << "[3] Credits\n\n";
+	
+		std::cout << "Select Option: ";
+		std::cin >> userSelection;
+
+		if (std::cin.fail())
+		{
+			resetCin();
+			clearConsole();
+			continue;
+		}
+
+		resetCin();
+		clearConsole();
+
+		switch (userSelection)
+		{
+		case 1:
+			menuActive = false;
+			break;
+		case 2:
+			setPlayerNames(playerName1, playerName2);
+			break;
+		case 3:
+			displayCredits();
+			break;
+		}
+
+		clearConsole();
+	}
+}
+
 int main()
 {
 	{ // initialize random number gen
@@ -124,11 +184,16 @@ int main()
 		const int temp{ std::rand() };
 	}
 
+	std::string_view playerName1{};
+	std::string_view playerName2{};
+
+	initMenu(playerName1, playerName2);
+
 	AllegroHandler allegro{};
 	Input& input{ Input::getInstance() };
-	GameLogic gameLogic{ allegro };
+	GameLogic gameLogic{ allegro, playerName1, playerName2 };
 
-	al_set_window_title(allegro.getDisplay(), "Totally Accurate Billiards Simulator");
+	al_set_window_title(allegro.getDisplay(), "Totally Accurate Eight-Ball Simulator");
 
 	//constexpr int gamePlayerCount{ 2 };
 
@@ -167,7 +232,7 @@ int main()
 
 			input.updateAllStates();
 
-			gameLogic.frameUpdate();
+			gameLogic.frameUpdate(gameRunning);
 
 			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
 				gameRunning = false;
@@ -332,6 +397,8 @@ int main()
 	//al_destroy_timer(gameTimer);
 	//al_destroy_display(gameDisplay);
 	//al_destroy_font(gameFont);
+
+	pauseProgram("Thank you for playing. Press [ENTER] to exit...");
 
 	return EXIT_SUCCESS;
 }

@@ -9,6 +9,7 @@
 #include "Input.h"
 
 #include <vector>
+#include <string_view>
 
 class GameLogic
 {
@@ -29,12 +30,14 @@ private:
 
 public:
 
-	GameLogic(AllegroHandler& allegro);
+	GameLogic(AllegroHandler& allegro, const std::string_view playerName1, const std::string_view playerName2);
 
+	bool endTurn();
+	void nextTurn(const bool didFoul, const bool hasPocketedBall);
 	void shootCueBall();
 
 	void updatePhysics();
 	void updateRender();
-	void frameUpdate();
+	void frameUpdate(bool& gameRunning);
 };
 

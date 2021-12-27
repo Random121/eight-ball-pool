@@ -1,15 +1,7 @@
 #pragma once
 
 #include "Vector2.h"
-
-enum class BallType
-{
-	unknown,
-	solid,
-	striped,
-	eight,
-	cue
-};
+#include "common.h"
 
 class Ball
 {

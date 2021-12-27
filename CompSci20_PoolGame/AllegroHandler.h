@@ -3,8 +3,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 
-#include <vector>
-#include <string>
+#include <string_view>
 
 // custom class for sharing, initialization,  and destruction of allegro resources
 class AllegroHandler
@@ -15,8 +14,6 @@ private:
 	ALLEGRO_FONT* m_font;
 	ALLEGRO_EVENT_QUEUE* m_eventQueue;
 	ALLEGRO_EVENT m_event;
-
-	std::vector<std::string_view> m_initErrors;
 
 	void assertInitialized(bool resource, const std::string_view resourceName);
 

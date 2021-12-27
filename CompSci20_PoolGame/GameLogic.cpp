@@ -5,7 +5,7 @@
 #include "Vector2.h"
 
 #include "constants.h"
-#include "utilities.h"
+#include "common.h"
 #include "render.h"
 #include "referee.h"
 #include "physics.h"
@@ -50,7 +50,6 @@ static bool isValidPlacePosition(Ball& cueBall, GameLogic::BallVector& gameBalls
 		}
 	}
 
-	// efficiency :thumbs_up:
 	isOverlappingBoundary = physics::isCircleCollidingWithBoundaryTop(cueBall, consts::playSurface)
 		|| physics::isCircleCollidingWithBoundaryBottom(cueBall, consts::playSurface)
 		|| physics::isCircleCollidingWithBoundaryLeft(cueBall, consts::playSurface)
@@ -78,15 +77,18 @@ static std::string_view getBallTypeName(BallType type)
 	}
 }
 
-GameLogic::GameLogic(AllegroHandler& allegro)
+GameLogic::GameLogic(AllegroHandler& allegro, const std::string_view playerName1, const std::string_view playerName2)
 	: m_allegro{ allegro },
 	m_gamePlayers{ 2, getRandomInteger(0, 1) }
 {
 	createBalls(m_gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
 	setupRack(m_gameBalls);
+
+	m_gamePlayers.getPlayer(0).name = playerName1;
+	m_gamePlayers.getPlayer(1).name = playerName2;
 }
 
-void GameLogic::frameUpdate()
+void GameLogic::frameUpdate(bool& gameRunning)
 {
 	if (m_activeTurn.startWithBallInHand)
 	{
@@ -127,79 +129,11 @@ void GameLogic::frameUpdate()
 		// we interpret it as the end of the turn
 		if (!physics::areBallsMoving(m_gameBalls) && !m_gameCueStick.isVisible())
 		{
-			const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
-
-			std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
-			std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
-			std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
-			std::cout << "Pocketed Balls:";
-			
-			// print pocketed balls
-			if (hasPocketedBall)
+			if (endTurn())
 			{
-				std::cout << '\n';
-				for (Ball* ball : m_activeTurn.pocketedBalls)
-				{
-					std::cout << "- " << ball->getBallNumber() << " (" << getBallTypeName(ball->getBallType()) << ")\n";
-				}
+				gameRunning = false;
 			}
-			else
-			{
-				std::cout << " None\n";
-			}
-
-			std::cout << '\n';
-
-			const bool hasFouled{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
-
-			if (!hasFouled)
-			{
-				m_gameCueStick.setCanUpdate(true);
-				m_gameCueStick.setVisible(true);
-				m_gameBalls[0].setVisible(true);
-			}
-			else
-			{
-				m_gameBalls[0].setVisible(false);
-			}
-
-			// switch turns
-			if (hasFouled || !hasPocketedBall)
-			{
-				m_gamePlayers.advancePlayerIndex();
-			}
-
-			// add scores
-			if (hasPocketedBall && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
-			{
-				for (Ball* pocketedBall : m_activeTurn.pocketedBalls)
-				{
-					for (Player& player : m_gamePlayers.getPlayerVector())
-					{
-						if (player.targetBallType == pocketedBall->getBallType())
-						{
-							player.score++;
-						}
-					}
-				}
-			}
-
-			// print scores
-			std::cout << "[GAME SCORE]\n";
-			std::cout << "Player (1): " << m_gamePlayers.getPlayer(0).score << '\n';
-			std::cout << "Player (2): " << m_gamePlayers.getPlayer(1).score << "\n\n";
-
-			std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
-			if (hasFouled)
-			{
-				std::cout << "[Player (" << m_gamePlayers.getCurrentIndexPretty() << ") is starting with ball in hand]\n";
-			}
-			std::cout << '\n';
-
-			m_activeTurn = {};
-			m_activeTurn.startWithBallInHand = hasFouled;
 		}
-
 	}
 
 	if (m_allegro.isEventQueueEmpty())
@@ -267,4 +201,98 @@ void GameLogic::shootCueBall()
 		m_gameCueStick.updateAll(cueBall.getX(), cueBall.getY());
 		m_gameCueStick.setCanUpdate(false);
 	}
+}
+
+bool GameLogic::endTurn()
+{
+	const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
+	const bool didFoul{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
+
+	std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+	std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
+	std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
+	std::cout << "Pocketed Balls:";
+
+	// print pocketed balls
+	if (hasPocketedBall)
+	{
+		std::cout << '\n';
+		for (Ball* ball : m_activeTurn.pocketedBalls)
+		{
+			std::cout << "- " << ball->getBallNumber() << " (" << getBallTypeName(ball->getBallType()) << ")\n";
+		}
+	}
+	else
+	{
+		std::cout << " None\n";
+	}
+
+	std::cout << '\n';
+
+
+	if (referee::isGameFinished(m_gameBalls))
+	{
+		if (!didFoul)
+		{
+			std::cout << "[WINNER]: Player (" << m_gamePlayers.getCurrentIndexPretty() << ")\n\n";
+		}
+		else
+		{
+			std::cout << "[WINNER]: Player (" << (m_gamePlayers.getNextIndex() + 1) << ")\n\n";
+		}
+
+		return true;
+	}
+	
+	m_gameBalls[0].setVisible(false);
+
+	// make everything re-appear if not ball in hand
+	if (!didFoul)
+	{
+		m_gameCueStick.setCanUpdate(true);
+		m_gameCueStick.setVisible(true);
+		m_gameBalls[0].setVisible(true);
+	}
+
+	// add scores
+	if (hasPocketedBall && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
+	{
+		for (Ball* pocketedBall : m_activeTurn.pocketedBalls)
+		{
+			for (Player& player : m_gamePlayers.getPlayerVector())
+			{
+				if (player.targetBallType == pocketedBall->getBallType())
+				{
+					player.score++;
+				}
+			}
+		}
+	}
+
+	// print scores
+	std::cout << "[GAME SCORE]\n";
+	std::cout << "Player (1): " << m_gamePlayers.getPlayer(0).score << '\n';
+	std::cout << "Player (2): " << m_gamePlayers.getPlayer(1).score << "\n\n";
+
+	nextTurn(didFoul, hasPocketedBall);
+	return false;
+}
+
+void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
+{
+	// switch turns
+	if (didFoul || !hasPocketedBall)
+	{
+		m_gamePlayers.advancePlayerIndex();
+	}
+
+	std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+	if (didFoul)
+	{
+		std::cout << "[Player (" << m_gamePlayers.getCurrentIndexPretty() << ") is starting with ball in hand]\n";
+	}
+	std::cout << '\n';
+
+	m_activeTurn = {};
+	m_activeTurn.startWithBallInHand = didFoul;
 }

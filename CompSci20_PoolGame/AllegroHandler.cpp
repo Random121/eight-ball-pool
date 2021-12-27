@@ -1,5 +1,6 @@
 #include "AllegroHandler.h"
 #include "constants.h"
+#include "common.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -8,20 +9,21 @@
 #include <allegro5/allegro_native_dialog.h>
 
 #include <iostream>
-#include <vector>
 #include <string_view>
 #include <cstdlib>
 
+// ret can take in a pointer or boolean
+// nullptr is interpreted as false and anything else is true
 void AllegroHandler::assertInitialized(bool resource, const std::string_view resourceName)
 {
 	if (!resource)
 	{
-		std::cout << "[Critical component of Allegro failed to initialize]\n";
+		std::cout << "\n[Critical component of Allegro failed to initialize]\n";
 		std::cout << "Component that failed: " << resourceName << '\n';
-		std::cout << "The program will be exiting...\n";
 
-		delete this; // just to make sure all resources are destroyed
-		exit(EXIT_FAILURE);
+		pauseProgram("Press [ENTER] to close the program...");
+
+		std::exit(EXIT_FAILURE);
 	}
 }
 
