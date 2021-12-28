@@ -1,14 +1,9 @@
 #include "Players.h"
 
-Players::Players(const int numberOfPlayers, const int startIndex)
+Players::Players(const int numberOfPlayers)
 {
 	// also creates the player structs, nice
 	m_gamePlayers.resize(numberOfPlayers);
-
-	if (startIndex >= 0 && startIndex < m_gamePlayers.size())
-	{
-		m_currentPlayerIndex = startIndex;
-	}
 }
 
 int Players::getNextIndex() const
@@ -19,6 +14,14 @@ int Players::getNextIndex() const
 void Players::advancePlayerIndex()
 {
 	m_currentPlayerIndex = getNextIndex();
+}
+
+void Players::setPlayerIndex(const int index)
+{
+	if (index >= 0 && index < m_gamePlayers.size())
+	{
+		m_currentPlayerIndex = index;
+	}
 }
 
 std::vector<Player>& Players::getPlayerVector()
@@ -49,10 +52,10 @@ int Players::getCurrentIndex() const
 	return m_currentPlayerIndex;
 }
 
-int Players::getCurrentIndexPretty() const
-{
-	return m_currentPlayerIndex + 1;
-}
+//int Players::getCurrentIndexPretty() const
+//{
+//	return m_currentPlayerIndex + 1;
+//}
 
 int Players::getPlayerCount() const
 {

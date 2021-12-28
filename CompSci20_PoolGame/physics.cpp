@@ -1,4 +1,5 @@
 #include "physics.h"
+
 #include "Ball.h"
 #include "common.h"
 #include "constants.h"
@@ -206,23 +207,27 @@ namespace physics
 		}
 		return false;
 	}
-
+	
+	/*
 	void handlePocketing(Ball& ball, std::vector<Player>& gamePlayers, int playerIndex)
 	{
-		//if (ball.isInPocket())
-		//{
-		//	ball.setVisible(false);
-		//	if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
-		//	{
-		//		if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
-		//		{
-		//			gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
-		//			gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
-		//		}
-		//	}
-		//}
+		if (ball.isInPocket())
+		{
+			ball.setVisible(false);
+			if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
+			{
+				if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
+				{
+					gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
+					gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
+				}
+			}
+		}
 	}
+	*/
 
+
+	// this function is a mess...
 	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn)
 	{
 		for (Ball& ball : gameBalls)
@@ -272,13 +277,14 @@ namespace physics
 
 				if (ball.isInPocket())
 				{
-					ball.setVelocity(0, 0);
 					ball.setVisible(false);
+					ball.setVelocity(0, 0);
 					turn.pocketedBalls.push_back(&ball);
 					if (gamePlayers.getCurrentPlayer().targetBallType == BallType::unknown)
 					{
 						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
 						{
+							turn.isTargetBallsSelectedThisTurn = true;
 							gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
 							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid;
 						}

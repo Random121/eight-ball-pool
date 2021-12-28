@@ -64,10 +64,14 @@ AllegroHandler::AllegroHandler()
 // if this class is on the stack, then this should get called automatically
 AllegroHandler::~AllegroHandler()
 {
-	al_destroy_timer(m_timer);
-	al_destroy_event_queue(m_eventQueue);
-	al_destroy_display(m_display);
-	al_destroy_font(m_font);
+	if (destroyTimer())
+		std::cout << "[CLEANUP] timer\n";
+	if (destroyEventQueue())
+		std::cout << "[CLEANUP] event queue\n";
+	if (destroyDisplay())
+		std::cout << "[CLEANUP] display\n";
+	if (destroyFont())
+		std::cout << "[CLEANUP] font\n";
 }
 
 ALLEGRO_TIMER*& AllegroHandler::getTimer()
@@ -93,6 +97,50 @@ ALLEGRO_EVENT_QUEUE*& AllegroHandler::getEventQueue()
 ALLEGRO_EVENT& AllegroHandler::getEvent()
 {
 	return m_event;
+}
+
+bool AllegroHandler::destroyTimer()
+{
+	if (m_timer)
+	{
+		al_destroy_timer(m_timer);
+		m_timer = nullptr;
+		return true;
+	}
+	return false;
+}
+
+bool AllegroHandler::destroyDisplay()
+{
+	if (m_display)
+	{
+		al_destroy_display(m_display);
+		m_display = nullptr;
+		return true;
+	}
+	return false;
+}
+
+bool AllegroHandler::destroyFont()
+{
+	if (m_font)
+	{
+		al_destroy_font(m_font);
+		m_font = nullptr;
+		return true;
+	}
+	return false;
+}
+
+bool AllegroHandler::destroyEventQueue()
+{
+	if (m_eventQueue)
+	{
+		al_destroy_event_queue(m_eventQueue);
+		m_eventQueue = nullptr;
+		return true;
+	}
+	return false;
 }
 
 void AllegroHandler::startTimer()

@@ -27,6 +27,11 @@ public:
 	ALLEGRO_EVENT_QUEUE*& getEventQueue();
 	ALLEGRO_EVENT& getEvent();
 
+	bool destroyTimer();
+	bool destroyDisplay();
+	bool destroyFont();
+	bool destroyEventQueue();
+
 	void startTimer();
 	bool isEventQueueEmpty();
 };

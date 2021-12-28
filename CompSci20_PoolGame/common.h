@@ -19,6 +19,7 @@ int getSign(T num)
 }
 
 void pauseProgram(const std::string_view message);
+// min and max are inclusive
 int getRandomInteger(int min, int max);
 void clearConsole(const char fillCharacter = ' ');
 void resetCin();
@@ -42,6 +43,8 @@ struct TurnInformation
 	BallType firstHitBallType{};
 	std::vector<Ball*> pocketedBalls;
 	bool startWithBallInHand{};
+	// nice and descriptive
+	bool isTargetBallsSelectedThisTurn{};
 };
 
 

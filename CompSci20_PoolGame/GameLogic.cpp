@@ -11,9 +11,14 @@
 #include "physics.h"
 
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_native_dialog.h>
 
 #include <iostream>
+#include <string>
 #include <string_view>
+#include <vector>
+#include <random>
+#include <algorithm>
 
 static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, const double ballRadius, const double ballMass)
 {
@@ -30,10 +35,31 @@ static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, c
 
 static void setupRack(GameLogic::BallVector& gameBalls)
 {
-	for (int i{}; i < gameBalls.size(); ++i)
+	static std::vector<int> ballIndexes{ 1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15 };
+	static std::random_device randomDevice;
+	static std::mt19937 engine{ randomDevice() };
+	
+	std::shuffle(ballIndexes.begin(), ballIndexes.end(), engine);
+
+	int ballIndex{};
+
+	for (int rackIndex{ 1 }; rackIndex < consts::rackBallPositions.size(); ++rackIndex)
 	{
-		gameBalls[i].setPosition(consts::rackBallPositions[i][0], consts::rackBallPositions[i][1]);
+		if (rackIndex == 8 || rackIndex == 11 || rackIndex == 5)
+		{
+			++rackIndex;
+		}
+		gameBalls[ballIndexes[ballIndex]].setPosition(consts::rackBallPositions[rackIndex][0], consts::rackBallPositions[rackIndex][1]);
+		++ballIndex;
 	}
+
+	// cue and eight ball have constant rack position
+	gameBalls[0].setPosition(consts::rackBallPositions[0][0], consts::rackBallPositions[0][1]);
+	gameBalls[8].setPosition(consts::rackBallPositions[8][0], consts::rackBallPositions[8][1]);
+
+	// back corners of rack should be of balls from different suits
+	gameBalls[5].setPosition(consts::rackBallPositions[5][0], consts::rackBallPositions[5][1]);
+	gameBalls[11].setPosition(consts::rackBallPositions[11][0], consts::rackBallPositions[11][1]);
 }
 
 static bool isValidPlacePosition(Ball& cueBall, GameLogic::BallVector& gameBalls)
@@ -77,15 +103,19 @@ static std::string_view getBallTypeName(BallType type)
 	}
 }
 
-GameLogic::GameLogic(AllegroHandler& allegro, const std::string_view playerName1, const std::string_view playerName2)
+GameLogic::GameLogic(AllegroHandler& allegro, const std::string& playerName1, const std::string& playerName2)
 	: m_allegro{ allegro },
-	m_gamePlayers{ 2, getRandomInteger(0, 1) }
+	m_gamePlayers{ 2 }
 {
 	createBalls(m_gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
 	setupRack(m_gameBalls);
 
 	m_gamePlayers.getPlayer(0).name = playerName1;
 	m_gamePlayers.getPlayer(1).name = playerName2;
+
+	m_gamePlayers.setPlayerIndex(getRandomInteger(0, 1));
+
+	std::cout << "[BREAKER | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n\n";
 }
 
 void GameLogic::frameUpdate(bool& gameRunning)
@@ -188,18 +218,16 @@ void GameLogic::shootCueBall()
 		Ball& cueBall{ m_gameBalls[0] };
 		const Vector2 deltaPosition{ m_input.getMouseVector().copyAndSubtract(cueBall.getPositionVector()) };
 		Vector2 normalized{ deltaPosition.getNormalized() };
-
 		normalized.multiply(cuePower);
-
-		cueBall.setVelocity(normalized);
-
-		std::cout << "[BALL SHOT] Power: " << cuePower << "\n\n";
 
 		// reset the cue stick position to make it seem like
 		// it has been "shot"
 		m_gameCueStick.setCuePower(0);
 		m_gameCueStick.updateAll(cueBall.getX(), cueBall.getY());
 		m_gameCueStick.setCanUpdate(false);
+
+		cueBall.setVelocity(normalized);
+		std::cout << "[BALL SHOT] Power: " << cuePower << "\n\n";
 	}
 }
 
@@ -208,7 +236,7 @@ bool GameLogic::endTurn()
 	const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
 	const bool didFoul{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
 
-	std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+	std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n";
 	std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
 	std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
 	std::cout << "Pocketed Balls:";
@@ -229,21 +257,36 @@ bool GameLogic::endTurn()
 
 	std::cout << '\n';
 
-
 	if (referee::isGameFinished(m_gameBalls))
 	{
-		if (!didFoul)
-		{
-			std::cout << "[WINNER]: Player (" << m_gamePlayers.getCurrentIndexPretty() << ")\n\n";
-		}
-		else
-		{
-			std::cout << "[WINNER]: Player (" << (m_gamePlayers.getNextIndex() + 1) << ")\n\n";
-		}
+		const std::string winnerName{ (!didFoul) ? m_gamePlayers.getCurrentPlayer().name : m_gamePlayers.getNextPlayer().name };
+
+		std::cout << "[WINNER]: Player (" << winnerName << ")\n\n";
+
+		al_show_native_message_box(
+			m_allegro.getDisplay(),
+			"GAME WINNER",
+			std::string("Congratulations! Player (" + winnerName + ") has won this Eight-Ball match.").c_str(),
+			nullptr,
+			nullptr,
+			NULL
+		);
 
 		return true;
 	}
 	
+	if (m_activeTurn.isTargetBallsSelectedThisTurn)
+	{
+		std::cout << "[BALL SELECTIONS HAVE BEEN MADE]\n";
+
+		for (const Player& player : m_gamePlayers.getPlayerVector())
+		{
+			std::cout << "Player (" << player.name << ") is assigned " << getBallTypeName(player.targetBallType) << " balls.\n";
+		}
+
+		std::cout << '\n';
+	}
+
 	m_gameBalls[0].setVisible(false);
 
 	// make everything re-appear if not ball in hand
@@ -271,8 +314,13 @@ bool GameLogic::endTurn()
 
 	// print scores
 	std::cout << "[GAME SCORE]\n";
-	std::cout << "Player (1): " << m_gamePlayers.getPlayer(0).score << '\n';
-	std::cout << "Player (2): " << m_gamePlayers.getPlayer(1).score << "\n\n";
+
+	for (const Player& player : m_gamePlayers.getPlayerVector())
+	{
+		std::cout << "Player (" << player.name << "): " << player.score << '\n';
+	}
+
+	std::cout << '\n';
 
 	nextTurn(didFoul, hasPocketedBall);
 	return false;
@@ -286,10 +334,10 @@ void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
 		m_gamePlayers.advancePlayerIndex();
 	}
 
-	std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentIndexPretty() << ")]\n";
+	std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n";
 	if (didFoul)
 	{
-		std::cout << "[Player (" << m_gamePlayers.getCurrentIndexPretty() << ") is starting with ball in hand]\n";
+		std::cout << "[Player (" << m_gamePlayers.getCurrentPlayer().name << ") is starting with ball in hand]\n";
 	}
 	std::cout << '\n';
 

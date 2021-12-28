@@ -10,7 +10,6 @@
 #include <limits>
 
 
-// min and max are inclusive
 int getRandomInteger(int min, int max)
 {
 	static constexpr double squishFraction{ 1.0 / (RAND_MAX + 1) }; // squishes the rand number between 0-1

@@ -9,7 +9,7 @@
 
 struct Player
 {
-	std::string_view name{};
+	std::string_view name;
 	int score{};
 	BallType targetBallType{};
 };
@@ -18,13 +18,14 @@ class Players
 {
 private:
 	std::vector<Player> m_gamePlayers;
-	int m_currentPlayerIndex;
+	int m_currentPlayerIndex{};
 
 public:
-	Players(const int numberOfPlayers, const int startIndex = 0);
+	Players(const int numberOfPlayers);
 
 	int getNextIndex() const;
 	void advancePlayerIndex();
+	void setPlayerIndex(const int index);
 
 	std::vector<Player>& getPlayerVector();
 	Player& getCurrentPlayer();
@@ -32,6 +33,6 @@ public:
 	Player& getPlayer(const int playerIndex);
 
 	int getCurrentIndex() const;
-	int getCurrentIndexPretty() const;
+	//int getCurrentIndexPretty() const;
 	int getPlayerCount() const;
 };

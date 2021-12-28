@@ -30,7 +30,7 @@ private:
 
 public:
 
-	GameLogic(AllegroHandler& allegro, const std::string_view playerName1, const std::string_view playerName2);
+	GameLogic(AllegroHandler& allegro, const std::string& playerName1, const std::string& playerName2);
 
 	bool endTurn();
 	void nextTurn(const bool didFoul, const bool hasPocketedBall);

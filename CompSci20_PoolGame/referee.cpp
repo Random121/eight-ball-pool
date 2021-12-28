@@ -20,14 +20,14 @@ namespace referee
 		if (currentPlayer.targetBallType == BallType::unknown)
 			return hitBallType != BallType::eight;
 
-		// valid since they hit a ball of their type
-		if (currentPlayer.score > 0 && currentPlayer.targetBallType != hitBallType)
-			return false;
-	
 		// if player pocketed all their balls, they
 		// must hit the eight ball first
 		if (currentPlayer.score == 7)
 			return hitBallType == BallType::eight;
+
+		// valid since they hit a ball of their type
+		if (currentPlayer.score > 0 && currentPlayer.targetBallType != hitBallType)
+			return false;
 
 		return true;
 	}

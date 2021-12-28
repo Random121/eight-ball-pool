@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+
 #include <vector>
 
 namespace consts
@@ -74,6 +75,8 @@ namespace consts
 		{802, 275}
 	};
 }
+// 5
+// 11
 
 //#define DEBUG
 //#define TESTING_RELEASE

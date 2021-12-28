@@ -9,10 +9,8 @@
 
 #include <iostream>
 #include <string>
-#include <string_view>
 #include <vector>
 #include <ctime>
-#include <limits>
 
 /*
 void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, Players& gamePlayers, TurnInformation& turnInfo)
@@ -93,28 +91,28 @@ bool isValidPlacePosition(Ball& cueBall, std::vector<Ball>& gameBalls)
 
 */
 
-void setPlayerNames(std::string_view& playerName1, std::string_view& playerName2)
+static void setPlayerNames(std::string& playerName1, std::string& playerName2)
 {
 	std::cout << "=========================\n";
 	std::cout << "= Player Name Selection =\n";
 	std::cout << "=========================\n\n";
-	
-	std::string temp;
 
 	std::cout << "Enter name for Player (1): ";
-	std::getline(std::cin, temp);
+	std::getline(std::cin, playerName1);
 
-	playerName1 = temp;
+	if (playerName1.empty())
+		playerName1 = "1";
 
 	std::cout << "Enter name for Player (2): ";
-	std::getline(std::cin, temp);
+	std::getline(std::cin, playerName2);
 
-	playerName2 = temp;
+	if (playerName2.empty())
+		playerName2 = "2";
 
 	pauseProgram("\nPress [ENTER] to go back to main menu...");
 }
 
-void displayCredits()
+static void displayCredits()
 {
 	std::cout << "===========\n";
 	std::cout << "= Credits =\n";
@@ -127,10 +125,12 @@ void displayCredits()
 	std::cout << "Youtuber javidx9 (https://www.youtube.com/watch?v=LPzyNOHY3A4) | Intuitive explanation on how to calculate the collision responses between two circles.\n\n";
 	std::cout << "This Blog (https://lajbert.github.io/blog/fixed_timestep/#/) - Explanations on why use and how to implement fixed time updates.\n\n";
 
+	std::cout << "Testers: Benjamin, Nima\n\n";
+
 	pauseProgram("Press [ENTER] to go back to main menu...");
 }
 
-void initMenu(std::string_view& playerName1, std::string_view& playerName2)
+static bool initMenu(std::string& playerName1, std::string& playerName2)
 {
 	bool menuActive{ true };
 	int userSelection;
@@ -145,8 +145,9 @@ void initMenu(std::string_view& playerName1, std::string_view& playerName2)
 		std::cout << "===Please select one of the options below===\n";
 		std::cout << "[1] Play Eight-Ball\n";
 		std::cout << "[2] Setup Player Names\n";
-		std::cout << "[3] Credits\n\n";
-	
+		std::cout << "[3] Credits\n";
+		std::cout << "[4] Exit\n\n";
+
 		std::cout << "Select Option: ";
 		std::cin >> userSelection;
 
@@ -171,10 +172,14 @@ void initMenu(std::string_view& playerName1, std::string_view& playerName2)
 		case 3:
 			displayCredits();
 			break;
+		case 4:
+			return true;
 		}
 
 		clearConsole();
 	}
+
+	return false;
 }
 
 int main()
@@ -184,10 +189,12 @@ int main()
 		const int temp{ std::rand() };
 	}
 
-	std::string_view playerName1{};
-	std::string_view playerName2{};
+	// just to make sure they are always there
+	static std::string playerName1{ "1" };
+	static std::string playerName2{ "2" };
 
-	initMenu(playerName1, playerName2);
+	if (initMenu(playerName1, playerName2))
+		return EXIT_SUCCESS;
 
 	AllegroHandler allegro{};
 	Input& input{ Input::getInstance() };
@@ -220,23 +227,47 @@ int main()
 
 	//std::cout << "Player (" << gamePlayers.getCurrentIndexPretty() << ") is taking the break shot.\n";
 
+	ALLEGRO_EVENT_TYPE eventType;
+
 	allegro.startTimer();
 
 	while (gameRunning)
 	{
 		al_wait_for_event(allegro.getEventQueue(), &allegro.getEvent());
+		eventType = allegro.getEvent().type;
 
+		if (eventType == ALLEGRO_EVENT_TIMER)
+		{
+			input.updateAllStates();
+			gameLogic.frameUpdate(gameRunning);
+			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
+			{
+				gameRunning = false;
+			}
+		}
+		else if (eventType == ALLEGRO_EVENT_KEY_DOWN)
+		{
+			input.keyDownHook(allegro.getEvent().keyboard.keycode);
+		}
+		else if (eventType == ALLEGRO_EVENT_KEY_UP)
+		{
+			input.keyUpHook(allegro.getEvent().keyboard.keycode);
+		}
+		else if (eventType == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		{
+			gameRunning = false;
+		}
+
+		/*
 		switch (allegro.getEvent().type)
 		{
 		case ALLEGRO_EVENT_TIMER:
-
 			input.updateAllStates();
 
 			gameLogic.frameUpdate(gameRunning);
 
 			if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
 				gameRunning = false;
-
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
 			input.keyDownHook(allegro.getEvent().keyboard.keycode);
@@ -245,9 +276,11 @@ int main()
 			input.keyUpHook(allegro.getEvent().keyboard.keycode);
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
+			al_destroy_display(allegro.getDisplay());
 			gameRunning = false;
 			break;
 		}
+		*/
 
 		/*
 		switch (allegro.getEvent().type)
@@ -295,7 +328,7 @@ int main()
 					shootStartTime = al_get_time();
 				}
 			}
-			
+
 			if (!gameStick.canUpdate() && al_get_time() - shootStartTime > 1)
 			{
 				gameStick.setVisible(false);
@@ -398,6 +431,7 @@ int main()
 	//al_destroy_display(gameDisplay);
 	//al_destroy_font(gameFont);
 
+	allegro.destroyDisplay();
 	pauseProgram("Thank you for playing. Press [ENTER] to exit...");
 
 	return EXIT_SUCCESS;

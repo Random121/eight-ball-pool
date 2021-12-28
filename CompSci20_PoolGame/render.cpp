@@ -26,7 +26,7 @@ namespace render
 				if (type == BallType::cue || type == BallType::striped)
 				{
 					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
-
+					
 					// striped ball require color
 					if (type == BallType::striped)
 					{
