@@ -1,5 +1,7 @@
 # CS20_AllegroPoolGame
 
+Cool school project nice.
+
 TODO
 - [FINISHED] [PRIORITY HIGH] Make Vector2 parameter of Ball constructor a reference. (const Vector2& posVector)
 - [FINISHED] [PRIORITY HIGH] Remove useless old file in the repo: GameEnvironment, resources, scheduler. For the above change, also see if the files are present in the Visual Studio work directory and remove it.
