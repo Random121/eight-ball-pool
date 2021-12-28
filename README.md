@@ -36,6 +36,6 @@ gameBalls[8].setPosition(rackPositions[8]);
 gameBalls[0].setPosition(rackPositions[0]);
 
 ```
-- [PRIORITY HIGH] Make Players constructor take only player count, and implement a setter for the player index. This allows us to randomize the index in the constructor of GameLogic, also enabling us to print the name of the player who breaks.
-- [PRIORITY HIGH] Implementing player names rather than just 1 and 2. To implement default names, change the playerName1 and playerName2 variables in main.cpp to have "1" and "2" rather than just empty.
+- [FINISHED] [PRIORITY HIGH] Make Players constructor take only player count, and implement a setter for the player index. This allows us to randomize the index in the constructor of GameLogic, also enabling us to print the name of the player who breaks.
+- [FINISHED] [PRIORITY HIGH] Implementing player names rather than just 1 and 2. To implement default names, change the playerName1 and playerName2 variables in main.cpp to have "1" and "2" rather than just empty.
 - [PRIORITY LOW] Clean up old code that is no longer in use.
