@@ -32,5 +32,6 @@ public:
 	double getLength() const;
 	// math behind dot product from here https://www.mathsisfun.com/algebra/vectors-dot-product.html
 	double getDotProduct(const Vector2& vec2) const;
+	// normalizing the vector means that the length of it is equal to 1
 	Vector2 getNormalized() const;
 };

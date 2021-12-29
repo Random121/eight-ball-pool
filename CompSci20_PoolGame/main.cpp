@@ -12,85 +12,6 @@
 #include <vector>
 #include <ctime>
 
-/*
-void updatePhysics(std::vector<Ball>& gameBalls, const double updateDelta, Players& gamePlayers, TurnInformation& turnInfo)
-{
-	static double previousTime{ al_get_time()};
-	static double currentTime{};
-	static double frameTime{};
-	static double timeAccumulator{};
-
-	currentTime = al_get_time();
-	frameTime = currentTime - previousTime;
-	previousTime = currentTime;
-
-	// max frame time
-	if (frameTime > 0.25)
-		frameTime = 0.25;
-
-	timeAccumulator += frameTime;
-
-#ifdef DEBUG
-	std::cout << "[FRAME TIME] " << frameTime << '\n';
-#endif // DEBUG
-
-	while (timeAccumulator >= updateDelta)
-	{
-		physics::stepPhysics(gameBalls, gamePlayers, turnInfo);
-		timeAccumulator -= updateDelta;
-	}
-}
-*/
-
-/*
-void shootCueBall(Ball& cueBall, CueStick& cueStick, Input& input)
-{
-	const int power{ cueStick.getCuePower() };
-	if (power > 0)
-	{
-		const double deltaX{ input.getMouseX() - cueBall.getX() };
-		const double deltaY{ input.getMouseY() - cueBall.getY() };
-		const double hyp{ calculateHypotenuse(deltaX, deltaY) }; // for normalization
-
-		cueBall.setVelocity(
-			(deltaX / hyp) * power,
-			(deltaY / hyp) * power
-		);
-
-		std::cout << "Cue Stick Power: " << power << '\n';
-
-		// reset the cue stick position to make it seem like
-		// it has been "shot"
-		cueStick.setCuePower(0);
-		cueStick.updateAll(cueBall.getX(), cueBall.getY());
-		cueStick.setCanUpdate(false);
-	}
-}
-
-bool isValidPlacePosition(Ball& cueBall, std::vector<Ball>& gameBalls)
-{
-	bool isOverlappingBall{};
-	bool isOverlappingBoundary{};
-
-	for (Ball& ball : gameBalls)
-	{
-		if (cueBall.isOverlappingBall(ball))
-		{
-			isOverlappingBall = true;
-			break;
-		}
-	}
-
-	isOverlappingBoundary = physics::isCircleCollidingWithBoundaryTop(cueBall, consts::playSurface)
-		|| physics::isCircleCollidingWithBoundaryBottom(cueBall, consts::playSurface)
-		|| physics::isCircleCollidingWithBoundaryLeft(cueBall, consts::playSurface)
-		|| physics::isCircleCollidingWithBoundaryRight(cueBall, consts::playSurface);
-
-	return !isOverlappingBall && !isOverlappingBoundary;
-}
-
-*/
-
 static void setPlayerNames(std::string& playerName1, std::string& playerName2)
 {
 	std::cout << "=========================\n";
@@ -124,8 +45,6 @@ static void displayCredits()
 	std::cout << "Stackoverflow Users (https://stackoverflow.com/a/6487534) | For providing me with this better alternative to clear the console.\n\n";
 	std::cout << "Youtuber javidx9 (https://youtu.be/LPzyNOHY3A4) | Intuitive explanation on the maths for the collision.\n\n";
 	std::cout << "This Blog (https://lajbert.github.io/blog/fixed_timestep/#/) - Explanations on why use and how to implement fixed time updates.\n\n";
-
-	std::cout << "Testers: Benjamin, Nima\n\n";
 
 	pauseProgram("Press [ENTER] to go back to main menu...");
 }
@@ -202,6 +121,7 @@ int main()
 
 	al_set_window_title(allegro.getDisplay(), "Totally Accurate Eight-Ball Simulator");
 
+#ifdef OLD_CODE
 	//constexpr int gamePlayerCount{ 2 };
 
 	//Players gamePlayers{ gamePlayerCount, getRandomInteger(0, gamePlayerCount - 1) };
@@ -209,7 +129,6 @@ int main()
 	//CueStick gameStick{ true, true };
 	//TurnInformation currentTurn;
 
-	bool gameRunning{ true };
 	//bool drawFrame{ true };
 	//int shootStartTime{};
 
@@ -226,9 +145,10 @@ int main()
 	//moveToRackPositions(gameBalls);
 
 	//std::cout << "Player (" << gamePlayers.getCurrentIndexPretty() << ") is taking the break shot.\n";
+#endif // OLD_CODE
 
+	bool gameRunning{ true };
 	ALLEGRO_EVENT_TYPE eventType;
-
 	allegro.startTimer();
 
 	while (gameRunning)
@@ -258,6 +178,7 @@ int main()
 			gameRunning = false;
 		}
 
+#ifdef OLD_CODE
 		/*
 		switch (allegro.getEvent().type)
 		{
@@ -423,13 +344,17 @@ int main()
 			drawFrame = false;
 		}
 		*/
+#endif // OLD_CODE
 	}
 
+#ifdef OLD_CODE
 	// freeing all the resources
 	//al_destroy_event_queue(eventQueue);
 	//al_destroy_timer(gameTimer);
 	//al_destroy_display(gameDisplay);
 	//al_destroy_font(gameFont);
+#endif // OLD_CODE
+
 
 	allegro.destroyDisplay();
 	pauseProgram("Thank you for playing. Press [ENTER] to exit...");
