@@ -231,7 +231,6 @@ void Ball::applyFriction(const double friction, const double stopVelocity)
 	}
 }
 
-// Calculations from: https://github.com/liballeg/allegro_wiki/wiki/Circle-Collision-2D
 bool Ball::isOverlappingBall(const Ball& otherBall) const
 {
 	// ensure that the collision is not with itself and that the other ball is active

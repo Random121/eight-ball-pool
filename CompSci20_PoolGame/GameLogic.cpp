@@ -335,10 +335,12 @@ void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
 	}
 
 	std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n";
+
 	if (didFoul)
 	{
 		std::cout << "[Player (" << m_gamePlayers.getCurrentPlayer().name << ") is starting with ball in hand]\n";
 	}
+
 	std::cout << '\n';
 
 	m_activeTurn = {};

@@ -19,6 +19,10 @@
 	stationary location and will lead to incorrect position and
 	velocity resolutions where they either go through each other or
 	continuously swap positions in place.
+
+	TLDR; just don't optimize this section.
+
+	I spent like 2 days debugging this mess...
 */
 
 namespace physics
@@ -100,8 +104,8 @@ namespace physics
 		const Vector2 normalVector{ deltaPosition.getNormalized() };
 		
 		// solve conservation of momentum
-		const double p{ 2.0 * normalVector.getDotProduct(deltaVelocity) / (ball1.getMass() + ball2.getMass()) };
-		const Vector2 newVelocityVector{ normalVector.copyAndMultiply(p * consts::collisionFriction) };
+		const double momentum{ 2.0 * normalVector.getDotProduct(deltaVelocity) / (ball1.getMass() + ball2.getMass()) };
+		const Vector2 newVelocityVector{ normalVector.copyAndMultiply(momentum * consts::collisionFriction) };
 
 #ifdef DEBUG
 		std::cout << "[VELOCITY RESOLUTION]\n";
@@ -228,6 +232,8 @@ namespace physics
 
 
 	// this function is a mess...
+	// we have to do this velocity step stuff as the balls can be too fast
+	// and result in skipped collision checks
 	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn)
 	{
 		for (Ball& ball : gameBalls)

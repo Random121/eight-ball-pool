@@ -12,6 +12,7 @@ T calculateHypotenuse(T x, T y)
 }
 
 // this used to be used for friction calculations
+// a snipper from stackoverflow
 template <typename T>
 int getSign(T num)
 {
@@ -46,7 +47,6 @@ struct TurnInformation
 	// nice and descriptive
 	bool isTargetBallsSelectedThisTurn{};
 };
-
 
 struct Rectangle
 {

@@ -122,7 +122,7 @@ static void displayCredits()
 	std::cout << "Learncpp | Helping me with learning OOP and for providing a better random number generator function.\n\n";
 	std::cout << "Random Math Websites | Teaching how to do vector maths.\n\n";
 	std::cout << "Stackoverflow Users (https://stackoverflow.com/a/6487534) | For providing me with this better alternative to clear the console.\n\n";
-	std::cout << "Youtuber javidx9 (https://www.youtube.com/watch?v=LPzyNOHY3A4) | Intuitive explanation on how to calculate the collision responses between two circles.\n\n";
+	std::cout << "Youtuber javidx9 (https://youtu.be/LPzyNOHY3A4) | Intuitive explanation on the maths for the collision.\n\n";
 	std::cout << "This Blog (https://lajbert.github.io/blog/fixed_timestep/#/) - Explanations on why use and how to implement fixed time updates.\n\n";
 
 	std::cout << "Testers: Benjamin, Nima\n\n";
