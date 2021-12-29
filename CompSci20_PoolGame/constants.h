@@ -6,17 +6,17 @@
 
 namespace consts
 {
-	inline constexpr int screenWidth{ 1250 };
+	inline constexpr int screenWidth{ 1000 };
 	inline constexpr int screenHeight{ 500 };
 
-	//inline constexpr int playSurfaceX{ 40 };
-	//inline constexpr int playSurfaceY{ 40 };
+	inline constexpr int playSurfaceX{ 40 };
+	inline constexpr int playSurfaceY{ 40 };
 
 	inline constexpr Rectangle playSurface{
-		40,
-		40,
-		960,
-		460
+		consts::playSurfaceX,
+		consts::playSurfaceY,
+		consts::screenWidth - consts::playSurfaceX,
+		consts::screenHeight - consts::playSurfaceY
 	};
 
 	inline constexpr double frameTime{ 1.0 / 120.0 };
