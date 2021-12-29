@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+
 namespace render
 {
 	void drawBalls(const std::vector<Ball>& gameBalls, const ALLEGRO_FONT* const& gameFont)

@@ -33,6 +33,5 @@ public:
 	Player& getPlayer(const int playerIndex);
 
 	int getCurrentIndex() const;
-	//int getCurrentIndexPretty() const;
 	int getPlayerCount() const;
 };

@@ -52,11 +52,6 @@ int Players::getCurrentIndex() const
 	return m_currentPlayerIndex;
 }
 
-//int Players::getCurrentIndexPretty() const
-//{
-//	return m_currentPlayerIndex + 1;
-//}
-
 int Players::getPlayerCount() const
 {
 	return m_gamePlayers.size();

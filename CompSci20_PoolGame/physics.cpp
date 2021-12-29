@@ -29,21 +29,6 @@ namespace physics
 {
 	void resolveCircleCollisionPosition(Ball& ball1, Ball& ball2)
 	{
-#ifdef OLD_CODE
-		//const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-		
-		// calculate distance balls should move by to stop overlapping
-		//const double ballOverlap{ (ballDistance - ball1.getRadius() - ball2.getRadius()) / 2.0 };
-		
-		// change distance into position vector
-		//const double moveDistanceX{ ballOverlap * (ball1.getX() - ball2.getX()) / ballDistance };
-		//const double moveDistanceY{ ballOverlap * (ball1.getY() - ball2.getY()) / ballDistance };
-
-		// move each ball in opposite directions to resolve overlap
-		//ball1.subPosition(moveDistanceX, moveDistanceY);
-		//ball2.addPosition(moveDistanceX, moveDistanceY);
-#endif // OLD_CODE
-
 		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 
 		// calculate distance balls should move by to stop overlapping
@@ -73,31 +58,6 @@ namespace physics
 
 	void resolveCircleCollisionVelocity(Ball& ball1, Ball& ball2)
 	{
-#ifdef OLD_CODE
-		//const double ballDistance{ calculateHypotenuse(ball1.getX() - ball2.getX(), ball1.getY() - ball2.getY()) };
-		
-		// normal vector (from center to center)
-		//const double normalX{ (ball2.getX() - ball1.getX()) / ballDistance };
-		//const double normalY{ (ball2.getY() - ball1.getY()) / ballDistance };
-		//const double deltaVelocityX{ ball1.getVX() - ball2.getVX() };
-		//const double deltaVelocityY{ ball1.getVY() - ball2.getVY() };
-		
-		// solve conservation of momentum
-		//const double p{ 2.0 * dotProduct(normalX, deltaVelocityX, normalY, deltaVelocityY) / (ball1.getMass() + ball2.getMass()) };
-		//const double newVelocityX{ p * normalX * consts::collisionFriction };
-		//const double newVelocityY{ p * normalY * consts::collisionFriction };
-
-		//ball1.subVelocity(
-		//	newVelocityX * ball2.getMass(),
-		//	newVelocityY * ball2.getMass()
-		//);
-
-		//ball2.addVelocity(
-		//	newVelocityX * ball1.getMass(),
-		//	newVelocityY * ball1.getMass()
-		//);
-#endif // OLD_CODE
-
 		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 		const Vector2 deltaVelocity{ ball1.getVelocityVector().copyAndSubtract(ball2.getVelocityVector()) };
 

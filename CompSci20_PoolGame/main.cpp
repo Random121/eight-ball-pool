@@ -121,32 +121,6 @@ int main()
 
 	al_set_window_title(allegro.getDisplay(), "Totally Accurate Eight-Ball Simulator");
 
-#ifdef OLD_CODE
-	//constexpr int gamePlayerCount{ 2 };
-
-	//Players gamePlayers{ gamePlayerCount, getRandomInteger(0, gamePlayerCount - 1) };
-	//std::vector<Ball> gameBalls;
-	//CueStick gameStick{ true, true };
-	//TurnInformation currentTurn;
-
-	//bool drawFrame{ true };
-	//int shootStartTime{};
-
-	//al_show_native_message_box(
-	//	gameDisplay,
-	//	"Break Shot",
-	//	"Player taking the break is: ",
-	//	std::to_string(currentPlayerIndex + 1).c_str(),
-	//	nullptr,
-	//	NULL
-	//);
-
-	//createBalls(gameBalls, 16, consts::defaultBallRadius, consts::defaultBallMass);
-	//moveToRackPositions(gameBalls);
-
-	//std::cout << "Player (" << gamePlayers.getCurrentIndexPretty() << ") is taking the break shot.\n";
-#endif // OLD_CODE
-
 	bool gameRunning{ true };
 	ALLEGRO_EVENT_TYPE eventType;
 	allegro.startTimer();
