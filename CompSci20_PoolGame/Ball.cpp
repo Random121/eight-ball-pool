@@ -205,21 +205,6 @@ bool Ball::isMoving() const
 
 void Ball::applyFriction(const double friction, const double stopVelocity)
 {
-#ifdef OLD_CODE
-	// stop ball if the net velocity is near zero
-	//if ((m_xVelocity * m_xVelocity + m_yVelocity * m_yVelocity) < stopVelocity)
-	//{
-	//	m_xVelocity = 0.0;
-	//	m_yVelocity = 0.0;
-	//}
-	//else
-	//{
-	//	// apply rolling friction
-	//	m_xVelocity -= m_xVelocity * friction;
-	//	m_yVelocity -= m_yVelocity * friction;
-	//}
-#endif // OLD_CODE
-
 	// stop ball if the net velocity is near zero
 	if (m_velocity.getDotProduct(m_velocity) < stopVelocity)
 	{
@@ -239,12 +224,6 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 
 	const double radiusLength{ m_radius + otherBall.getRadius() };
 	const Vector2 deltaPosition{ m_position.copyAndSubtract(otherBall.m_position) };
-
-#ifdef OLD_CODE
-	//const double deltaX{ m_position.getX() - otherBall.getX() };
-	//const double deltaY{ m_position.getY() - otherBall.getY() };
-	//return (deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength);
-#endif // OLD_CODE
 
 #ifdef DEBUG
 	//if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))

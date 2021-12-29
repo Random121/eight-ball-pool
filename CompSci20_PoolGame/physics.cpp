@@ -211,25 +211,6 @@ namespace physics
 		}
 		return false;
 	}
-	
-	/*
-	void handlePocketing(Ball& ball, std::vector<Player>& gamePlayers, int playerIndex)
-	{
-		if (ball.isInPocket())
-		{
-			ball.setVisible(false);
-			if (gamePlayers[playerIndex].getTargetBallType() == BallType::unknown)
-			{
-				if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
-				{
-					gamePlayers[playerIndex].setTargetBallType(ball.getBallType());
-					gamePlayers[(playerIndex + 1) % 2].setTargetBallType(ball.getBallType() == BallType::solid ? BallType::striped : BallType::solid);
-				}
-			}
-		}
-	}
-	*/
-
 
 	// this function is a mess...
 	// we have to do this velocity step stuff as the balls can be too fast
