@@ -226,7 +226,6 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 	const Vector2 deltaPosition{ m_position.copyAndSubtract(otherBall.m_position) };
 
 #ifdef DEBUG
-	//if (((deltaX * deltaX) + (deltaY * deltaY)) <= (radiusLength * radiusLength))
 	if (deltaPosition.getDotProduct(deltaPosition) <= (radiusLength * radiusLength))
 	{
 		std::cout << "[OVERLAPPING INFO]\n";
@@ -251,9 +250,9 @@ bool Ball::isInPocket() const
 		if ((deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength))
 		{
 #ifdef DEBUG
-			std::cout << "IN POCKET" << '\n'; ,
+			std::cout << "IN POCKET" << '\n';
 #endif // DEBUG
-				return true;
+			return true;
 		}
 	}
 	return false;

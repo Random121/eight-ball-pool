@@ -39,12 +39,12 @@ namespace physics
 
 #ifdef DEBUG
 		std::cout << "[POSITION RESOLUTION]\n";
-		std::cout << "[distance] " << ballDistance << '\n';
+		std::cout << "[distance] " << deltaPosition.getLength() << '\n';
 		std::cout << "[overlap] " << ballOverlap << '\n';
-		std::cout << "[moveDistanceX] " << moveDistanceX << '\n';
-		std::cout << "[moveDistanceY] " << moveDistanceY << '\n';
+		std::cout << "[moveDistanceX] " << moveVector.getX() << '\n';
+		std::cout << "[moveDistanceY] " << moveVector.getY() << '\n';
 		std::cout << "[start ball1] " << ball1.getX() << ", " << ball1.getY() << '\n';
-		std::cout << "[start ball2] " << ball2.getX() << ", " << ball2.getY() << '\n';0
+		std::cout << "[start ball2] " << ball2.getX() << ", " << ball2.getY() << '\n';
 #endif // DEBUG
 
 		ball1.subPosition(moveVector);
@@ -62,17 +62,17 @@ namespace physics
 		const Vector2 deltaVelocity{ ball1.getVelocityVector().copyAndSubtract(ball2.getVelocityVector()) };
 
 		const Vector2 normalVector{ deltaPosition.getNormalized() };
-		
+
 		// solve conservation of momentum
 		const double momentum{ 2.0 * normalVector.getDotProduct(deltaVelocity) / (ball1.getMass() + ball2.getMass()) };
 		const Vector2 newVelocityVector{ normalVector.copyAndMultiply(momentum * consts::collisionFriction) };
 
 #ifdef DEBUG
 		std::cout << "[VELOCITY RESOLUTION]\n";
-		std::cout << "[distance] " << ballDistance << '\n';
-		std::cout << "[normal] " << normalX << ", " << normalY << '\n';
-		std::cout << "[deltaVelocity] " << deltaVelocityX << ", " << deltaVelocityY << '\n';
-		std::cout << "[newVelocity] " << newVelocityX << ", " << newVelocityY << '\n';
+		std::cout << "[distance] " << deltaPosition.getLength() << '\n';
+		std::cout << "[normal] " << normalVector.getX() << ", " << normalVector.getY() << '\n';
+		std::cout << "[deltaVelocity] " << deltaVelocity.getX() << ", " << deltaVelocity.getY() << '\n';
+		std::cout << "[newVelocity] " << newVelocityVector.getX() << ", " << newVelocityVector.getY() << '\n';
 		std::cout << "[start ball1] " << ball1.getVX() << ", " << ball1.getVY() << '\n';
 		std::cout << "[start ball2] " << ball2.getVX() << ", " << ball2.getVY() << '\n';
 #endif // DEBUG
@@ -137,7 +137,7 @@ namespace physics
 			ball.setVelocity(-ball.getVX() * consts::collisionFriction, ball.getVY());
 			didCollide = true;
 		}
-	
+
 		if (yPositionAdjustment != 0)
 		{
 			ball.addPosition(0, yPositionAdjustment);
@@ -174,9 +174,8 @@ namespace physics
 		return false;
 	}
 
-	// this function is a mess...
-	// we have to do this velocity step stuff as the balls can be too fast
-	// and result in skipped collision checks
+	// velocity is split into steps as balls can
+	// travel too fast and skip collision checks
 	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn)
 	{
 		for (Ball& ball : gameBalls)
@@ -213,7 +212,7 @@ namespace physics
 
 							if (turn.firstHitBallType == BallType::unknown)
 							{
-								// assume that first collision always is cue ball + random ball
+								// assume the first collision always is cue ball + random ball
 								turn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
 								turn.didFoulNoRail = true;
 							}
@@ -225,39 +224,41 @@ namespace physics
 					--stepsNeeded;
 				}
 
+				// checks and logic for pocketing
 				if (ball.isInPocket())
 				{
+					// hide and reset ball
 					ball.setVisible(false);
 					ball.setVelocity(0, 0);
+
+					// update turn informations
 					turn.pocketedBalls.push_back(&ball);
+					turn.didFoulNoRail = false;
+
+					// check if this is the first pocketed ball, if it is then we
+					// set the target suits of each player
 					if (gamePlayers.getCurrentPlayer().targetBallType == BallType::unknown)
 					{
 						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
 						{
-							turn.isTargetBallsSelectedThisTurn = true;
 							gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
 							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid;
+							turn.isTargetBallsSelectedThisTurn = true;
 						}
-					}
-					if (turn.didFoulNoRail)
-					{
-						turn.didFoulNoRail = false;
 					}
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
 
 				bool didCollide{};
+
 				resolveCircleBoundaryCollision(ball, consts::playSurface, didCollide);
 
-				if (turn.didFoulNoRail && didCollide)
+				if (didCollide)
 				{
 					turn.didFoulNoRail = false;
 				}
 			}
-
 		}
 	}
-
 } // namespace physics
-

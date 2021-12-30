@@ -35,4 +35,3 @@ public:
 	void startTimer();
 	bool isEventQueueEmpty();
 };
-

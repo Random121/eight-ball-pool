@@ -9,14 +9,12 @@
 #include <cstdlib>
 #include <limits>
 
-// ***snippet from learncpp*** NOT MINE
 int getRandomInteger(int min, int max)
 {
-	static constexpr double squishFraction{ 1.0 / (RAND_MAX + 1) }; // squishes the rand number between 0-1
-	return min + static_cast<int>((max - min + 1) * (std::rand() * squishFraction));
+	return std::rand() % (max - min + 1) + min;
 }
 
-// ***snippet from stackoverflow*** NOT MINE
+// ***snippet from stackoverflow***
 void clearConsole(const char fillCharacter)
 {
 	COORD topLeft{ 0, 0 };

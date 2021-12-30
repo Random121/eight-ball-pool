@@ -64,4 +64,4 @@ namespace referee
 	{
 		return !gameBalls[8].isVisible();
 	}
-};
+} // namespace referee

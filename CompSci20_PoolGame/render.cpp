@@ -17,49 +17,52 @@ namespace render
 {
 	void drawBalls(const std::vector<Ball>& gameBalls, const ALLEGRO_FONT* const& gameFont)
 	{
-		for (int i{ 1 }; i < gameBalls.size(); ++i)
+		for (const Ball& ball : gameBalls)
 		{
-			const Ball& ball{ gameBalls[i] };
-			if (ball.isVisible())
+			// skip rendering the cue ball and non visible balls
+			if (ball.getBallNumber() != 0 && ball.isVisible())
 			{
 				const int ballNumber{ ball.getBallNumber() };
 				const BallType type{ ball.getBallType() };
 
+				// draw striped balls
 				if (type == BallType::striped)
 				{
+					// draw the white circle background
 					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
-					const std::vector<int>& rgbValues{ consts::ballColorMap[ball.getBallNumber() - 9] };
+
+					// get the color map
+					const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 9] };
+
 					al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
 				}
-				else // solid balls including eight ball
+				else // draw solid balls including eight ball
 				{
-					const std::vector<int>& rgbValues{ consts::ballColorMap[ball.getBallNumber() - 1] };
+					// get the color map
+					const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 1] };
 					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
 				}
 
 				// draw ball border
 				al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
 
-				if (type != BallType::cue)
+				const std::string ballNumberString{ std::to_string(ballNumber) };
+
+				// draw single digit numbers
+				if (ballNumber < 10)
 				{
-					const std::string ballNumberString{ std::to_string(ballNumber) };
-					if (ballNumber < 10)
-					{
-						// single digit numbers
-						al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
-						al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
-					}
-					else
-					{
-						// double digit numbers
-						al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
-					}
+					al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
+					al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
+				}
+				else // draw double digit numbers
+				{
+					al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
 				}
 			}
 		}
 
-		// just to give cue ball a higher z index, so it appears
-		// over the other balls when it is ball in hand
+		// handled here to give cue ball a higher z index,
+		// so it appears over the other balls when it is ball in hand
 		const Ball& cueBall{ gameBalls[0] };
 		if (cueBall.isVisible())
 		{
@@ -99,7 +102,7 @@ namespace render
 			);
 		}
 	}
-		
+
 	void drawPlaysurface()
 	{
 		al_clear_to_color(al_map_rgb(181, 101, 29));

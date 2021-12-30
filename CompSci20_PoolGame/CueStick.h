@@ -41,4 +41,3 @@ public:
 
 	void updateAll(const double xPos, const double yPos);
 };
-

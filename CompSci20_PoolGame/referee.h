@@ -8,4 +8,4 @@ namespace referee
 {
 	bool isTurnValid(Player& turnPlayer, const TurnInformation& turn);
 	bool isGameFinished(const std::vector<Ball>& gameBalls);
-};
+}

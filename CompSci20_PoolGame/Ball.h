@@ -70,4 +70,3 @@ public:
 	bool isOverlappingBall(const Ball& otherBall) const;
 	bool isInPocket() const;
 };
-

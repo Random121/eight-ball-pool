@@ -13,12 +13,12 @@ public:
 
 	double getX() const;
 	double getY() const;
-	
+
 	void setX(const double x);
 	void setY(const double y);
 	void setXY(const double x, const double y);
 
-	void addToX(const double x);	
+	void addToX(const double x);
 	void addToY(const double y);
 
 	Vector2 copyAndAdd(const Vector2& vec2) const;

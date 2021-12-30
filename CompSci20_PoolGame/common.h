@@ -11,17 +11,9 @@ T calculateHypotenuse(T x, T y)
 	return std::sqrt((x * x) + (y * y));
 }
 
-// this used to be used for friction calculations
-// a snipper from stackoverflow
-template <typename T>
-int getSign(T num)
-{
-	return (num > 0) - (num < 0);
-}
-
-void pauseProgram(const std::string_view message);
 // min and max are inclusive
 int getRandomInteger(int min, int max);
+void pauseProgram(const std::string_view message);
 void clearConsole(const char fillCharacter = ' ');
 void resetCin();
 

@@ -40,4 +40,3 @@ public:
 	void updateRender();
 	void frameUpdate(bool& gameRunning);
 };
-

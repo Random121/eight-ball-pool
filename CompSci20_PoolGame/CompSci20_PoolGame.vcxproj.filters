@@ -22,20 +22,11 @@
     <Filter Include="render">
       <UniqueIdentifier>{8dc1091c-3609-416e-926a-6a5b99ae144f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="input">
-      <UniqueIdentifier>{8485fc6a-1b0a-4946-930a-1b13af57ea28}</UniqueIdentifier>
-    </Filter>
     <Filter Include="CueStick">
       <UniqueIdentifier>{80225961-7853-4be6-b949-6966ecd780b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="referee">
       <UniqueIdentifier>{07e18899-4224-41f7-b1bb-0c33fa032cf4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vector2">
-      <UniqueIdentifier>{5644b804-734c-48f1-b52f-251681851322}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="allegro_handler">
-      <UniqueIdentifier>{94900eed-7a62-4a1f-b997-d1ea8220d6aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Players">
       <UniqueIdentifier>{984b8acc-3b30-4163-9655-09e329e83960}</UniqueIdentifier>
@@ -45,6 +36,15 @@
     </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{ec0d75e4-a133-48ef-9b3f-b34879ba1b25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{8485fc6a-1b0a-4946-930a-1b13af57ea28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vector2">
+      <UniqueIdentifier>{5644b804-734c-48f1-b52f-251681851322}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AllegroHandler">
+      <UniqueIdentifier>{94900eed-7a62-4a1f-b997-d1ea8220d6aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,7 +61,7 @@
       <Filter>render</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>input</Filter>
+      <Filter>Input</Filter>
     </ClCompile>
     <ClCompile Include="Players.cpp">
       <Filter>Players</Filter>
@@ -73,10 +73,10 @@
       <Filter>referee</Filter>
     </ClCompile>
     <ClCompile Include="Vector2.cpp">
-      <Filter>vector2</Filter>
+      <Filter>Vector2</Filter>
     </ClCompile>
     <ClCompile Include="AllegroHandler.cpp">
-      <Filter>allegro_handler</Filter>
+      <Filter>AllegroHandler</Filter>
     </ClCompile>
     <ClCompile Include="GameLogic.cpp">
       <Filter>GameLogic</Filter>
@@ -102,7 +102,7 @@
       <Filter>render</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>input</Filter>
+      <Filter>Input</Filter>
     </ClInclude>
     <ClInclude Include="Players.h">
       <Filter>Players</Filter>
@@ -114,10 +114,10 @@
       <Filter>referee</Filter>
     </ClInclude>
     <ClInclude Include="Vector2.h">
-      <Filter>vector2</Filter>
+      <Filter>Vector2</Filter>
     </ClInclude>
     <ClInclude Include="AllegroHandler.h">
-      <Filter>allegro_handler</Filter>
+      <Filter>AllegroHandler</Filter>
     </ClInclude>
     <ClInclude Include="GameLogic.h">
       <Filter>GameLogic</Filter>

@@ -75,8 +75,5 @@ namespace consts
 		{802, 275}
 	};
 }
-// 5
-// 11
 
 //#define DEBUG
-//#define TESTING_RELEASE

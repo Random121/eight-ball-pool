@@ -40,7 +40,7 @@ static void displayCredits()
 	std::cout << "===========\n\n";
 
 	std::cout << "Allegro | For providing this easy to use game and rendering library so I don't have to learn OpenGL.\n\n";
-	std::cout << "Learncpp | Helping me with learning OOP and for providing a better random number generator function.\n\n";
+	std::cout << "Learncpp | Helping me with learning OOP and function templates.\n\n";
 	std::cout << "Random Math Websites | Teaching how to do vector maths.\n\n";
 	std::cout << "Stackoverflow Users (https://stackoverflow.com/a/6487534) | For providing me with this better alternative to clear the console.\n\n";
 	std::cout << "Youtuber javidx9 (https://youtu.be/LPzyNOHY3A4) | Intuitive explanation on the maths for the collision.\n\n";
@@ -56,7 +56,6 @@ static bool initMenu(std::string& playerName1, std::string& playerName2)
 
 	while (menuActive)
 	{
-
 		std::cout << "====================================================\n";
 		std::cout << "= Welcome to Totally Accurate Eight-Ball Simulator =\n";
 		std::cout << "====================================================\n\n";
@@ -70,29 +69,25 @@ static bool initMenu(std::string& playerName1, std::string& playerName2)
 		std::cout << "Select Option: ";
 		std::cin >> userSelection;
 
-		if (std::cin.fail())
-		{
-			resetCin();
-			clearConsole();
-			continue;
-		}
-
 		resetCin();
 		clearConsole();
 
-		switch (userSelection)
+		if (!std::cin.fail())
 		{
-		case 1:
-			menuActive = false;
-			break;
-		case 2:
-			setPlayerNames(playerName1, playerName2);
-			break;
-		case 3:
-			displayCredits();
-			break;
-		case 4:
-			return true;
+			switch (userSelection)
+			{
+			case 1:
+				menuActive = false;
+				break;
+			case 2:
+				setPlayerNames(playerName1, playerName2);
+				break;
+			case 3:
+				displayCredits();
+				break;
+			case 4:
+				return true;
+			}
 		}
 
 		clearConsole();

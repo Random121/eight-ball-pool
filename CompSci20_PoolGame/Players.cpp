@@ -54,5 +54,5 @@ int Players::getCurrentIndex() const
 
 int Players::getPlayerCount() const
 {
-	return m_gamePlayers.size();
+	return static_cast<int>(m_gamePlayers.size());
 }

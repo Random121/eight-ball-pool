@@ -43,12 +43,12 @@ AllegroHandler::AllegroHandler()
 	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
 	// create crucial variables
-
 	m_timer = al_create_timer(consts::frameTime);
 	m_eventQueue = al_create_event_queue();
 	m_display = al_create_display(consts::screenWidth, consts::screenHeight);
 	m_font = al_create_builtin_font();
 
+	// check if the crucial variables are initialized
 	assertInitialized(m_timer, "Allegro timer");
 	assertInitialized(m_eventQueue, "Allegro event queue");
 	assertInitialized(m_display, "Allegro display");
@@ -61,7 +61,7 @@ AllegroHandler::AllegroHandler()
 	al_register_event_source(m_eventQueue, al_get_mouse_event_source());
 }
 
-// if this class is on the stack, then this should get called automatically
+// if the class is on the stack, then this should get called automatically
 AllegroHandler::~AllegroHandler()
 {
 	if (destroyTimer())
@@ -101,46 +101,42 @@ ALLEGRO_EVENT& AllegroHandler::getEvent()
 
 bool AllegroHandler::destroyTimer()
 {
-	if (m_timer)
-	{
-		al_destroy_timer(m_timer);
-		m_timer = nullptr;
-		return true;
-	}
-	return false;
+	if (!m_timer)
+		return false;
+
+	al_destroy_timer(m_timer);
+	m_timer = nullptr;
+	return true;
 }
 
 bool AllegroHandler::destroyDisplay()
 {
-	if (m_display)
-	{
-		al_destroy_display(m_display);
-		m_display = nullptr;
-		return true;
-	}
-	return false;
+	if (!m_display)
+		return false;
+
+	al_destroy_display(m_display);
+	m_display = nullptr;
+	return true;
 }
 
 bool AllegroHandler::destroyFont()
 {
-	if (m_font)
-	{
-		al_destroy_font(m_font);
-		m_font = nullptr;
-		return true;
-	}
-	return false;
+	if (!m_font)
+		return false;
+
+	al_destroy_font(m_font);
+	m_font = nullptr;
+	return true;
 }
 
 bool AllegroHandler::destroyEventQueue()
 {
-	if (m_eventQueue)
-	{
-		al_destroy_event_queue(m_eventQueue);
-		m_eventQueue = nullptr;
-		return true;
-	}
-	return false;
+	if (!m_eventQueue)
+		return false;
+
+	al_destroy_event_queue(m_eventQueue);
+	m_eventQueue = nullptr;
+	return true;
 }
 
 void AllegroHandler::startTimer()

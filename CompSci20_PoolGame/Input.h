@@ -35,4 +35,3 @@ public:
 	int getMouseY();
 	Vector2 getMouseVector();
 };
-

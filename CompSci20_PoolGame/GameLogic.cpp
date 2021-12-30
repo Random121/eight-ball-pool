@@ -38,7 +38,7 @@ static void setupRack(GameLogic::BallVector& gameBalls)
 	static std::vector<int> ballIndexes{ 1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15 };
 	static std::random_device randomDevice;
 	static std::mt19937 engine{ randomDevice() };
-	
+
 	std::shuffle(ballIndexes.begin(), ballIndexes.end(), engine);
 
 	int ballIndex{};
@@ -278,7 +278,7 @@ bool GameLogic::endTurn()
 
 		return true;
 	}
-	
+
 	if (m_activeTurn.isTargetBallsSelectedThisTurn)
 	{
 		std::cout << "[BALL SELECTIONS HAVE BEEN MADE]\n";
