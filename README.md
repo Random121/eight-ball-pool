@@ -1,6 +1,6 @@
 # CS20_AllegroPoolGame
 
-Cool school project nice.
+Cool school project nice.  
 **Note that ligyi is my dad's account as I was working on this code on his laptop at school (reminder to self to not install stuff on school computers).**
 
 TODO
