@@ -115,7 +115,7 @@ GameLogic::GameLogic(AllegroHandler& allegro, const std::string& playerName1, co
 
 	m_gamePlayers.setPlayerIndex(getRandomInteger(0, 1));
 
-	std::cout << "[BREAKER | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n\n";
+	std::cout << "[Breaker]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n\n";
 }
 
 void GameLogic::frameUpdate(bool& gameRunning)
@@ -229,7 +229,7 @@ void GameLogic::shootCueBall()
 		m_gameCueStick.setCanUpdate(false);
 
 		cueBall.setVelocity(normalized);
-		std::cout << "[BALL SHOT] Power: " << cuePower << "\n\n";
+		std::cout << "[Ball Shot] Power: " << cuePower << "\n\n";
 	}
 }
 
@@ -240,36 +240,38 @@ bool GameLogic::endTurn()
 	const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
 	const bool didFoul{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
 
-	std::cout << "[TURN OVER | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n";
-	std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
-	std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
-	std::cout << "Pocketed Balls:";
+	std::cout << "[Turn Over]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n";
+	//std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
+	//std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
+	std::cout << "Pocketed Balls: ";
 
 	// print pocketed balls
 	if (hasPocketedBall)
 	{
 		std::cout << '\n';
+
 		for (Ball* ball : m_activeTurn.pocketedBalls)
 		{
 			std::cout << "- " << ball->getBallNumber() << " (" << getBallTypeName(ball->getBallType()) << ")\n";
 		}
+
+		std::cout << '\n';
 	}
 	else
 	{
-		std::cout << " None\n";
+		std::cout << "None\n\n";
 	}
 
-	std::cout << '\n';
-
+	// check and handle game overs
 	if (referee::isGameFinished(m_gameBalls))
 	{
 		const std::string winnerName{ (!didFoul) ? m_gamePlayers.getCurrentPlayer().name : m_gamePlayers.getNextPlayer().name };
 
-		std::cout << "[WINNER]: Player (" << winnerName << ")\n\n";
+		std::cout << "[Winner]: Player (" << winnerName << ")\n\n";
 
 		al_show_native_message_box(
 			m_allegro.getDisplay(),
-			"GAME WINNER",
+			"Match Winner",
 			std::string("Congratulations! Player (" + winnerName + ") has won this Eight-Ball match.").c_str(),
 			nullptr,
 			nullptr,
@@ -279,9 +281,10 @@ bool GameLogic::endTurn()
 		return true;
 	}
 
+	// announce the newly assigned suits
 	if (m_activeTurn.isTargetBallsSelectedThisTurn)
 	{
-		std::cout << "[BALL SELECTIONS HAVE BEEN MADE]\n";
+		std::cout << "[Ball Suits Have Been Assigned]\n";
 
 		for (const Player& player : m_gamePlayers.getPlayerVector())
 		{
@@ -317,7 +320,7 @@ bool GameLogic::endTurn()
 	}
 
 	// print scores
-	std::cout << "[GAME SCORE]\n";
+	std::cout << "[Match Scores]\n";
 
 	for (const Player& player : m_gamePlayers.getPlayerVector())
 	{
@@ -338,15 +341,28 @@ void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
 		m_gamePlayers.advancePlayerIndex();
 	}
 
-	std::cout << "[TURN START | Player (" << m_gamePlayers.getCurrentPlayer().name << ")]\n";
+	std::cout << "[Turn Start]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n";
 
+	// tell the player that they have ball in hand
 	if (didFoul)
 	{
-		std::cout << "[Player (" << m_gamePlayers.getCurrentPlayer().name << ") is starting with ball in hand]\n";
+		std::cout << "[Ball In Hand]: Player (" << m_gamePlayers.getCurrentPlayer().name << ") is starting with ball in hand.\n";
 	}
 
 	std::cout << '\n';
 
+	// remind the players of the current ball suit selections
+	if (!m_activeTurn.isTargetBallsSelectedThisTurn && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
+	{
+		std::cout << "[Current Ball Suit Assignments]\n";
+
+		for (const Player& player : m_gamePlayers.getPlayerVector())
+		{
+			std::cout << "Player (" << player.name << ") is assigned " << getBallTypeName(player.targetBallType) << " balls.\n";
+		}
+	}
+
+	// reset all the turn information and set if the next player has ball in hand
 	m_activeTurn = {};
 	m_activeTurn.startWithBallInHand = didFoul;
 }
