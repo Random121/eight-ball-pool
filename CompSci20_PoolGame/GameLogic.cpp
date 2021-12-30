@@ -137,6 +137,8 @@ void GameLogic::frameUpdate(bool& gameRunning)
 			m_gameBalls[0].setVisible(true);
 			m_activeTurn.startWithBallInHand = false;
 		}
+
+		m_gameCueStick.setCuePower(0);
 	}
 	else
 	{
@@ -233,6 +235,8 @@ void GameLogic::shootCueBall()
 
 bool GameLogic::endTurn()
 {
+	clearConsole();
+
 	const bool hasPocketedBall{ m_activeTurn.pocketedBalls.size() > 0 };
 	const bool didFoul{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
 

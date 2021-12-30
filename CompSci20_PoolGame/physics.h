@@ -14,8 +14,8 @@ namespace physics
 	bool isCircleCollidingWithBoundaryBottom(const Ball& ball, const Rectangle& boundary);
 	bool isCircleCollidingWithBoundaryLeft(const Ball& ball, const Rectangle& boundary);
 	bool isCircleCollidingWithBoundaryRight(const Ball& ball, const Rectangle& boundary);
-	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundaries);
-	bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
+	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary, bool& didCollide);
+	//bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
 	bool areBallsMoving(const std::vector<Ball>& gameBalls);
 	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn);
 }

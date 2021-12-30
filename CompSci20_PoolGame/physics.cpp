@@ -106,7 +106,7 @@ namespace physics
 		return (ball.getX() + ball.getRadius()) > boundary.xPos2;
 	}
 
-	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary)
+	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary, bool& didCollide)
 	{
 		double xPositionAdjustment{};
 		double yPositionAdjustment{};
@@ -135,30 +135,32 @@ namespace physics
 		{
 			ball.addPosition(xPositionAdjustment, 0);
 			ball.setVelocity(-ball.getVX() * consts::collisionFriction, ball.getVY());
+			didCollide = true;
 		}
 	
 		if (yPositionAdjustment != 0)
 		{
 			ball.addPosition(0, yPositionAdjustment);
 			ball.setVelocity(ball.getVX(), -ball.getVY() * consts::collisionFriction);
+			didCollide = true;
 		}
 	}
 
 	// returns true if a collision has happend
-	bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked)
-	{
-		bool hasCollided{};
-		for (Ball& checkTarget : toBeChecked)
-		{
-			if (ball.isOverlappingBall(checkTarget))
-			{
-				resolveCircleCollisionPosition(ball, checkTarget);
-				resolveCircleCollisionVelocity(ball, checkTarget);
-				hasCollided = true;
-			}
-		}
-		return hasCollided;
-	}
+	//bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked)
+	//{
+	//	bool hasCollided{};
+	//	for (Ball& checkTarget : toBeChecked)
+	//	{
+	//		if (ball.isOverlappingBall(checkTarget))
+	//		{
+	//			resolveCircleCollisionPosition(ball, checkTarget);
+	//			resolveCircleCollisionVelocity(ball, checkTarget);
+	//			hasCollided = true;
+	//		}
+	//	}
+	//	return hasCollided;
+	//}
 
 	bool areBallsMoving(const std::vector<Ball>& gameBalls)
 	{
@@ -213,6 +215,7 @@ namespace physics
 							{
 								// assume that first collision always is cue ball + random ball
 								turn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
+								turn.didFoulNoRail = true;
 							}
 
 							hasCollided = true; // if a collision occured, then stop moving using old velocity
@@ -236,10 +239,21 @@ namespace physics
 							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid;
 						}
 					}
+					if (turn.didFoulNoRail)
+					{
+						turn.didFoulNoRail = false;
+					}
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
-				resolveCircleBoundaryCollision(ball, consts::playSurface);
+
+				bool didCollide{};
+				resolveCircleBoundaryCollision(ball, consts::playSurface, didCollide);
+
+				if (turn.didFoulNoRail && didCollide)
+				{
+					turn.didFoulNoRail = false;
+				}
 			}
 
 		}

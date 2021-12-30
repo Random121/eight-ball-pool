@@ -46,6 +46,7 @@ struct TurnInformation
 	bool startWithBallInHand{};
 	// nice and descriptive
 	bool isTargetBallsSelectedThisTurn{};
+	bool didFoulNoRail{}; // No Rail rule
 };
 
 struct Rectangle
