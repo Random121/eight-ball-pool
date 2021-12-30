@@ -1,6 +1,7 @@
 # CS20_AllegroPoolGame
 
-Cool school project nice. Note that ligyi is my dad's account as I was working on this code on his laptop at school (reminder to self to not install stuff on school computers).
+Cool school project nice.
+**Note that ligyi is my dad's account as I was working on this code on his laptop at school (reminder to self to not install stuff on school computers).**
 
 TODO
 - [FINISHED] [PRIORITY HIGH] Make Vector2 parameter of Ball constructor a reference. (const Vector2& posVector)
@@ -38,4 +39,4 @@ gameBalls[0].setPosition(rackPositions[0]);
 ```
 - [FINISHED] [PRIORITY HIGH] Make Players constructor take only player count, and implement a setter for the player index. This allows us to randomize the index in the constructor of GameLogic, also enabling us to print the name of the player who breaks.
 - [FINISHED] [PRIORITY HIGH] Implementing player names rather than just 1 and 2. To implement default names, change the playerName1 and playerName2 variables in main.cpp to have "1" and "2" rather than just empty.
-- [PRIORITY LOW] Clean up old code that is no longer in use.
+- [PARTIALLY FINISHED] [PRIORITY LOW] Clean up old code that is no longer in use.
