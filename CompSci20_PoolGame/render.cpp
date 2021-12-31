@@ -7,57 +7,55 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <cstddef>
-#include <iostream>
+#include <array>
 
 namespace render
 {
-	void drawBalls(const std::vector<Ball>& gameBalls, const ALLEGRO_FONT* const& gameFont)
+	using rgb_type = std::array<int, 3>;
+	using coord_type = std::array<int, 2>;
+
+	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT* const& gameFont)
 	{
 		for (const Ball& ball : gameBalls)
 		{
 			// skip rendering the cue ball and non visible balls
-			if (ball.getBallNumber() != 0 && ball.isVisible())
+			if (ball.getBallNumber() == 0 || !ball.isVisible())
+				continue;
+
+			const int ballNumber{ ball.getBallNumber() };
+			const BallType type{ ball.getBallType() };
+			const std::string& ballNumberString{ std::to_string(ballNumber) };
+
+			// draw striped balls
+			if (type == BallType::striped)
 			{
-				const int ballNumber{ ball.getBallNumber() };
-				const BallType type{ ball.getBallType() };
+				// draw the white circle background
+				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
 
-				// draw striped balls
-				if (type == BallType::striped)
-				{
-					// draw the white circle background
-					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
+				const rgb_type& rgbValues{ consts::ballColorMap[ballNumber - 9] };
+				al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+			}
+			else // draw solid balls including eight ball
+			{
+				const rgb_type& rgbValues{ consts::ballColorMap[ballNumber - 1] };
+				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+			}
 
-					// get the color map
-					const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 9] };
+			// draw ball border
+			al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
 
-					al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
-				}
-				else // draw solid balls including eight ball
-				{
-					// get the color map
-					const std::vector<int>& rgbValues{ consts::ballColorMap[ballNumber - 1] };
-					al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
-				}
-
-				// draw ball border
-				al_draw_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(0, 0, 0), consts::ballBorderThickness);
-
-				const std::string ballNumberString{ std::to_string(ballNumber) };
-
-				// draw single digit numbers
-				if (ballNumber < 10)
-				{
-					al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
-					al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
-				}
-				else // draw double digit numbers
-				{
-					al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.c_str());
-				}
+			// draw single digit numbers
+			if (ballNumber < 10)
+			{
+				al_draw_filled_circle(ball.getX(), ball.getY(), 5, al_map_rgb(255, 255, 255));
+				al_draw_text(gameFont, al_map_rgb(0, 0, 0), ball.getX() - 3, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.data());
+			}
+			else // draw double digit numbers
+			{
+				al_draw_text(gameFont, al_map_rgb(255, 255, 255), ball.getX() - 7, ball.getY() - 4, ALLEGRO_ALIGN_LEFT, ballNumberString.data());
 			}
 		}
 
@@ -73,7 +71,7 @@ namespace render
 
 	void drawPockets()
 	{
-		for (const std::vector<int>& coord : consts::pocketCoordinates)
+		for (const coord_type& coord : consts::pocketCoordinates)
 		{
 			al_draw_filled_circle(coord[0], coord[1], consts::pocketRadius, al_map_rgb(0, 0, 0));
 		}

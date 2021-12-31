@@ -67,6 +67,9 @@ static void displayCredits()
 	std::cout << "[Blog (https://lajbert.github.io/blog/fixed_timestep/#/)]\n";
 	std::cout << "Explanations on why use and how to implement fixed time updates.\n\n";
 
+	std::cout << "[freesound.org]\n";
+	std::cout << "Sound effect samples for ball collisions and pocketing.\n\n";
+
 	pauseProgram("Press [ENTER] to go back to main menu...");
 }
 

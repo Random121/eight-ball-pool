@@ -4,8 +4,9 @@
 #include "constants.h"
 #include "Vector2.h"
 
-#include <cmath>
 #include <iostream>
+#include <cmath>
+#include <array>
 
 // constructors
 
@@ -241,7 +242,7 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 
 bool Ball::isInPocket() const
 {
-	for (const std::vector<int>& pocketCoord : consts::pocketCoordinates)
+	for (const std::array<int, 2>&pocketCoord : consts::pocketCoordinates)
 	{
 		const double radiusLength{ m_radius + consts::pocketRadius - 10 };
 		const double deltaX{ m_position.getX() - pocketCoord[0] };

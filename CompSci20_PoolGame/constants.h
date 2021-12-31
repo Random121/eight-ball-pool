@@ -2,10 +2,16 @@
 
 #include "common.h"
 
-#include <vector>
+#include <array>
+#include <string_view>
 
+// as these all are compile time constants, we should
+// stop using std::vector as it is less efficient
 namespace consts
 {
+	using std::array;
+	using std::string_view;
+
 	inline constexpr int screenWidth{ 1000 };
 	inline constexpr int screenHeight{ 500 };
 
@@ -36,16 +42,17 @@ namespace consts
 	inline constexpr double cueStickWoodThickness{ cueStickThickness - 5 };
 
 	inline constexpr double pocketRadius{ 23 };
-	inline const std::vector<std::vector<int>> pocketCoordinates{
+
+	inline constexpr array<array<int, 2>, 6> pocketCoordinates{ {
 		{45, 45},
 		{500, 30},
 		{955, 45},
 		{45, 455},
 		{500, 470},
 		{955, 465}
-	};
+	} };
 
-	inline const std::vector<std::vector<int>> ballColorMap{
+	inline const array<array<int, 3>, 8> ballColorMap{ {
 		{200, 200, 0}, // yellow
 		{10, 20, 214}, // blue
 		{247, 13, 26}, // light red
@@ -54,9 +61,9 @@ namespace consts
 		{30, 150, 30}, // green
 		{150, 0, 0}, // dark red
 		{0, 0, 0} // black
-	};
+	} };
 
-	inline const std::vector<std::vector<int>> rackBallPositions{
+	inline const array<array<int, 2>, 16> rackBallPositions{ {
 		{250, 250},
 		{802, 212},
 		{857, 275},
@@ -73,8 +80,13 @@ namespace consts
 		{856, 241},
 		{829, 195},
 		{802, 275}
+	} };
+
+	inline constexpr array<string_view, 2> audioFilePaths{
+		"resources/ball_clack_short.wav",
+		"resources/ball_pocket_short.wav"
 	};
 }
 
 //#define DEBUG
-//#define DISPLAY_FPS
+#define DISPLAY_FPS

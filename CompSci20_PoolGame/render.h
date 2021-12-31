@@ -9,7 +9,7 @@
 
 namespace render
 {
-	void drawBalls(const std::vector<Ball>& gameBalls, const ALLEGRO_FONT* const& gameFont);
+	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT* const& gameFont);
 	void drawPockets();
 	void drawCueStick(CueStick stick);
 	void drawPlaysurface();

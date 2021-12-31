@@ -59,10 +59,14 @@ void AllegroHandler::loadResources()
 	// allow 16 concurrent audio samples to be played
 	assertInitialized(al_reserve_samples(16), "Audio reserve samples (16)");
 
-	// load ball clack audio sample
-	ALLEGRO_SAMPLE* ballClackSample{ al_load_sample("ball_clack_short.wav") };
-	assertInitialized(ballClackSample, "ball clack sound");
-	m_loadedSoundSamples.push_back(ballClackSample);
+	// dynamically load all audio samples
+	ALLEGRO_SAMPLE* sample;
+	for (const std::string_view filePaths : consts::audioFilePaths)
+	{
+		sample = al_load_sample(filePaths.data());
+		assertInitialized(sample, filePaths);
+		m_loadedSoundSamples.push_back(sample);
+	}
 }
 
 // if the class is on the stack, then this should get called automatically

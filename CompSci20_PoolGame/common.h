@@ -32,6 +32,7 @@ enum class BallType
 enum class AudioSamples
 {
 	ball_clack,
+	ball_pocket,
 	total_samples
 };
 

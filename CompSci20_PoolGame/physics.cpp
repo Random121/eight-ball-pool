@@ -225,8 +225,8 @@ namespace physics
 
 							// if sound is really really quiet then
 							// we shouldn't spend resources playing it
-							if (collisionLoudness > 0.01)
-								al_play_sample(allegro.getAudioSample(AudioSamples::ball_clack), collisionLoudness, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+							if (collisionLoudness > 0.005)
+								al_play_sample(allegro.getAudioSample(AudioSamples::ball_clack), collisionLoudness, 0, 1, ALLEGRO_PLAYMODE_ONCE, nullptr);
 
 							resolveCircleCollisionPosition(ball, checkTarget);
 							resolveCircleCollisionVelocity(ball, checkTarget);
@@ -267,6 +267,9 @@ namespace physics
 							turn.isTargetBallsSelectedThisTurn = true;
 						}
 					}
+
+					// play pocket sound
+					al_play_sample(allegro.getAudioSample(AudioSamples::ball_pocket), 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, nullptr);
 				}
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
