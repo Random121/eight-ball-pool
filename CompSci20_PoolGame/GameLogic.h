@@ -9,7 +9,7 @@
 #include "Input.h"
 
 #include <vector>
-#include <string_view>
+#include <string>
 
 class GameLogic
 {
@@ -29,7 +29,6 @@ private:
 	double m_lastShotStartTime{};
 
 public:
-
 	GameLogic(AllegroHandler& allegro, const std::string& playerName1, const std::string& playerName2);
 
 	bool endTurn();

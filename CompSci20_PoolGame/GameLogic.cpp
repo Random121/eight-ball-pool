@@ -17,8 +17,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <random>
-#include <algorithm>
 
 static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, const double ballRadius, const double ballMass)
 {
@@ -358,6 +356,8 @@ void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
 		{
 			std::cout << "Player (" << player.name << ") is assigned " << getBallTypeName(player.targetBallType) << " balls.\n";
 		}
+
+		std::cout << '\n';
 	}
 
 	// reset all the turn information and set if the next player has ball in hand

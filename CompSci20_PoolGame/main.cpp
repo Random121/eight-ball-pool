@@ -39,12 +39,20 @@ static void displayCredits()
 	std::cout << "= Credits =\n";
 	std::cout << "===========\n\n";
 
-	std::cout << "Allegro | For providing this easy to use game and rendering library so I don't have to learn OpenGL.\n\n";
-	std::cout << "Learncpp | Helping me with learning OOP and function templates.\n\n";
-	std::cout << "Random Math Websites | Teaching how to do vector maths.\n\n";
-	std::cout << "Stackoverflow Users (https://stackoverflow.com/a/6487534) | For providing me with this better alternative to clear the console.\n\n";
-	std::cout << "Youtuber javidx9 (https://youtu.be/LPzyNOHY3A4) | Intuitive explanation on the maths for the collision.\n\n";
-	std::cout << "This Blog (https://lajbert.github.io/blog/fixed_timestep/#/) - Explanations on why use and how to implement fixed time updates.\n\n";
+	std::cout << "[Allegro Game Library]\n";
+	std::cout << "For providing this easy to use game and rendering library so I don't have to learn OpenGL.\n\n";
+
+	std::cout << "[Learncpp]\n";
+	std::cout << "Helping me with learning OOP and function templates.\n\n";
+
+	std::cout << "[Stackoverflow Users (https://stackoverflow.com/a/6487534)]\n";
+	std::cout << "For providing me with this better alternative to clear the console.\n\n";
+
+	std::cout << "[Youtuber javidx9 (https://youtu.be/LPzyNOHY3A4)]\n";
+	std::cout << "Intuitive explanation on the maths for the collision.\n\n";
+
+	std::cout << "[Blog (https://lajbert.github.io/blog/fixed_timestep/#/)]\n";
+	std::cout << "Explanations on why use and how to implement fixed time updates.\n\n";
 
 	pauseProgram("Press [ENTER] to go back to main menu...");
 }
@@ -103,9 +111,8 @@ int main()
 		const int temp{ std::rand() };
 	}
 
-	// just to make sure they are always there
-	static std::string playerName1{ "1" };
-	static std::string playerName2{ "2" };
+	std::string playerName1{ "1" };
+	std::string playerName2{ "2" };
 
 	if (initMenu(playerName1, playerName2))
 		return EXIT_SUCCESS;
@@ -120,6 +127,13 @@ int main()
 	ALLEGRO_EVENT_TYPE eventType;
 	allegro.startTimer();
 
+#ifdef DISPLAY_FPS
+	unsigned int frames{};
+	double prevFrameStart{ al_get_time() };
+	double currentFrameTime;
+#endif // DISPLAY_FPS
+
+
 	while (gameRunning)
 	{
 		al_wait_for_event(allegro.getEventQueue(), &allegro.getEvent());
@@ -133,6 +147,17 @@ int main()
 			{
 				gameRunning = false;
 			}
+
+#ifdef DISPLAY_FPS
+			frames++;
+			currentFrameTime = al_get_time();
+			if (currentFrameTime - prevFrameStart > 1)
+			{
+				std::cout << "[FPS]: " << (frames / (currentFrameTime - prevFrameStart)) << '\n';
+				prevFrameStart = currentFrameTime;
+				frames = 0;
+			}
+#endif // DISPLAY_FPS
 		}
 		else if (eventType == ALLEGRO_EVENT_KEY_DOWN)
 		{

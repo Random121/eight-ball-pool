@@ -77,3 +77,4 @@ namespace consts
 }
 
 //#define DEBUG
+//#define DISPLAY_FPS

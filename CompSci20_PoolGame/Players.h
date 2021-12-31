@@ -5,11 +5,11 @@
 #include "Players.h"
 
 #include <vector>
-#include <string_view>
+#include <string>
 
 struct Player
 {
-	std::string_view name;
+	std::string name;
 	int score{};
 	BallType targetBallType{};
 };
