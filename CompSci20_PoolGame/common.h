@@ -12,10 +12,11 @@ T calculateHypotenuse(T x, T y)
 }
 
 // min and max are inclusive
-int getRandomInteger(int min, int max);
+int getRandomInteger(const int min, const int max);
 void pauseProgram(const std::string_view message);
 void clearConsole(const char fillCharacter = ' ');
 void resetCin();
+void intArrayFisherYatesShuffle(std::vector<int>& intArray);
 
 enum class BallType
 {

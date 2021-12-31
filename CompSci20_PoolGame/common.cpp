@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <limits>
 
-int getRandomInteger(int min, int max)
+int getRandomInteger(const int min, const int max)
 {
 	return std::rand() % (max - min + 1) + min;
 }
@@ -39,3 +39,22 @@ void resetCin()
 	std::cin.clear();
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
+
+// my own c++ version of the Fisher-Yates shuffle pseudocode from wikipedia
+
+void intArrayFisherYatesShuffle(std::vector<int>& intArray)
+{
+	int randIndex;
+	int tempVal;
+	for (int i{ static_cast<int>(intArray.size()) - 1 }; i > 0; --i)
+	{
+		randIndex = getRandomInteger(0, i);
+
+		// swap elements
+		tempVal = intArray[i];
+		intArray[i] = intArray[randIndex];
+		intArray[randIndex] = tempVal;
+	}
+}
+
+//size_t

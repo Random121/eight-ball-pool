@@ -36,10 +36,8 @@ static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, c
 static void setupRack(GameLogic::BallVector& gameBalls)
 {
 	static std::vector<int> ballIndexes{ 1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15 };
-	static std::random_device randomDevice;
-	static std::mt19937 engine{ randomDevice() };
 
-	std::shuffle(ballIndexes.begin(), ballIndexes.end(), engine);
+	intArrayFisherYatesShuffle(ballIndexes);
 
 	int ballIndex{};
 
