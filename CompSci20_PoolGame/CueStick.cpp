@@ -11,7 +11,7 @@ CueStick::CueStick(bool canUpdate, bool visible)
 
 void CueStick::updatePower()
 {
-	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < 75)
+	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < 70)
 	{
 		m_cuePower += 1;
 	}

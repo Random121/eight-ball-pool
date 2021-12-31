@@ -27,6 +27,14 @@ enum class BallType
 	cue
 };
 
+// way to index audio samples from the
+// resource vector
+enum class AudioSamples
+{
+	ball_clack,
+	total_samples
+};
+
 // this forward declaration is needed rather than an include
 // because Ball.h includes this file and will cause circular
 // dependencies, doing this will only bring the class

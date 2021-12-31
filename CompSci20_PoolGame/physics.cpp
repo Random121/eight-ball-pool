@@ -6,6 +6,8 @@
 #include "Vector2.h"
 #include "Players.h"
 
+#include <allegro5/allegro_audio.h>
+
 #include <iostream>
 #include <vector>
 #include <cstddef>
@@ -176,7 +178,7 @@ namespace physics
 
 	// velocity is split into steps as balls can
 	// travel too fast and skip collision checks
-	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn)
+	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro)
 	{
 		for (Ball& ball : gameBalls)
 		{
@@ -207,6 +209,25 @@ namespace physics
 					{
 						if (ball.isOverlappingBall(checkTarget))
 						{
+							// calculates loudness of sound depending
+							// on the total collision speed
+							double collisionLoudness{
+								(ball.getVelocityVector().getLength() + checkTarget.getVelocityVector().getLength()) / 50
+							};
+
+							// limit volume so it doesn't destroy the user's ears
+							if (collisionLoudness > 1.0)
+								collisionLoudness = 1.0;
+
+#ifdef DEBUG
+							std::cout << "[SOUND LOUDNESS]: " << collisionLoudness << '\n';
+#endif // DEBUG
+
+							// if sound is really really quiet then
+							// we shouldn't spend resources playing it
+							if (collisionLoudness > 0.01)
+								al_play_sample(allegro.getAudioSample(AudioSamples::ball_clack), collisionLoudness, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+
 							resolveCircleCollisionPosition(ball, checkTarget);
 							resolveCircleCollisionVelocity(ball, checkTarget);
 

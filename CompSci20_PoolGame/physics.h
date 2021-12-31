@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AllegroHandler.h"
 #include "Ball.h"
 #include "Players.h"
 #include "common.h"
@@ -21,6 +22,7 @@ namespace physics
 
 	// misc important function
 	bool areBallsMoving(const std::vector<Ball>& gameBalls);
-	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn);
+	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro);
+	//void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn);
 	//bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
 }

@@ -3,29 +3,16 @@
 #include "common.h"
 
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_native_dialog.h>
+//#include <allegro5/allegro_image.h>
 
 #include <iostream>
 #include <string_view>
 #include <cstdlib>
-
-// ret can take in a pointer or boolean
-// nullptr is interpreted as false and anything else is true
-void AllegroHandler::assertInitialized(bool resource, const std::string_view resourceName)
-{
-	if (!resource)
-	{
-		std::cout << "\n[Critical component of Allegro failed to initialize]\n";
-		std::cout << "Component that failed: " << resourceName << '\n';
-
-		pauseProgram("Press [ENTER] to close the program...");
-
-		std::exit(EXIT_FAILURE);
-	}
-}
 
 AllegroHandler::AllegroHandler()
 {
@@ -33,9 +20,11 @@ AllegroHandler::AllegroHandler()
 	assertInitialized(al_init(), "Allegro library init");
 	assertInitialized(al_install_keyboard(), "Allegro keyboard driver");
 	assertInitialized(al_install_mouse(), "Allegro mouse driver");
-	assertInitialized(al_init_image_addon(), "Allegro image addon");
+	assertInitialized(al_install_audio(), "Allegro audio");
+	assertInitialized(al_init_acodec_addon(), "Allegro audio codec addon");
 	assertInitialized(al_init_primitives_addon(), "Allegro primitives addon");
 	assertInitialized(al_init_native_dialog_addon(), "Allegro dialong addon");
+	//assertInitialized(al_init_image_addon(), "Allegro image addon");
 
 	// set up allegro display antialiasing
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST); // use multisampling
@@ -59,11 +48,28 @@ AllegroHandler::AllegroHandler()
 	al_register_event_source(m_eventQueue, al_get_timer_event_source(m_timer));
 	al_register_event_source(m_eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(m_eventQueue, al_get_mouse_event_source());
+
+	loadResources();
+}
+
+// loads resources (bitmaps or audio) that the game needs
+// in this case it is just an audio file
+void AllegroHandler::loadResources()
+{
+	// allow 16 concurrent audio samples to be played
+	assertInitialized(al_reserve_samples(16), "Audio reserve samples (16)");
+
+	// load ball clack audio sample
+	ALLEGRO_SAMPLE* ballClackSample{ al_load_sample("ball_clack_short.wav") };
+	assertInitialized(ballClackSample, "ball clack sound");
+	m_loadedSoundSamples.push_back(ballClackSample);
 }
 
 // if the class is on the stack, then this should get called automatically
 AllegroHandler::~AllegroHandler()
 {
+	destroyResources();
+
 	if (destroyTimer())
 		std::cout << "[CLEANUP] timer\n";
 	if (destroyEventQueue())
@@ -72,6 +78,32 @@ AllegroHandler::~AllegroHandler()
 		std::cout << "[CLEANUP] display\n";
 	if (destroyFont())
 		std::cout << "[CLEANUP] font\n";
+}
+
+void AllegroHandler::destroyResources()
+{
+	// unload all audio samples
+	for (ALLEGRO_SAMPLE*& sample : m_loadedSoundSamples)
+	{
+		al_destroy_sample(sample);
+	}
+
+	m_loadedSoundSamples.clear();
+}
+
+// ret can take in a pointer or boolean
+// nullptr is interpreted as false and anything else is true
+void AllegroHandler::assertInitialized(bool resource, const std::string_view resourceName)
+{
+	if (!resource)
+	{
+		std::cout << "\n[Critical component of Allegro failed to initialize]\n";
+		std::cout << "Component that failed: " << resourceName << '\n';
+
+		pauseProgram("Press [ENTER] to close the program...");
+
+		std::exit(EXIT_FAILURE);
+	}
 }
 
 ALLEGRO_TIMER*& AllegroHandler::getTimer()
@@ -97,6 +129,11 @@ ALLEGRO_EVENT_QUEUE*& AllegroHandler::getEventQueue()
 ALLEGRO_EVENT& AllegroHandler::getEvent()
 {
 	return m_event;
+}
+
+ALLEGRO_SAMPLE* const& AllegroHandler::getAudioSample(AudioSamples sample) const
+{
+	return m_loadedSoundSamples.at(static_cast<int>(sample));
 }
 
 bool AllegroHandler::destroyTimer()

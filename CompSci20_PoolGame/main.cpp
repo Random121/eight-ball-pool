@@ -24,11 +24,24 @@ static void setPlayerNames(std::string& playerName1, std::string& playerName2)
 	if (playerName1.empty())
 		playerName1 = "1";
 
-	std::cout << "Enter name for Player (2): ";
-	std::getline(std::cin, playerName2);
+	while (true)
+	{
+		std::cout << "Enter name for Player (2): ";
+		std::getline(std::cin, playerName2);
 
-	if (playerName2.empty())
-		playerName2 = "2";
+		if (playerName2 == playerName1)
+		{
+			std::cout << "Players can not have the same name.\n";
+		}
+		else
+		{
+			if (playerName2.empty())
+			{
+				playerName2 = "2";
+			}
+			break;
+		}
+	}
 
 	pauseProgram("\nPress [ENTER] to go back to main menu...");
 }
@@ -132,7 +145,6 @@ int main()
 	double prevFrameStart{ al_get_time() };
 	double currentFrameTime;
 #endif // DISPLAY_FPS
-
 
 	while (gameRunning)
 	{

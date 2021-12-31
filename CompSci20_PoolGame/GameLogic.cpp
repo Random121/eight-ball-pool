@@ -194,7 +194,7 @@ void GameLogic::updatePhysics()
 
 	while (timeAccumulator >= consts::physicsUpdateDelta)
 	{
-		physics::stepPhysics(m_gameBalls, m_gamePlayers, m_activeTurn);
+		physics::stepPhysics(m_gameBalls, m_gamePlayers, m_activeTurn, m_allegro);
 		timeAccumulator -= consts::physicsUpdateDelta;
 	}
 }
