@@ -1,19 +1,27 @@
 #pragma once
 
 #include "Vector2.h"
-#include "common.h"
+
+#include <vector>
 
 class Ball
 {
-private:
+public:
+	using balls_type = std::vector<Ball>;
+	using ballsPointer_type = std::vector<Ball*>;
 
+	enum class BallSuitType
+	{
+		unknown,
+		solid,
+		striped,
+		eight,
+		cue
+	};
+
+private:
 	Vector2 m_position{};
 	Vector2 m_velocity{};
-
-	//double m_xPosition{};
-	//double m_yPosition{};
-	//double m_xVelocity{};
-	//double m_yVelocity{};
 
 	double m_radius{};
 	double m_mass{};
@@ -63,7 +71,7 @@ public:
 	void setBallNumber(int number);
 	int getBallNumber() const;
 
-	BallType getBallType() const;
+	BallSuitType getBallType() const;
 	bool isMoving() const;
 	void applyFriction(const double friction, const double stopVelocity);
 

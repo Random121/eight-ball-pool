@@ -136,7 +136,6 @@ int main()
 	AllegroHandler allegro{};
 	Input& input{ Input::getInstance() };
 	GameLogic gameLogic{ allegro, playerName1, playerName2 };
-
 	al_set_window_title(allegro.getDisplay(), "Totally Accurate Eight-Ball Simulator");
 
 	bool gameRunning{ true };

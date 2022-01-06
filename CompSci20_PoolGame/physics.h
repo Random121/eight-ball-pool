@@ -5,8 +5,6 @@
 #include "Players.h"
 #include "common.h"
 
-#include <vector>
-
 namespace physics
 {
 	// circle to circle collision resolution
@@ -21,8 +19,8 @@ namespace physics
 	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary, bool& didCollide);
 
 	// misc important function
-	bool areBallsMoving(const std::vector<Ball>& gameBalls);
-	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro);
-	//void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn);
-	//bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked);
+	bool areBallsMoving(const Ball::balls_type& gameBalls);
+	void stepPhysics(Ball::balls_type& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro);
+	//void stepPhysics(Ball::balls_type& gameBalls, Players& gamePlayers, TurnInformation& turn);
+	//bool resolveCircleCollisions(Ball& ball, Ball::balls_type& toBeChecked);
 }

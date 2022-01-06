@@ -18,7 +18,7 @@
 #include <string_view>
 #include <vector>
 
-static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, const double ballRadius, const double ballMass)
+static void createBalls(Ball::balls_type& gameBalls, const int ballCount, const double ballRadius, const double ballMass)
 {
 	gameBalls.resize(ballCount);
 	for (int i{}; i < ballCount; ++i)
@@ -31,7 +31,7 @@ static void createBalls(GameLogic::BallVector& gameBalls, const int ballCount, c
 	}
 }
 
-static void setupRack(GameLogic::BallVector& gameBalls)
+static void setupRack(Ball::balls_type& gameBalls)
 {
 	static std::vector<int> ballIndexes{ 1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15 };
 
@@ -58,7 +58,7 @@ static void setupRack(GameLogic::BallVector& gameBalls)
 	gameBalls[11].setPosition(consts::rackBallPositions[11][0], consts::rackBallPositions[11][1]);
 }
 
-static bool isValidPlacePosition(Ball& cueBall, GameLogic::BallVector& gameBalls)
+static bool isValidPlacePosition(Ball& cueBall, Ball::balls_type& gameBalls)
 {
 	bool isOverlappingBall{};
 	bool isOverlappingBoundary{};
@@ -78,25 +78,6 @@ static bool isValidPlacePosition(Ball& cueBall, GameLogic::BallVector& gameBalls
 		|| physics::isCircleCollidingWithBoundaryRight(cueBall, consts::playSurface);
 
 	return !isOverlappingBall && !isOverlappingBoundary;
-}
-
-static std::string_view getBallTypeName(BallType type)
-{
-	switch (type)
-	{
-	case BallType::unknown:
-		return "Unknown";
-	case BallType::solid:
-		return "Solid";
-	case BallType::striped:
-		return "Striped";
-	case BallType::eight:
-		return "Eight-Ball";
-	case BallType::cue:
-		return "Cue-Ball";
-	default:
-		return "???";
-	}
 }
 
 GameLogic::GameLogic(AllegroHandler& allegro, const std::string& playerName1, const std::string& playerName2)
@@ -278,11 +259,11 @@ bool GameLogic::endTurn()
 	}
 
 	// announce the newly assigned suits
-	if (m_activeTurn.isTargetBallsSelectedThisTurn)
+	if (m_activeTurn.targetBallsSelectedThisTurn)
 	{
 		std::cout << "[Ball Suits Have Been Assigned]\n";
 
-		for (const Player& player : m_gamePlayers.getPlayerVector())
+		for (const Players::PlayerType& player : m_gamePlayers.getPlayerVector())
 		{
 			std::cout << "Player (" << player.name << ") is assigned " << getBallTypeName(player.targetBallType) << " balls.\n";
 		}
@@ -301,11 +282,11 @@ bool GameLogic::endTurn()
 	}
 
 	// add scores
-	if (hasPocketedBall && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
+	if (hasPocketedBall && m_gamePlayers.getCurrentPlayer().targetBallType != Ball::BallSuitType::unknown)
 	{
 		for (Ball* pocketedBall : m_activeTurn.pocketedBalls)
 		{
-			for (Player& player : m_gamePlayers.getPlayerVector())
+			for (Players::PlayerType& player : m_gamePlayers.getPlayerVector())
 			{
 				if (player.targetBallType == pocketedBall->getBallType())
 				{
@@ -318,7 +299,7 @@ bool GameLogic::endTurn()
 	// print scores
 	std::cout << "[Match Scores]\n";
 
-	for (const Player& player : m_gamePlayers.getPlayerVector())
+	for (const Players::PlayerType& player : m_gamePlayers.getPlayerVector())
 	{
 		std::cout << "Player (" << player.name << "): " << player.score << '\n';
 	}
@@ -348,11 +329,11 @@ void GameLogic::nextTurn(const bool didFoul, const bool hasPocketedBall)
 	std::cout << '\n';
 
 	// remind the players of the current ball suit selections
-	if (!m_activeTurn.isTargetBallsSelectedThisTurn && m_gamePlayers.getCurrentPlayer().targetBallType != BallType::unknown)
+	if (!m_activeTurn.targetBallsSelectedThisTurn && m_gamePlayers.getCurrentPlayer().targetBallType != Ball::BallSuitType::unknown)
 	{
 		std::cout << "[Current Ball Suit Assignments]\n";
 
-		for (const Player& player : m_gamePlayers.getPlayerVector())
+		for (const Players::PlayerType& player : m_gamePlayers.getPlayerVector())
 		{
 			std::cout << "Player (" << player.name << ") is assigned " << getBallTypeName(player.targetBallType) << " balls.\n";
 		}

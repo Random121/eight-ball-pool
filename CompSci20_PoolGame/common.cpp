@@ -1,6 +1,12 @@
-#define NOMINMAX
-
 #include "common.h"
+
+#include "Ball.h"
+
+// for some windows api optimizations
+#define WIN32_LEAN_AND_MEAN
+
+// required as windows min max interferes with the one from numeric_limits
+#define NOMINMAX
 
 #include <Windows.h>
 
@@ -57,4 +63,21 @@ void intArrayFisherYatesShuffle(std::vector<int>& intArray)
 	}
 }
 
-//size_t
+std::string_view getBallTypeName(Ball::BallSuitType type)
+{
+	switch (type)
+	{
+	case Ball::BallSuitType::unknown:
+		return "Unknown";
+	case Ball::BallSuitType::solid:
+		return "Solid";
+	case Ball::BallSuitType::striped:
+		return "Striped";
+	case Ball::BallSuitType::eight:
+		return "Eight-Ball";
+	case Ball::BallSuitType::cue:
+		return "Cue-Ball";
+	default:
+		return "???";
+	}
+}

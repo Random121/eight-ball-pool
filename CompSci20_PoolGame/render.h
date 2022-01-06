@@ -5,11 +5,9 @@
 
 #include <allegro5/allegro_font.h>
 
-#include <vector>
-
 namespace render
 {
-	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT* const& gameFont);
+	void drawBalls(const Ball::balls_type& gameBalls, ALLEGRO_FONT* const& gameFont);
 	void drawPockets();
 	void drawCueStick(CueStick stick);
 	void drawPlaysurface();

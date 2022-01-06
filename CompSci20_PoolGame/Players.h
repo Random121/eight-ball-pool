@@ -7,17 +7,18 @@
 #include <vector>
 #include <string>
 
-struct Player
-{
-	std::string name;
-	int score{};
-	BallType targetBallType{};
-};
-
 class Players
 {
+public:
+	struct PlayerType
+	{
+		std::string name;
+		int score{};
+		Ball::BallSuitType targetBallType{};
+	};
+
 private:
-	std::vector<Player> m_gamePlayers;
+	std::vector<PlayerType> m_gamePlayers;
 	int m_currentPlayerIndex{};
 
 public:
@@ -27,10 +28,10 @@ public:
 	void advancePlayerIndex();
 	void setPlayerIndex(const int index);
 
-	std::vector<Player>& getPlayerVector();
-	Player& getCurrentPlayer();
-	Player& getNextPlayer();
-	Player& getPlayer(const int playerIndex);
+	std::vector<PlayerType>& getPlayerVector();
+	PlayerType& getCurrentPlayer();
+	PlayerType& getNextPlayer();
+	PlayerType& getPlayer(const int playerIndex);
 
 	int getCurrentIndex() const;
 	int getPlayerCount() const;

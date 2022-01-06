@@ -13,15 +13,13 @@
 
 class GameLogic
 {
-public:
-	using BallVector = std::vector<Ball>;
 private:
 	// shared resources
 	AllegroHandler& m_allegro;
 	Input& m_input{ Input::getInstance() };
 
 	Players m_gamePlayers;
-	BallVector m_gameBalls;
+	Ball::balls_type m_gameBalls;
 
 	CueStick m_gameCueStick{ true, true };
 	TurnInformation m_activeTurn{};

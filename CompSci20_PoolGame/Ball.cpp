@@ -184,18 +184,18 @@ int Ball::getBallNumber() const
 	return m_ballNumber;
 }
 
-BallType Ball::getBallType() const
+Ball::BallSuitType Ball::getBallType() const
 {
 	if (m_ballNumber == 0)
-		return BallType::cue;
+		return Ball::BallSuitType::cue;
 
 	if (m_ballNumber == 8)
-		return BallType::eight;
+		return Ball::BallSuitType::eight;
 
 	if (m_ballNumber > 8)
-		return BallType::striped;
+		return Ball::BallSuitType::striped;
 	else
-		return BallType::solid;
+		return Ball::BallSuitType::solid;
 }
 
 bool Ball::isMoving() const
@@ -242,11 +242,13 @@ bool Ball::isOverlappingBall(const Ball& otherBall) const
 
 bool Ball::isInPocket() const
 {
-	for (const std::array<int, 2>&pocketCoord : consts::pocketCoordinates)
+	for (const auto& [pocketX, pocketY] : consts::pocketCoordinates)
 	{
-		const double radiusLength{ m_radius + consts::pocketRadius - 10 };
-		const double deltaX{ m_position.getX() - pocketCoord[0] };
-		const double deltaY{ m_position.getY() - pocketCoord[1] };
+		static constexpr double POCKET_SENSITIVITY{ 10 }; // higher = less sensitive
+
+		const double radiusLength{ (m_radius + consts::pocketRadius) - POCKET_SENSITIVITY };
+		const double deltaX{ m_position.getX() - pocketX };
+		const double deltaY{ m_position.getY() - pocketY };
 
 		if ((deltaX * deltaX + deltaY * deltaY) <= (radiusLength * radiusLength))
 		{

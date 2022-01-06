@@ -9,15 +9,11 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <array>
 
 namespace render
 {
-	using rgb_type = std::array<int, 3>;
-	using coord_type = std::array<int, 2>;
-
-	void drawBalls(const std::vector<Ball>& gameBalls, ALLEGRO_FONT* const& gameFont)
+	void drawBalls(const Ball::balls_type& gameBalls, ALLEGRO_FONT* const& gameFont)
 	{
 		for (const Ball& ball : gameBalls)
 		{
@@ -26,22 +22,22 @@ namespace render
 				continue;
 
 			const int ballNumber{ ball.getBallNumber() };
-			const BallType type{ ball.getBallType() };
+			const Ball::BallSuitType type{ ball.getBallType() };
 			const std::string& ballNumberString{ std::to_string(ballNumber) };
 
 			// draw striped balls
-			if (type == BallType::striped)
+			if (type == Ball::BallSuitType::striped)
 			{
 				// draw the white circle background
 				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(255, 255, 255));
 
-				const rgb_type& rgbValues{ consts::ballColorMap[ballNumber - 9] };
-				al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+				const auto& [red, green, blue] { consts::ballColorMap[ballNumber - 9] };
+				al_draw_filled_circle(ball.getX(), ball.getY(), 11, al_map_rgb(red, green, blue));
 			}
 			else // draw solid balls including eight ball
 			{
-				const rgb_type& rgbValues{ consts::ballColorMap[ballNumber - 1] };
-				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(rgbValues[0], rgbValues[1], rgbValues[2]));
+				const auto& [red, green, blue] { consts::ballColorMap[ballNumber - 1] };
+				al_draw_filled_circle(ball.getX(), ball.getY(), ball.getRadius(), al_map_rgb(red, green, blue));
 			}
 
 			// draw ball border
@@ -71,9 +67,9 @@ namespace render
 
 	void drawPockets()
 	{
-		for (const coord_type& coord : consts::pocketCoordinates)
+		for (const auto& [xCoord, yCoord] : consts::pocketCoordinates)
 		{
-			al_draw_filled_circle(coord[0], coord[1], consts::pocketRadius, al_map_rgb(0, 0, 0));
+			al_draw_filled_circle(xCoord, yCoord, consts::pocketRadius, al_map_rgb(0, 0, 0));
 		}
 	}
 

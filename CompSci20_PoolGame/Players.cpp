@@ -24,22 +24,22 @@ void Players::setPlayerIndex(const int index)
 	}
 }
 
-std::vector<Player>& Players::getPlayerVector()
+std::vector<Players::PlayerType>& Players::getPlayerVector()
 {
 	return m_gamePlayers;
 }
 
-Player& Players::getCurrentPlayer()
+Players::PlayerType& Players::getCurrentPlayer()
 {
 	return m_gamePlayers[m_currentPlayerIndex];
 }
 
-Player& Players::getNextPlayer()
+Players::PlayerType& Players::getNextPlayer()
 {
 	return m_gamePlayers[getNextIndex()];
 }
 
-Player& Players::getPlayer(const int playerIndex)
+Players::PlayerType& Players::getPlayer(const int playerIndex)
 {
 	if (playerIndex >= 0 && playerIndex < m_gamePlayers.size())
 	{

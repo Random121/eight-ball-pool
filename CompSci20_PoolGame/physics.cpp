@@ -9,7 +9,6 @@
 #include <allegro5/allegro_audio.h>
 
 #include <iostream>
-#include <vector>
 #include <cstddef>
 
 /*
@@ -149,7 +148,7 @@ namespace physics
 	}
 
 	// returns true if a collision has happend
-	//bool resolveCircleCollisions(Ball& ball, std::vector<Ball>& toBeChecked)
+	//bool resolveCircleCollisions(Ball& ball, Ball::balls_type& toBeChecked)
 	//{
 	//	bool hasCollided{};
 	//	for (Ball& checkTarget : toBeChecked)
@@ -164,7 +163,7 @@ namespace physics
 	//	return hasCollided;
 	//}
 
-	bool areBallsMoving(const std::vector<Ball>& gameBalls)
+	bool areBallsMoving(const Ball::balls_type& gameBalls)
 	{
 		for (const Ball& ball : gameBalls)
 		{
@@ -178,7 +177,7 @@ namespace physics
 
 	// velocity is split into steps as balls can
 	// travel too fast and skip collision checks
-	void stepPhysics(std::vector<Ball>& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro)
+	void stepPhysics(Ball::balls_type& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro)
 	{
 		for (Ball& ball : gameBalls)
 		{
@@ -231,7 +230,7 @@ namespace physics
 							resolveCircleCollisionPosition(ball, checkTarget);
 							resolveCircleCollisionVelocity(ball, checkTarget);
 
-							if (turn.firstHitBallType == BallType::unknown)
+							if (turn.firstHitBallType == Ball::BallSuitType::unknown)
 							{
 								// assume the first collision always is cue ball + random ball
 								turn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
@@ -258,13 +257,13 @@ namespace physics
 
 					// check if this is the first pocketed ball, if it is then we
 					// set the target suits of each player
-					if (gamePlayers.getCurrentPlayer().targetBallType == BallType::unknown)
+					if (gamePlayers.getCurrentPlayer().targetBallType == Ball::BallSuitType::unknown)
 					{
-						if (ball.getBallType() == BallType::solid || ball.getBallType() == BallType::striped)
+						if (ball.getBallType() == Ball::BallSuitType::solid || ball.getBallType() == Ball::BallSuitType::striped)
 						{
 							gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
-							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == BallType::solid) ? BallType::striped : BallType::solid;
-							turn.isTargetBallsSelectedThisTurn = true;
+							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == Ball::BallSuitType::solid) ? Ball::BallSuitType::striped : Ball::BallSuitType::solid;
+							turn.targetBallsSelectedThisTurn = true;
 						}
 					}
 

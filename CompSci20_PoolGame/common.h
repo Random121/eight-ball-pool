@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Ball.h"
+
 #include <string_view>
 #include <cmath>
 #include <vector>
@@ -17,15 +19,7 @@ void pauseProgram(const std::string_view message);
 void clearConsole(const char fillCharacter = ' ');
 void resetCin();
 void intArrayFisherYatesShuffle(std::vector<int>& intArray);
-
-enum class BallType
-{
-	unknown,
-	solid,
-	striped,
-	eight,
-	cue
-};
+std::string_view getBallTypeName(Ball::BallSuitType type);
 
 // way to index audio samples from the
 // resource vector
@@ -36,18 +30,13 @@ enum class AudioSamples
 	total_samples
 };
 
-// this forward declaration is needed rather than an include
-// because Ball.h includes this file and will cause circular
-// dependencies, doing this will only bring the class
-class Ball;
-
 struct TurnInformation
 {
-	BallType firstHitBallType{};
-	std::vector<Ball*> pocketedBalls;
+	Ball::BallSuitType firstHitBallType{};
+	Ball::ballsPointer_type pocketedBalls;
 	bool startWithBallInHand{};
 	// nice and descriptive
-	bool isTargetBallsSelectedThisTurn{};
+	bool targetBallsSelectedThisTurn{};
 	bool didFoulNoRail{}; // No Rail rule
 };
 

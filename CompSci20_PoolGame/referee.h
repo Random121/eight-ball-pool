@@ -6,6 +6,6 @@
 // namespace for foul detection functions
 namespace referee
 {
-	bool isTurnValid(Player& turnPlayer, const TurnInformation& turn);
-	bool isGameFinished(const std::vector<Ball>& gameBalls);
+	bool isTurnValid(Players::PlayerType& turnPlayer, const TurnInformation& turn);
+	bool isGameFinished(const Ball::balls_type& gameBalls);
 }

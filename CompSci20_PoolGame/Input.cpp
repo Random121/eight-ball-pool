@@ -14,7 +14,6 @@ Input& Input::getInstance()
 	if (instance == nullptr)
 	{
 		instance = new Input();
-		instance->m_keyStates.resize(ALLEGRO_KEY_MAX);
 	}
 	return *instance;
 }
