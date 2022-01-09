@@ -20,15 +20,15 @@ public:
 
 	// way easier just to have it as public
 
-	double m_outlineStartX{};
-	double m_outlineStartY{};
-	double m_outlineEndX{};
-	double m_outlineEndY{};
+	double outlineStartX{};
+	double outlineStartY{};
+	double outlineEndX{};
+	double outlineEndY{};
 
-	double m_stickStartX{};
-	double m_stickStartY{};
-	double m_stickEndX{};
-	double m_stickEndY{};
+	double stickStartX{};
+	double stickStartY{};
+	double stickEndX{};
+	double stickEndY{};
 
 	bool canUpdate() const;
 	void setCanUpdate(bool canUpdate);

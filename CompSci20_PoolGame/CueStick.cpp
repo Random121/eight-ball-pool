@@ -33,15 +33,15 @@ void CueStick::updatePosition(const double xPos, const double yPos)
 	const double vectorShrinkFactor{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / (cueDistanceFromPosition * cueDistanceFromPosition)) };
 	const double vectorShrinkFactorWood{ std::sqrt((deltaX * deltaX + deltaY * deltaY) / ((cueDistanceFromPosition + 4) * (cueDistanceFromPosition + 4))) };
 
-	m_outlineStartX = xPos + (deltaX / vectorShrinkFactor);
-	m_outlineStartY = yPos + (deltaY / vectorShrinkFactor);
-	m_outlineEndX = xPos + (deltaX / mouseBallDistance) * cueStickLength;
-	m_outlineEndY = yPos + (deltaY / mouseBallDistance) * cueStickLength;
+	outlineStartX = xPos + (deltaX / vectorShrinkFactor);
+	outlineStartY = yPos + (deltaY / vectorShrinkFactor);
+	outlineEndX = xPos + (deltaX / mouseBallDistance) * cueStickLength;
+	outlineEndY = yPos + (deltaY / mouseBallDistance) * cueStickLength;
 
-	m_stickStartX = xPos + (deltaX / vectorShrinkFactorWood);
-	m_stickStartY = yPos + (deltaY / vectorShrinkFactorWood);
-	m_stickEndX = xPos + (deltaX / mouseBallDistance) * (cueStickLength - 2);
-	m_stickEndY = yPos + (deltaY / mouseBallDistance) * (cueStickLength - 2);
+	stickStartX = xPos + (deltaX / vectorShrinkFactorWood);
+	stickStartY = yPos + (deltaY / vectorShrinkFactorWood);
+	stickEndX = xPos + (deltaX / mouseBallDistance) * (cueStickLength - 2);
+	stickEndY = yPos + (deltaY / mouseBallDistance) * (cueStickLength - 2);
 }
 
 void CueStick::updateAll(const double xPos, const double yPos)

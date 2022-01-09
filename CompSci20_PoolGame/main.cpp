@@ -65,7 +65,7 @@ static void displayCredits()
 	std::cout << "Intuitive explanation on the maths for the collision.\n\n";
 
 	std::cout << "[Blog (https://lajbert.github.io/blog/fixed_timestep/#/)]\n";
-	std::cout << "Explanations on why use and how to implement fixed time updates.\n\n";
+	std::cout << "Explanations on the benefits of fixed time updates.\n\n";
 
 	std::cout << "[freesound.org]\n";
 	std::cout << "Sound effect samples for ball collisions and pocketing.\n\n";

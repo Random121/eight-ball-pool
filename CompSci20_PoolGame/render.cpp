@@ -78,19 +78,19 @@ namespace render
 		if (stick.isVisible())
 		{
 			al_draw_line(
-				stick.m_outlineStartX,
-				stick.m_outlineStartY,
-				stick.m_outlineEndX,
-				stick.m_outlineEndY,
+				stick.outlineStartX,
+				stick.outlineStartY,
+				stick.outlineEndX,
+				stick.outlineEndY,
 				al_map_rgb(0, 0, 0),
 				consts::cueStickThickness
 			);
 
 			al_draw_line(
-				stick.m_stickStartX,
-				stick.m_stickStartY,
-				stick.m_stickEndX,
-				stick.m_stickEndY,
+				stick.stickStartX,
+				stick.stickStartY,
+				stick.stickEndX,
+				stick.stickEndY,
 				al_map_rgb(164, 116, 73),
 				consts::cueStickWoodThickness
 			);
