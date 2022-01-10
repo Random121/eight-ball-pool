@@ -52,7 +52,7 @@ namespace consts
 		{955, 465}
 	} };
 
-	inline const array<array<int, 3>, 8> ballColorMap{ {
+	inline constexpr array<array<int, 3>, 8> ballColorMap{ {
 		{200, 200, 0}, // yellow
 		{10, 20, 214}, // blue
 		{247, 13, 26}, // light red
@@ -63,7 +63,7 @@ namespace consts
 		{0, 0, 0} // black
 	} };
 
-	inline const array<array<int, 2>, 16> rackBallPositions{ {
+	inline constexpr array<array<int, 2>, 16> rackBallPositions{ {
 		{250, 250},
 		{802, 212},
 		{857, 275},
