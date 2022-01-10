@@ -165,7 +165,7 @@ int main()
 #ifdef DISPLAY_FPS
 			frames++;
 			currentFrameTime = al_get_time();
-			if (currentFrameTime - prevFrameStart > 1)
+			if (currentFrameTime - prevFrameStart >= 1)
 			{
 				std::cout << "[FPS]: " << (frames / (currentFrameTime - prevFrameStart)) << '\n';
 				prevFrameStart = currentFrameTime;
