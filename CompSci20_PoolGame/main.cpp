@@ -96,6 +96,8 @@ int main()
 		}
 
 		allegro.stopTimer();
+
+		input.clearAllStates();
 		allegro.destroyFont();
 		allegro.destroyDisplay();
 

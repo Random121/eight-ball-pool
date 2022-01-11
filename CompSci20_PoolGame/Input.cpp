@@ -76,3 +76,9 @@ void Input::updateAllStates()
 	updateKeyState();
 	updateMouseState();
 }
+
+void Input::clearAllStates()
+{
+	m_mouseState = {};
+	m_keyStates.fill(0);
+}

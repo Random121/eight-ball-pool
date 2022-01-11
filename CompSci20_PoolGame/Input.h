@@ -23,16 +23,18 @@ public:
 	static Input& getInstance();
 
 	void updateAllStates();
+	void clearAllStates();
 
 	bool isKeyDown(int keyCode);
 	void keyUpHook(int keyCode);
 	void keyDownHook(int keyCode);
 	void updateKeyState();
 
-	void updateMouseState();
 	ALLEGRO_MOUSE_STATE& getMouseState();
+	void updateMouseState();
+
 	bool isMouseButtonDown(int button);
+	Vector2 getMouseVector();
 	int getMouseX();
 	int getMouseY();
-	Vector2 getMouseVector();
 };
