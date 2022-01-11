@@ -90,7 +90,10 @@ GameLogic::GameLogic(AllegroHandler& allegro, const std::string& playerName1, co
 	m_gamePlayers.getPlayer(0).name = playerName1;
 	m_gamePlayers.getPlayer(1).name = playerName2;
 
-	m_gamePlayers.setPlayerIndex(getRandomInteger(0, 1));
+	// slightly more distributed random
+	m_gamePlayers.setPlayerIndex(
+		(getRandomInteger(0, 10) >= 5) ? 0 : 1
+	);
 
 	std::cout << "[Breaker]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n\n";
 }
