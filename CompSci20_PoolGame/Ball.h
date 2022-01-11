@@ -71,7 +71,10 @@ public:
 	void setBallNumber(int number);
 	int getBallNumber() const;
 
+	// check if the ball is a normal suit ball (solid or striped)
+	bool isSuitBall() const;
 	BallSuitType getBallType() const;
+
 	bool isMoving() const;
 	void applyFriction(const double friction, const double stopVelocity);
 

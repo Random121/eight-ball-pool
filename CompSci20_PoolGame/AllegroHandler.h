@@ -35,6 +35,8 @@ public:
 	ALLEGRO_EVENT_QUEUE*& getEventQueue();
 	ALLEGRO_EVENT& getEvent();
 
+	void createDisplay();
+
 	bool destroyTimer();
 	bool destroyDisplay();
 	bool destroyFont();
@@ -43,5 +45,6 @@ public:
 	ALLEGRO_SAMPLE* const& getAudioSample(AudioSamples sample) const;
 
 	void startTimer();
+	void stopTimer();
 	bool isEventQueueEmpty();
 };

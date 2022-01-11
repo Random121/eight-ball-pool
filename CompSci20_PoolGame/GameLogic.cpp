@@ -95,7 +95,7 @@ GameLogic::GameLogic(AllegroHandler& allegro, const std::string& playerName1, co
 	std::cout << "[Breaker]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n\n";
 }
 
-void GameLogic::frameUpdate(bool& gameRunning)
+bool GameLogic::frameUpdate()
 {
 	if (m_activeTurn.startWithBallInHand)
 	{
@@ -140,7 +140,8 @@ void GameLogic::frameUpdate(bool& gameRunning)
 		{
 			if (endTurn())
 			{
-				gameRunning = false;
+				// game finished
+				return true;
 			}
 		}
 	}
@@ -149,6 +150,8 @@ void GameLogic::frameUpdate(bool& gameRunning)
 	{
 		updateRender();
 	}
+
+	return false;
 }
 
 // when running physics calculations we use a fixed delta time update,
@@ -168,6 +171,7 @@ void GameLogic::updatePhysics()
 	frameTime = currentTime - previousTime;
 	previousTime = currentTime;
 
+	// limit max frame time
 	if (frameTime > 0.25)
 		frameTime = 0.25;
 
@@ -218,26 +222,24 @@ bool GameLogic::endTurn()
 	const bool didFoul{ !referee::isTurnValid(m_gamePlayers.getCurrentPlayer(), m_activeTurn) };
 
 	std::cout << "[Turn Over]: Player (" << m_gamePlayers.getCurrentPlayer().name << ")\n";
+	std::cout << "Pocketed Balls: ";
 	//std::cout << "First Hit Ball Type: " << getBallTypeName(m_activeTurn.firstHitBallType) << '\n';
 	//std::cout << "Player Target Ball Type: " << getBallTypeName(m_gamePlayers.getCurrentPlayer().targetBallType) << '\n';
-	std::cout << "Pocketed Balls: ";
 
 	// print pocketed balls
 	if (hasPocketedBall)
 	{
 		std::cout << '\n';
-
 		for (Ball* ball : m_activeTurn.pocketedBalls)
 		{
 			std::cout << "- " << ball->getBallNumber() << " (" << getBallTypeName(ball->getBallType()) << ")\n";
 		}
-
-		std::cout << '\n';
 	}
 	else
 	{
-		std::cout << "None\n\n";
+		std::cout << "None\n";
 	}
+	std::cout << '\n';
 
 	// check and handle game overs
 	if (referee::isGameFinished(m_gameBalls))

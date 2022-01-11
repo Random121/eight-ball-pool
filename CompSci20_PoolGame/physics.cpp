@@ -22,13 +22,43 @@
 	continuously swap positions in place.
 
 	TLDR; just don't optimize this section.
-
-	I spent like 2 days debugging this mess...
 */
 
 namespace physics
 {
-	void resolveCircleCollisionPosition(Ball& ball1, Ball& ball2)
+	bool isCircleCollidingWithBoundaryTop(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getY() - ball.getRadius()) < boundary.yPos1;
+	}
+
+	bool isCircleCollidingWithBoundaryBottom(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getY() + ball.getRadius()) > boundary.yPos2;
+	}
+
+	bool isCircleCollidingWithBoundaryLeft(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getX() - ball.getRadius()) < boundary.xPos1;
+	}
+
+	bool isCircleCollidingWithBoundaryRight(const Ball& ball, const Rectangle& boundary)
+	{
+		return (ball.getX() + ball.getRadius()) > boundary.xPos2;
+	}
+
+	bool areBallsMoving(const Ball::balls_type& gameBalls)
+	{
+		for (const Ball& ball : gameBalls)
+		{
+			if (ball.isVisible() && ball.isMoving())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static void resolveCircleCollisionPosition(Ball& ball1, Ball& ball2)
 	{
 		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 
@@ -57,7 +87,7 @@ namespace physics
 #endif // DEBUG
 	}
 
-	void resolveCircleCollisionVelocity(Ball& ball1, Ball& ball2)
+	static void resolveCircleCollisionVelocity(Ball& ball1, Ball& ball2)
 	{
 		const Vector2 deltaPosition{ ball1.getPositionVector().copyAndSubtract(ball2.getPositionVector()) };
 		const Vector2 deltaVelocity{ ball1.getVelocityVector().copyAndSubtract(ball2.getVelocityVector()) };
@@ -87,28 +117,9 @@ namespace physics
 #endif // DEBUG
 	}
 
-	bool isCircleCollidingWithBoundaryTop(const Ball& ball, const Rectangle& boundary)
+	static bool resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary)
 	{
-		return (ball.getY() - ball.getRadius()) < boundary.yPos1;
-	}
-
-	bool isCircleCollidingWithBoundaryBottom(const Ball& ball, const Rectangle& boundary)
-	{
-		return (ball.getY() + ball.getRadius()) > boundary.yPos2;
-	}
-
-	bool isCircleCollidingWithBoundaryLeft(const Ball& ball, const Rectangle& boundary)
-	{
-		return (ball.getX() - ball.getRadius()) < boundary.xPos1;
-	}
-
-	bool isCircleCollidingWithBoundaryRight(const Ball& ball, const Rectangle& boundary)
-	{
-		return (ball.getX() + ball.getRadius()) > boundary.xPos2;
-	}
-
-	void resolveCircleBoundaryCollision(Ball& ball, const Rectangle& boundary, bool& didCollide)
-	{
+		bool didCollide{};
 		double xPositionAdjustment{};
 		double yPositionAdjustment{};
 
@@ -145,43 +156,94 @@ namespace physics
 			ball.setVelocity(ball.getVX(), -ball.getVY() * consts::collisionFriction);
 			didCollide = true;
 		}
+
+		return didCollide;
 	}
 
-	// returns true if a collision has happend
-	//bool resolveCircleCollisions(Ball& ball, Ball::balls_type& toBeChecked)
-	//{
-	//	bool hasCollided{};
-	//	for (Ball& checkTarget : toBeChecked)
-	//	{
-	//		if (ball.isOverlappingBall(checkTarget))
-	//		{
-	//			resolveCircleCollisionPosition(ball, checkTarget);
-	//			resolveCircleCollisionVelocity(ball, checkTarget);
-	//			hasCollided = true;
-	//		}
-	//	}
-	//	return hasCollided;
-	//}
-
-	bool areBallsMoving(const Ball::balls_type& gameBalls)
+	static void playBallCollisionSound(const AllegroHandler& allegro, const Ball& ball1, const Ball& ball2)
 	{
-		for (const Ball& ball : gameBalls)
+		double volume{ (ball1.getVelocityVector().getLength() + ball2.getVelocityVector().getLength()) / 50 };
+
+		// sound is too quiet to play
+		if (volume < 0.005)
+			return;
+
+		// limit max volume
+		if (volume > 1.0)
+			volume = 1.0;
+
+#ifdef DEBUG
+		std::cout << "[SOUND LOUDNESS]: " << collisionLoudness << '\n';
+#endif // DEBUG
+
+		al_play_sample(
+			allegro.getAudioSample(AudioSamples::ball_clack), // sound sample
+			0.75 * volume, // volume
+			0, // balance
+			1, // playback speed
+			ALLEGRO_PLAYMODE_ONCE,
+			nullptr
+		);
+	}
+
+	static Ball::BallSuitType getOppositeSuit(const Ball& ball)
+	{
+		return (ball.getBallType() == Ball::BallSuitType::solid)
+			? Ball::BallSuitType::striped
+			: Ball::BallSuitType::solid;
+	}
+
+	static void handlePocketing(Ball& ball, Players& gamePlayers, TurnInformation& currentTurn, const AllegroHandler& allegro)
+	{
+		if (!ball.isInPocket())
+			return;
+
+		// stop ball and mark it as inactive
+		ball.setVelocity(0, 0);
+		ball.setVisible(false);
+
+		// update turn informations
+		currentTurn.pocketedBalls.push_back(&ball);
+		currentTurn.didNoRailFoul = false;
+
+		// check if this is the first pocketed ball
+		// if it is, we set the target suit of players
+		if (gamePlayers.getCurrentPlayer().targetBallType == Ball::BallSuitType::unknown)
 		{
-			if (ball.isVisible() && ball.isMoving())
+			if (ball.isSuitBall())
 			{
-				return true;
+				gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
+				gamePlayers.getNextPlayer().targetBallType = getOppositeSuit(ball);
+				currentTurn.targetBallsSelectedThisTurn = true;
 			}
 		}
-		return false;
+
+		// play pocketing sound
+		al_play_sample(
+			allegro.getAudioSample(AudioSamples::ball_pocket), // sound sample
+			0.75, // volume
+			0, // balance
+			1, // playback speed
+			ALLEGRO_PLAYMODE_ONCE,
+			nullptr
+		);
 	}
 
-	// velocity is split into steps as balls can
-	// travel too fast and skip collision checks
-	void stepPhysics(Ball::balls_type& gameBalls, Players& gamePlayers, TurnInformation& turn, const AllegroHandler& allegro)
+	static bool resolveCircleCollision()
+	{
+	}
+
+	// in this function we calculate:
+	// - ball movement
+	// - ball friction
+	// - ball to ball collisions
+	// - ball to boundary collisions
+	void stepPhysics(Ball::balls_type& gameBalls, Players& gamePlayers, TurnInformation& currentTurn, const AllegroHandler& allegro)
 	{
 		for (Ball& ball : gameBalls)
 		{
-			if (!ball.isVisible()) // skip if not visible
+			// skip inactive balls
+			if (!ball.isVisible())
 				continue;
 
 			const double velocitySum{ std::abs(ball.getVX()) + std::abs(ball.getVY()) };
@@ -189,6 +251,7 @@ namespace physics
 
 			if (stepsNeeded > 0.0)
 			{
+				bool hasCollided{};
 				const double stepSizeX{ ball.getVX() / stepsNeeded };
 				const double stepSizeY{ ball.getVY() / stepsNeeded };
 
@@ -198,7 +261,6 @@ namespace physics
 					<< ball.getX() << ", " << ball.getY() << '\n';
 #endif // DEBUG
 
-				bool hasCollided{};
 				while (stepsNeeded > 0.0 && !hasCollided)
 				{
 					ball.addPosition(stepSizeX, stepSizeY);
@@ -208,78 +270,33 @@ namespace physics
 					{
 						if (ball.isOverlappingBall(checkTarget))
 						{
-							// calculates loudness of sound depending
-							// on the total collision speed
-							double collisionLoudness{
-								(ball.getVelocityVector().getLength() + checkTarget.getVelocityVector().getLength()) / 50
-							};
-
-							// limit volume so it doesn't destroy the user's ears
-							if (collisionLoudness > 1.0)
-								collisionLoudness = 1.0;
-
-#ifdef DEBUG
-							std::cout << "[SOUND LOUDNESS]: " << collisionLoudness << '\n';
-#endif // DEBUG
-
-							// if sound is really really quiet then
-							// we shouldn't spend resources playing it
-							if (collisionLoudness > 0.005)
-								al_play_sample(allegro.getAudioSample(AudioSamples::ball_clack), 0.75 * collisionLoudness, 0, 1, ALLEGRO_PLAYMODE_ONCE, nullptr);
+							playBallCollisionSound(allegro, ball, checkTarget);
 
 							resolveCircleCollisionPosition(ball, checkTarget);
 							resolveCircleCollisionVelocity(ball, checkTarget);
 
-							if (turn.firstHitBallType == Ball::BallSuitType::unknown)
+							if (currentTurn.firstHitBallType == Ball::BallSuitType::unknown)
 							{
 								// assume the first collision always is cue ball + random ball
-								turn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
-								turn.didFoulNoRail = true;
+								currentTurn.firstHitBallType = (ball.getBallNumber() == 0) ? checkTarget.getBallType() : ball.getBallType();
+								currentTurn.didNoRailFoul = true;
 							}
 
-							hasCollided = true; // if a collision occured, then stop moving using old velocity
+							// collision has occured, stop moving using old velocity
+							hasCollided = true;
 						}
 					}
 
 					--stepsNeeded;
 				}
 
-				// checks and logic for pocketing
-				if (ball.isInPocket())
-				{
-					// hide and reset ball
-					ball.setVisible(false);
-					ball.setVelocity(0, 0);
-
-					// update turn informations
-					turn.pocketedBalls.push_back(&ball);
-					turn.didFoulNoRail = false;
-
-					// check if this is the first pocketed ball, if it is then we
-					// set the target suits of each player
-					if (gamePlayers.getCurrentPlayer().targetBallType == Ball::BallSuitType::unknown)
-					{
-						if (ball.getBallType() == Ball::BallSuitType::solid || ball.getBallType() == Ball::BallSuitType::striped)
-						{
-							gamePlayers.getCurrentPlayer().targetBallType = ball.getBallType();
-							gamePlayers.getNextPlayer().targetBallType = (ball.getBallType() == Ball::BallSuitType::solid) ? Ball::BallSuitType::striped : Ball::BallSuitType::solid;
-							turn.targetBallsSelectedThisTurn = true;
-						}
-					}
-
-					// play pocket sound
-					al_play_sample(allegro.getAudioSample(AudioSamples::ball_pocket), 0.75, 0, 1, ALLEGRO_PLAYMODE_ONCE, nullptr);
-				}
+				handlePocketing(ball, gamePlayers, currentTurn, allegro);
 
 				ball.applyFriction(consts::rollingFriction, consts::stoppingVelocity);
 
-				bool didCollide{};
-
-				resolveCircleBoundaryCollision(ball, consts::playSurface, didCollide);
-
-				if (didCollide)
+				if (resolveCircleBoundaryCollision(ball, consts::playSurface))
 				{
-					turn.didFoulNoRail = false;
+					currentTurn.didNoRailFoul = false;
 				}
 			}
 		}

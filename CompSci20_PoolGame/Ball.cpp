@@ -198,6 +198,12 @@ Ball::BallSuitType Ball::getBallType() const
 		return Ball::BallSuitType::solid;
 }
 
+bool Ball::isSuitBall() const
+{
+	return getBallType() == Ball::BallSuitType::solid
+		|| getBallType() == Ball::BallSuitType::striped;
+}
+
 bool Ball::isMoving() const
 {
 	// dot product is way more efficient than calculating the square root

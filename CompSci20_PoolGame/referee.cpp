@@ -56,7 +56,7 @@ namespace referee
 
 	bool isTurnValid(Players::PlayerType& turnPlayer, const TurnInformation& turn)
 	{
-		return isValidFirstHit(turnPlayer, turn.firstHitBallType) && isPocketedBallsValid(turnPlayer, turn.pocketedBalls) && !turn.didFoulNoRail;
+		return isValidFirstHit(turnPlayer, turn.firstHitBallType) && isPocketedBallsValid(turnPlayer, turn.pocketedBalls) && !turn.didNoRailFoul;
 	}
 
 	bool isGameFinished(const Ball::balls_type& gameBalls)

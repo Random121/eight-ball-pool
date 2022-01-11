@@ -35,5 +35,5 @@ public:
 
 	void updatePhysics();
 	void updateRender();
-	void frameUpdate(bool& gameRunning);
+	bool frameUpdate();
 };

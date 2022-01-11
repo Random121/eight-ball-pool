@@ -43,6 +43,7 @@
     <ClInclude Include="CueStick.h" />
     <ClInclude Include="GameLogic.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="Players.h" />
     <ClInclude Include="referee.h" />

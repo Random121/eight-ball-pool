@@ -125,5 +125,8 @@
     <ClInclude Include="common.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

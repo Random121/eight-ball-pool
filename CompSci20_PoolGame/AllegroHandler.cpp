@@ -34,17 +34,12 @@ AllegroHandler::AllegroHandler()
 	// create crucial variables
 	m_timer = al_create_timer(consts::frameTime);
 	m_eventQueue = al_create_event_queue();
-	m_display = al_create_display(consts::screenWidth, consts::screenHeight);
-	m_font = al_create_builtin_font();
 
 	// check if the crucial variables are initialized
 	assertInitialized(m_timer, "Allegro timer");
 	assertInitialized(m_eventQueue, "Allegro event queue");
-	assertInitialized(m_display, "Allegro display");
-	assertInitialized(m_font, "Allegro builtin font");
 
 	// register event sources
-	al_register_event_source(m_eventQueue, al_get_display_event_source(m_display));
 	al_register_event_source(m_eventQueue, al_get_timer_event_source(m_timer));
 	al_register_event_source(m_eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(m_eventQueue, al_get_mouse_event_source());
@@ -140,6 +135,21 @@ ALLEGRO_SAMPLE* const& AllegroHandler::getAudioSample(AudioSamples sample) const
 	return m_loadedSoundSamples.at(static_cast<int>(sample));
 }
 
+void AllegroHandler::createDisplay()
+{
+	if (!m_display)
+	{
+		// font has to be created AFTER the display or else it breaks
+		m_display = al_create_display(consts::screenWidth, consts::screenHeight);
+		m_font = al_create_builtin_font();
+
+		assertInitialized(m_display, "Allegro display");
+		assertInitialized(m_font, "Allegro builtin font");
+
+		al_register_event_source(m_eventQueue, al_get_display_event_source(m_display));
+	}
+}
+
 bool AllegroHandler::destroyTimer()
 {
 	if (!m_timer)
@@ -155,7 +165,9 @@ bool AllegroHandler::destroyDisplay()
 	if (!m_display)
 		return false;
 
+	al_unregister_event_source(m_eventQueue, al_get_display_event_source(m_display));
 	al_destroy_display(m_display);
+
 	m_display = nullptr;
 	return true;
 }
@@ -183,6 +195,11 @@ bool AllegroHandler::destroyEventQueue()
 void AllegroHandler::startTimer()
 {
 	al_start_timer(m_timer);
+}
+
+void AllegroHandler::stopTimer()
+{
+	al_stop_timer(m_timer);
 }
 
 bool AllegroHandler::isEventQueueEmpty()
