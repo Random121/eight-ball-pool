@@ -5,16 +5,18 @@
 #include <array>
 #include <string_view>
 
-// as these all are compile time constants, we should
-// stop using std::vector as it is less efficient
+// as these variables are compile time,
+// we avoid std::vector as it is less efficient
 namespace consts
 {
 	using std::array;
 	using std::string_view;
 
+	// window size settings
 	inline constexpr int screenWidth{ 1000 };
 	inline constexpr int screenHeight{ 500 };
 
+	// pool table size settings
 	inline constexpr int playSurfaceX{ 40 };
 	inline constexpr int playSurfaceY{ 40 };
 
@@ -25,34 +27,17 @@ namespace consts
 		consts::screenHeight - consts::playSurfaceY
 	};
 
-	inline constexpr double frameTime{ 1.0 / 120.0 };
+	// update deltas
+	inline constexpr double frameTime{ 1.0 / 60.0 };
 	inline constexpr double physicsUpdateDelta{ 1.0 / 60.0 };
 
+	// default ball settings
 	inline constexpr int defaultBallRadius{ 15 };
 	inline constexpr int defaultBallMass{ 10 };
 	inline constexpr int ballBorderThickness{ 2 };
 
-	inline constexpr double collisionFriction{ 0.93 }; // smaller = more friction
-	inline constexpr double rollingFriction{ 0.011 }; // bigger = more friction
-	inline constexpr double stoppingVelocity{ 0.01 };
-
-	inline constexpr double cueStickDistanceFromBall{ 17.0 };
-	inline constexpr double cueStickLength{ 400.0 };
-	inline constexpr double cueStickThickness{ 7 };
-	inline constexpr double cueStickWoodThickness{ cueStickThickness - 5 };
-
-	inline constexpr double pocketRadius{ 23 };
-
-	inline constexpr array<array<int, 2>, 6> pocketCoordinates{ {
-		{45, 45},
-		{500, 30},
-		{955, 45},
-		{45, 455},
-		{500, 470},
-		{955, 465}
-	} };
-
-	inline constexpr array<array<int, 3>, 8> ballColorMap{ {
+	inline constexpr array<array<int, 3>, 8> ballColorMap
+	{ {
 		{200, 200, 0}, // yellow
 		{10, 20, 214}, // blue
 		{247, 13, 26}, // light red
@@ -63,7 +48,8 @@ namespace consts
 		{0, 0, 0} // black
 	} };
 
-	inline constexpr array<array<int, 2>, 16> rackBallPositions{ {
+	inline constexpr array<array<int, 2>, 16> rackBallPositions
+	{ {
 		{250, 250},
 		{802, 212},
 		{857, 275},
@@ -82,7 +68,37 @@ namespace consts
 		{802, 275}
 	} };
 
-	inline constexpr array<string_view, 2> audioFilePaths{
+	// friction physics settings
+	inline constexpr double collisionFriction{ 0.9 }; // smaller = more friction
+	inline constexpr double rollingFriction{ 0.011 }; // bigger = more friction
+	inline constexpr double stoppingVelocity{ 0.01 };
+
+	// cue stick power settings
+	inline constexpr int cueStickMinPower{ 0 };
+	inline constexpr int cueStickMaxPower{ 65 };
+
+	// cue stick render settings
+	inline constexpr double cueStickDistanceFromBall{ 17.0 };
+	inline constexpr double cueStickLength{ 400.0 };
+	inline constexpr double cueStickThickness{ 7 };
+	inline constexpr double cueStickWoodThickness{ cueStickThickness - 5 };
+
+	// pocket settings
+	inline constexpr double pocketRadius{ 23 };
+
+	inline constexpr array<array<int, 2>, 6> pocketCoordinates
+	{ {
+		{45, 45},
+		{500, 30},
+		{955, 45},
+		{45, 455},
+		{500, 470},
+		{955, 465}
+	} };
+
+	// paths to game resources
+	inline constexpr array<string_view, 2> audioFilePaths
+	{
 		"resources/ball_clack_short.wav",
 		"resources/ball_pocket_short.wav"
 	};

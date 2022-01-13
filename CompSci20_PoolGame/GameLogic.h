@@ -35,5 +35,7 @@ public:
 
 	void updatePhysics();
 	void updateRender();
+
+	// returns true once the game has ended
 	bool frameUpdate();
 };

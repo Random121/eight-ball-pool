@@ -44,13 +44,15 @@ int main()
 			return EXIT_SUCCESS;
 		}
 
-		// setup game
+		// setup game window
 		allegro.createDisplay();
 		al_set_window_title(allegro.getDisplay(), "Totally Accurate Eight-Ball Simulator");
 
+		// setup game logic
 		GameLogic gameLogic{ allegro, playerName1, playerName2 };
 		gameRunning = true;
 
+		input.clearAllStates();
 		allegro.startTimer();
 
 		// game loop
@@ -63,12 +65,11 @@ int main()
 			{
 				input.updateAllStates();
 
-				// return true if game has ended
 				if (gameLogic.frameUpdate())
-					break;
+					break; // exit game
 
 				if (input.isKeyDown(ALLEGRO_KEY_ESCAPE))
-					break;
+					break; // exit game
 
 #ifdef DISPLAY_FPS
 				frames++;
@@ -78,9 +79,9 @@ int main()
 					std::cout << "[FPS]: " << (frames / (currentFrameTime - prevFrameStart)) << '\n';
 					prevFrameStart = currentFrameTime;
 					frames = 0;
-				}
-#endif // DISPLAY_FPS
 			}
+#endif // DISPLAY_FPS
+		}
 			else if (eventType == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				input.keyDownHook(allegro.getEvent().keyboard.keycode);
@@ -91,18 +92,16 @@ int main()
 			}
 			else if (eventType == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			{
-				break;
+				break; // exit game
 			}
-		}
+	}
 
 		allegro.stopTimer();
-
-		input.clearAllStates();
 		allegro.destroyFont();
 		allegro.destroyDisplay();
 
 		clearConsole();
-	}
+}
 
 	// this should never be run as the main menu should exit the program
 	return EXIT_FAILURE;

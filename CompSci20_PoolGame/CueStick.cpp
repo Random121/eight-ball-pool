@@ -11,11 +11,11 @@ CueStick::CueStick(bool canUpdate, bool visible)
 
 void CueStick::updatePower()
 {
-	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < 70)
+	if (m_input.isKeyDown(ALLEGRO_KEY_W) && m_cuePower < consts::cueStickMaxPower)
 	{
 		m_cuePower += 1;
 	}
-	else if (m_input.isKeyDown(ALLEGRO_KEY_S) && m_cuePower > 0)
+	else if (m_input.isKeyDown(ALLEGRO_KEY_S) && m_cuePower > consts::cueStickMinPower)
 	{
 		m_cuePower -= 1;
 	}

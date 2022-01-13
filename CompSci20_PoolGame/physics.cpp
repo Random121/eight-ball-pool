@@ -221,16 +221,12 @@ namespace physics
 		// play pocketing sound
 		al_play_sample(
 			allegro.getAudioSample(AudioSamples::ball_pocket), // sound sample
-			0.75, // volume
+			0.5, // volume
 			0, // balance
 			1, // playback speed
 			ALLEGRO_PLAYMODE_ONCE,
 			nullptr
 		);
-	}
-
-	static bool resolveCircleCollision()
-	{
 	}
 
 	// in this function we calculate:

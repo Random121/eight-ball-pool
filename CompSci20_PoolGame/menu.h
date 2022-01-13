@@ -72,6 +72,31 @@ namespace menu
 		pauseProgram("Press [ENTER] to go back to main menu...");
 	}
 
+	void displayHelp()
+	{
+		std::cout << "========\n";
+		std::cout << "= Help =\n";
+		std::cout << "========\n\n";
+
+		std::cout << "[Aiming the Cue Stick]\n";
+		std::cout << "Move your mouse to the position you want to cue ball to move towards.\n\n";
+
+		std::cout << "[Increasing Power]\n";
+		std::cout << "Press the \"w\" key on your keyboard to increase the power of your hit.\n\n";
+
+		std::cout << "[Decreasing Power]\n";
+		std::cout << "Press the \"s\" key on your keyboard to decrease the hit power.\n\n";
+
+		std::cout << "[Viewing Power]\n";
+		std::cout << "Your current power is visualized by the position of the cue stick.\n";
+		std::cout << "The farther away the cue stick is from the cue ball, the higher your power is.\n\n";
+
+		std::cout << "[Striking the Cue Ball]\n";
+		std::cout << "To strike the ball, click on your left mouse button.\n\n";
+
+		pauseProgram("Press [ENTER] to go back to main menu...");
+	}
+
 	bool initMenu(std::string& playerName1, std::string& playerName2)
 	{
 		bool menuActive{ true };
@@ -86,8 +111,9 @@ namespace menu
 			std::cout << "===Please select one of the options below===\n";
 			std::cout << "[1] Play Eight-Ball\n";
 			std::cout << "[2] Setup Player Names\n";
-			std::cout << "[3] Credits\n";
-			std::cout << "[4] Exit\n\n";
+			std::cout << "[3] How to Play\n";
+			std::cout << "[4] Credits\n";
+			std::cout << "[5] Exit\n\n";
 
 			std::cout << "Select Option: ";
 			std::cin >> userSelection;
@@ -106,9 +132,12 @@ namespace menu
 					setPlayerNames(playerName1, playerName2);
 					break;
 				case 3:
-					displayCredits();
+					displayHelp();
 					break;
 				case 4:
+					displayCredits();
+					break;
+				case 5:
 					return true;
 				}
 			}
