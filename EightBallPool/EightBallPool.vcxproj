@@ -54,8 +54,9 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{b065f5fb-0bfe-44f9-bed8-4cfdec5b4f62}</ProjectGuid>
-    <RootNamespace>CompSci20PoolGame</RootNamespace>
+    <RootNamespace>EightBallPool</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>EightBallPool</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
