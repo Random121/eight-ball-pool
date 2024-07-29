@@ -1,7 +1,6 @@
 # Eight Ball Pool
 
 A C++ implementation of eight-ball pool using the [Allegro](https://liballeg.org/) game library.  
-Originally developed as my CS20 final project.  
 
 ## Features
 - All standardized rules of play
